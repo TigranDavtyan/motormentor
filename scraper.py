@@ -19,6 +19,7 @@ class ListAmParser:
             if match:
                 return match.group(1)
             return match
+            
     class Item:
         dollar_price = r'<span>\$(\d{1,3}(,\d{3})*(\.\d+)?)'
         dram_price = r'<span>([\d,]+)\s*֏'
@@ -223,7 +224,7 @@ class Category:
             pagestr = ''
         else: pagestr = page
 
-        return self.url.format(id=self.id)
+        return self.url.format(id=self.id, page=pagestr)
 
 
     def getItemIds(self, limit=None):
@@ -314,8 +315,11 @@ class Category:
                     same += 1
                     continue
             except Exception as e:
-                logging.error(e)
-
+                if type(e) == KeyError:
+                    logger.debug(type(e).__name__+" – "+str(e))
+                else:
+                    logger.error(type(e).__name__+" – "+str(e))
+                    
             try:
                 page = ListAm.getItem(item['itemid'])
                 if page:
@@ -357,7 +361,7 @@ class Category:
             pickle.dump(self.items, f)
 
 class ForSale:
-    url = 'https://www.list.am/category/{id}'
+    url = 'https://www.list.am/en/category/{id}/{page}'
 
     properties = CarProperties
 

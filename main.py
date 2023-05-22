@@ -6,38 +6,35 @@ import os
 import platform
 
 from scraper import ForSale
+logger = logging.getLogger('listamscraper')
+logger.setLevel(logging.INFO)
+
+# create file handler
+fh = logging.FileHandler('listamscraper.log','a', 'utf-8')
+
+# create formatter
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+
+# add file handler to logger
+logger.addHandler(fh)
 
 def log_exceptions(exctype, value, traceback):
-    logger = logging.getLogger('listamscraper')
     logger.error(exctype, value, traceback)
     sys.__excepthook__(exctype, value, traceback)
 
 sys.excepthook = log_exceptions
 
 def botlog(log_message):
-    logger = logging.getLogger('listamscraper')
     logger.info(log_message)
 
 def run():
-    logger = logging.getLogger('listamscraper')
-    logger.setLevel(logging.INFO)
-
-    # create file handler
-    fh = logging.FileHandler('listamscraper.log','a', 'utf-8')
-
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-
-    # add file handler to logger
-    logger.addHandler(fh)
-
     botlog("START TO SCRAPE")
 
     logger.info('Getting item ids...')
 
     itemids_len = len(ForSale.Cars.itemids)
-    ForSale.Cars.getItemIds(limit=100)
+    ForSale.Cars.getItemIds()
     itemids_len = len(ForSale.Cars.itemids) - itemids_len
 
     logger.info(f'Found {itemids_len} listings')
