@@ -6,6 +6,9 @@ __pycache__/
 ForSale
 *.html
 .vscode
+chats
+*.pkl
+categorical.json
 
 # C extensions
 *.so
