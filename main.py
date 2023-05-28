@@ -38,12 +38,14 @@ def run():
     itemids_len = len(ForSale.Cars.itemids) - itemids_len
 
     logger.info(f'Found {itemids_len} listings')
-
+    
     logger.info('Getting items...')
     ForSale.Cars.getItems()
 
     logger.info('Saving data...')
     ForSale.Cars.save()
+    
+    import train_cars_model
     
     botlog("FINISHED SCRAPING")
     

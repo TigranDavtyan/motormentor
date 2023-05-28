@@ -79,7 +79,7 @@ async def cmd_start(message: Message):
     if cid == ADMIN_CHAT_ID:
         pass#TODO
     
-    await chat.send(P.start(cid), reply_markup=ReplyKeyboardRemove())
+    await chat.send(P.start(cid))
 
     if await checkForLink(message):
         logging.info(f"User {cid}:{message.from_user.full_name} used a link {message.text}")

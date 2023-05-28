@@ -175,6 +175,14 @@ class Car:
         self.wheel_size = car[17]
         self.price = car[18]
 
+    def save(self, cid):
+        db.query('''INSERT INTO car_price_results (cid,car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,
+                     transmission,drive_type,condition,gas_equipment,steering_wheel,headlights,interior_color,interior_material,sunroof,wheel_size,price)
+                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(cid,self.car_brand,self.model,self.year,self.mileage,self.exterior_color,
+                                                                           self.body_type,self.engine_type,
+                                                                           self.engine_size, self.transmission, self.drive_type,
+                                                                           self.condition,self.gas_equipment,self.steering_wheel,
+                                                                           self.headlights,self.interior_color,self.interior_material,self.sunroof,self.wheel_size,self.price))
     def calculatePrice(self):
         car = {}
         car['car_brand'] = self.car_brand
@@ -298,8 +306,50 @@ async def car_calculate(message: Message):
     price_dram = int(round(price * 385))
     price_rub = int(round(price * 79.7))
 
-    await chat.send(P.calculate_result(cid, price, price_dram, price_rub), temporary=True)
+    markup = Buttons()
+    markup.add(P.yes(cid), USER.CAR_PRICE.CALCULATE_GOOD, price)
+    markup.add(P.dont_know(cid), USER.CAR_PRICE.CALCULATE_DONT_KNOW)
+    markup.add(P.my_price(cid), USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
 
+    await chat.send(P.calculate_result(cid, price, price_dram, price_rub), markup, temporary=True)
+
+@setActionFor(USER.CAR_PRICE.CALCULATE_GOOD)
+async def car_calculate(message: Message, data):
+    cid, chat = message.chat.id,cm[message.chat.id]
+
+    user_car = Car(cid)
+    user_car.price = float(data)
+    user_car.save(cid)
+
+    await chat.edit(message.text,message_id=message.message_id)
+
+    await chat.send(P.thanks_for_opinion(cid), temporary=True)
+
+@setActionFor(USER.CAR_PRICE.CALCULATE_DONT_KNOW)
+async def car_calculate(message: Message):
+    cid, chat = message.chat.id,cm[message.chat.id]
+
+    await chat.edit(message.text,message_id=message.message_id)
+    await chat.send(P.thanks_for_opinion(cid), temporary=True)
+
+
+@setActionFor(USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
+async def car_calculate(message: Message):
+    cid, chat = message.chat.id,cm[message.chat.id]
+
+    back = Buttons(True)
+    await chat.setState(USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
+    await chat.send(P.my_price_offer(cid), back, temporary=True)
+
+@setActionFor(USER.CAR_PRICE.CALCULATE_OFFER_PRICE_HANDLE)
+async def car_calculate(message: Message):
+    cid, chat = message.chat.id,cm[message.chat.id]
+
+    user_car = Car(cid)
+    user_car.price = float(message.text)
+    user_car.save(cid)
+
+    await chat.send(P.thanks_for_opinion(cid), temporary=True)
 
 
 @setActionFor(USER.CAR_PRICE.BRAND)

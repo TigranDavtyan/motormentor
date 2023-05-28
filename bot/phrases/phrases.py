@@ -770,11 +770,12 @@ def calculate(cid : int, all : bool = False) -> str:
 
 def calculate_result(cid : int,price,price_dram,price_rub, all : bool = False) -> str:
     '''Car price is:
-------- [price] $
+------- [price] $ 💵
 ------- [price_dram] dram
 ------- [price_rub] rub
 
 *Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+Do you think this car is reasonably priced? You dont have to answer this but it will help build a better AI.
 '''
     phrases = ['''Մեքենայի գինը. 
 ------- [price] $
@@ -782,18 +783,21 @@ def calculate_result(cid : int,price,price_dram,price_rub, all : bool = False) -
 ------- [price_rub] ռուբլի
 
 *Դրամի և ռուբլու գները հաշվարկված են 385 և 79,7 փոխարժեքներով:
+Ի՞նչ եք կարծում, այս մեքենան խելամի՞տ է գնահատված: Պարտադիր չէ պատասխանեք այս հարցին, բայց դա կօգնի ավելի խելացի արհեստական ինտելեկտ կառուցել:
 ''', '''Цена автомобиля:
 ------- [price] $
 ------- [price_dram] драм
 ------- [price_rub] руб
 
 *Цены в драмах и рублях рассчитаны по курсам 385 и 79,7.
+Считаете ли вы, что этот автомобиль имеет разумную цену? Вам не обязательно отвечать на этот вопрос, но это поможет создать более умный ИИ.
 ''', '''Car price is:
-------- [price] $
+------- [price] $ 💵
 ------- [price_dram] dram
 ------- [price_rub] rub
 
 *Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+Do you think this car is reasonably priced? You dont have to answer this but it will help build a better AI.
 ''']
     if all:
         return phrases
@@ -802,6 +806,50 @@ def calculate_result(cid : int,price,price_dram,price_rub, all : bool = False) -
     else: 
         lang = cid
     return phrases[lang].replace("[price]",str(price)).replace("[price_dram]",str(price_dram)).replace("[price_rub]",str(price_rub))
+
+def dont_know(cid : int, all : bool = False) -> str:
+    '''I don't know'''
+    phrases = ['''Չգիտեմ''', '''Я не знаю''', '''I don't know''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def my_price(cid : int, all : bool = False) -> str:
+    '''Offer my price'''
+    phrases = ['''Առաջարկել իմ գինը''', '''Предложи мою цену''', '''Offer my price''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def my_price_offer(cid : int, all : bool = False) -> str:
+    '''What do you think this car costs? Write your answer like this "18000" '''
+    phrases = ['''Ի՞նչ եք կարծում, ինչ արժե այս մեքենան: Գրեք ձեր պատասխանը այսպես «18000»''', '''Как вы думаете, сколько стоит эта машина? Напишите свой ответ так: "18000"''', '''What do you think this car costs? Write your answer like this "18000" ''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def thanks_for_opinion(cid : int, all : bool = False) -> str:
+    '''Thank you for your opinion 👌'''
+    phrases = ['''Շնորհակալություն կարծիքի համար 👌''', '''Спасибо за ваше мнение 👌''', '''Thank you for your opinion 👌''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
 
 def car_price_info(cid : int, all : bool = False) -> str:
     '''Choose car parameters and press calculate to get the price.
@@ -841,8 +889,8 @@ def choose_car_model(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def choose_car_year(cid : int, all : bool = False) -> str:
-    '''Please enter the manufacturing year of your car, for example "2018".'''
-    phrases = ['''Խնդրում ենք մուտքագրել ձեր մեքենայի արտադրության տարեթիվը, օրինակ՝ «2018»:''', '''Пожалуйста, введите год выпуска вашего автомобиля, например "2018".''', '''Please enter the manufacturing year of your car, for example "2018".''']
+    '''⚠️Please enter the manufacturing year of your car, for example "2018".'''
+    phrases = ['''⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի արտադրության տարեթիվը, օրինակ՝ «2018»:''', '''⚠️Пожалуйста, введите год выпуска вашего автомобиля, например "2018".''', '''⚠️Please enter the manufacturing year of your car, for example "2018".''']
     if all:
         return phrases
     if cid > 10:
@@ -852,8 +900,8 @@ def choose_car_year(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def choose_car_mileage(cid : int, all : bool = False) -> str:
-    '''Please enter the mileage of your car, for example "68000".'''
-    phrases = ['''Խնդրում ենք մուտքագրել ձեր մեքենայի վազքը, օրինակ՝ «68000»:''', '''Пожалуйста, введите пробег вашего автомобиля, например "68000".''', '''Please enter the mileage of your car, for example "68000".''']
+    '''⚠️Please enter the mileage of your car, for example "68000".'''
+    phrases = ['''⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի վազքը, օրինակ՝ «68000»:''', '''⚠️Пожалуйста, введите пробег вашего автомобиля, например "68000".''', '''⚠️Please enter the mileage of your car, for example "68000".''']
     if all:
         return phrases
     if cid > 10:
@@ -863,8 +911,8 @@ def choose_car_mileage(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def choose_car_engine_size(cid : int, all : bool = False) -> str:
-    '''Please enter the engine size of your car, for example "2.5".'''
-    phrases = ['''Խնդրում ենք մուտքագրել ձեր մեքենայի շարժիչի չափը, օրինակ՝ «2.5»:''', '''Пожалуйста, введите объем двигателя вашего автомобиля, например "2,5".''', '''Please enter the engine size of your car, for example "2.5".''']
+    '''⚠️Please enter the engine size of your car, for example "2.5".'''
+    phrases = ['''⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի շարժիչի չափը, օրինակ՝ «2.5»:''', '''⚠️Пожалуйста, введите объем двигателя вашего автомобиля, например "2,5".''', '''⚠️Please enter the engine size of your car, for example "2.5".''']
     if all:
         return phrases
     if cid > 10:
@@ -1006,8 +1054,8 @@ def choose_car_sunroof(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def choose_car_wheel_size(cid : int, all : bool = False) -> str:
-    '''Please enter the wheel size of your car, for example "16".'''
-    phrases = ['''Խնդրում ենք մուտքագրել ձեր մեքենայի անիվի չափը, օրինակ՝ «16»:''', '''Пожалуйста, введите размер колес вашего автомобиля, например "16".''', '''Please enter the wheel size of your car, for example "16".''']
+    '''⚠️Please enter the wheel size of your car, for example "16".'''
+    phrases = ['''⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի անիվի չափը, օրինակ՝ «16»:''', '''⚠️Пожалуйста, введите размер колес вашего автомобиля, например "16".''', '''⚠️Please enter the wheel size of your car, for example "16".''']
     if all:
         return phrases
     if cid > 10:

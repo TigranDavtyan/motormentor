@@ -129,10 +129,11 @@ class ListAmParser:
             #     pass
 
             properties['closed_item'] = 0
-
+            
             for key, value in properties.items():
                 properties[key] = CarProperties.get(key,value)
 
+            
             return properties
         
 

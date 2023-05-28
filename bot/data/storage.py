@@ -35,7 +35,11 @@ class DatabaseManager(object):
         self.query('UPDATE users SET preferred_language=? WHERE cid=?;',(lang,cid))
 
     def getUserName(self, cid):
-        return self.fetchone('SELECT name FROM users WHERE cid=?',(cid,))[0]
+        name = self.fetchone('SELECT name FROM users WHERE cid=?',(cid,))
+        if name:
+            return name[0]
+        else:
+            return 'Anon'
     
     def getUserSubscription(self, cid):
         return self.fetchone('SELECT subscription FROM users WHERE cid=?',(cid,))[0]
@@ -78,6 +82,11 @@ class DatabaseManager(object):
         drive_type TEXT,condition TEXT,gas_equipment TEXT,steering_wheel TEXT,headlights TEXT,interior_color TEXT,interior_material TEXT,
         sunroof TEXT, wheel_size REAL, price REAL)''')
         
+        self.query('''CREATE TABLE IF NOT EXISTS car_price_results (cid INTEGER, car_brand TEXT, model TEXT,
+        year INTEGER, mileage REAL, exterior_color TEXT, body_type TEXT, engine_type TEXT, engine_size REAL,transmission TEXT,
+        drive_type TEXT,condition TEXT,gas_equipment TEXT,steering_wheel TEXT,headlights TEXT,interior_color TEXT,interior_material TEXT,
+        sunroof TEXT, wheel_size REAL, price REAL)''')
+
         self.query('CREATE TABLE IF NOT EXISTS files (filename TEXT PRIMARY KEY, fileid INTEGER)')
 
     def query(self, arg, values=None):

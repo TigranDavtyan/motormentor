@@ -80,6 +80,11 @@ class USER:
         WHEEL_SIZE_HANDLE = State(282)#
 
         CALCULATE_PRICE = State(290)
+        CALCULATE_GOOD = State(292)
+        CALCULATE_DONT_KNOW = State(294)
+        CALCULATE_OFFER_PRICE = State(296, 298)
+        CALCULATE_OFFER_PRICE_HANDLE = State(298)
+        
     class SUBSCRIPTION:
         INFO = State(900)
         pass
