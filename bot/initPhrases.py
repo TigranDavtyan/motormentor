@@ -184,13 +184,38 @@ insertPhrase('wheel_size', 'R[wheel_size]', 'R[wheel_size]', 'R[wheel_size]')
 
 
 insertPhrase('calculate', 'Հաշվել', 'Рассчитать', 'Calculate')
-insertPhrase('calculate_result', 'Մեքենայի գինը [price] $ է', 'Цена автомобиля [price] $', 'Car price is [price] $')
+insertPhrase('calculate_result', 
+'''Մեքենայի գինը. 
+------- [price] $
+------- [price_dram] դրամ
+------- [price_rub] ռուբլի
+
+*Դրամի և ռուբլու գները հաշվարկված են 385 և 79,7 փոխարժեքներով:
+''', 
+'''Цена автомобиля:
+------- [price] $
+------- [price_dram] драм
+------- [price_rub] руб
+
+*Цены в драмах и рублях рассчитаны по курсам 385 и 79,7.
+''',
+
+'''Car price is:
+------- [price] $
+------- [price_dram] dram
+------- [price_rub] rub
+
+*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+''')
 
 
 insertPhrase('car_price_info', 
-             'Ընտրեք մեքենայի պարամետրերը և սեղմեք հաշվարկել՝ գինը ստանալու համար', 
-             'Выберите параметры автомобиля и нажмите рассчитать, чтобы узнать цену', 
-             'Choose car parameters and press calculate to get the price')
+'''Ընտրեք մեքենայի պարամետրերը և սեղմեք հաշվարկել՝ գինը ստանալու համար:
+⚠️Արհեստական ինտելեկտը հաշվարկում է այս կոնկրետ մեքենայի ՄԻՋԻՆ ՇՈՒԿԱՅԱԿԱՆ ԱՐԺԵՔԸ հայաստանում, գնելիս կամ վաճառելիս մի հիմնեք ձեր որոշումները միայն այս արդյունքների վրա:''',
+'''Выберите параметры автомобиля и нажмите рассчитать, чтобы узнать цену․
+⚠️ИИ рассчитывает СРЕДНЮЮ РЫНОЧНУЮ СТОИМОСТЬ для данного конкретного автомобиля в Армении, не основывайте свои решения только на этих результатах при покупке или продаже.''',
+'''Choose car parameters and press calculate to get the price.
+⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in Armenia, dont base your decisions only on this results when buying or selling.''')
 
 
 

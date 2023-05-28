@@ -9,6 +9,7 @@ ForSale
 chats
 *.pkl
 categorical.json
+*.db
 
 # C extensions
 *.so

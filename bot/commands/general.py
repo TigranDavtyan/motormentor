@@ -129,5 +129,5 @@ async def choose_language(message: Message, lang):
     db.setUserLang(cid,lang)
     await chat.edit(P.language_set(cid))
 
-    await State.get(USER.MAIN_MENU)(message)
+    await State.get(USER.CAR_PRICE.INFO)(message)
 

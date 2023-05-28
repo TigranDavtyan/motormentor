@@ -18,15 +18,15 @@ import pandas as pd
 class Model:
     file = None
     mtime = None
-    filename = '../categorical.json'
+    filename = '../trained_model/categorical.json'
 
     model = None
     mmodel = None
-    model_filename = '../xgb_model.pkl'
+    model_filename = '../trained_model/xgb_model.pkl'
 
     encoder = None
     mencoder = None
-    encoder_filename = '../encoder.pkl'
+    encoder_filename = '../trained_model/encoder.pkl'
 
     def __init__(self):
         if not Model.file:
@@ -269,7 +269,7 @@ async def menu_car_price(message: Message, data = None):
     
     user_car = Car(cid)
     lang = db.getUserLang(cid)
-
+    markup.add(P.language_change(cid), GENERAL.LANGUAGE.CHOOSE)
     markup.row([[user_car.getBrand(),USER.CAR_PRICE.BRAND],[user_car.getModel(),USER.CAR_PRICE.MODEL]])
     markup.row([[P.year(cid, user_car.year), USER.CAR_PRICE.YEAR],[P.mileage(cid, int(user_car.mileage)), USER.CAR_PRICE.MILEAGE]])
 
@@ -294,10 +294,11 @@ async def car_calculate(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     user_car = Car(cid)
-    price = user_car.calculatePrice()
+    price = int(round(user_car.calculatePrice()))
+    price_dram = int(round(price * 385))
+    price_rub = int(round(price * 79.7))
 
-    # await chat.setState(USER.CAR_PRICE.CALCULATE_PRICE)
-    await chat.send(P.calculate_result(cid, price), temporary=True)
+    await chat.send(P.calculate_result(cid, price, price_dram, price_rub), temporary=True)
 
 
 

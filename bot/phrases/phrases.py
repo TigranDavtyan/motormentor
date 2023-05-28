@@ -768,20 +768,48 @@ def calculate(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
-def calculate_result(cid : int,price, all : bool = False) -> str:
-    '''Car price is [price] $'''
-    phrases = ['''Մեքենայի գինը [price] $ է''', '''Цена автомобиля [price] $''', '''Car price is [price] $''']
+def calculate_result(cid : int,price,price_dram,price_rub, all : bool = False) -> str:
+    '''Car price is:
+------- [price] $
+------- [price_dram] dram
+------- [price_rub] rub
+
+*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+'''
+    phrases = ['''Մեքենայի գինը. 
+------- [price] $
+------- [price_dram] դրամ
+------- [price_rub] ռուբլի
+
+*Դրամի և ռուբլու գները հաշվարկված են 385 և 79,7 փոխարժեքներով:
+''', '''Цена автомобиля:
+------- [price] $
+------- [price_dram] драм
+------- [price_rub] руб
+
+*Цены в драмах и рублях рассчитаны по курсам 385 и 79,7.
+''', '''Car price is:
+------- [price] $
+------- [price_dram] dram
+------- [price_rub] rub
+
+*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+''']
     if all:
         return phrases
     if cid > 10:
         lang = db.getUserLang(cid)
     else: 
         lang = cid
-    return phrases[lang].replace("[price]",str(price))
+    return phrases[lang].replace("[price]",str(price)).replace("[price_dram]",str(price_dram)).replace("[price_rub]",str(price_rub))
 
 def car_price_info(cid : int, all : bool = False) -> str:
-    '''Choose car parameters and press calculate to get the price'''
-    phrases = ['''Ընտրեք մեքենայի պարամետրերը և սեղմեք հաշվարկել՝ գինը ստանալու համար''', '''Выберите параметры автомобиля и нажмите рассчитать, чтобы узнать цену''', '''Choose car parameters and press calculate to get the price''']
+    '''Choose car parameters and press calculate to get the price.
+⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in Armenia, dont base your decisions only on this results when buying or selling.'''
+    phrases = ['''Ընտրեք մեքենայի պարամետրերը և սեղմեք հաշվարկել՝ գինը ստանալու համար:
+⚠️Արհեստական ինտելեկտը հաշվարկում է այս կոնկրետ մեքենայի ՄԻՋԻՆ ՇՈՒԿԱՅԱԿԱՆ ԱՐԺԵՔԸ հայաստանում, գնելիս կամ վաճառելիս մի հիմնեք ձեր որոշումները միայն այս արդյունքների վրա:''', '''Выберите параметры автомобиля и нажмите рассчитать, чтобы узнать цену․
+⚠️ИИ рассчитывает СРЕДНЮЮ РЫНОЧНУЮ СТОИМОСТЬ для данного конкретного автомобиля в Армении, не основывайте свои решения только на этих результатах при покупке или продаже.''', '''Choose car parameters and press calculate to get the price.
+⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in Armenia, dont base your decisions only on this results when buying or selling.''']
     if all:
         return phrases
     if cid > 10:

@@ -288,7 +288,7 @@ class Category:
                 closed += 1
         ###
 
-        percent_modulo = int(len(self.itemids)/10)
+        percent_modulo = int(len(self.itemids)/100)
         for i,item in enumerate(self.itemids):
             if i % percent_modulo == 0:
                 logger.info(f'Processed {round(i/len(self.itemids)*100)}% of {len(self.itemids)} items. Same {same} |  Updated {updated} |  Error {error} | No price {no_price} | Closed {closed}')
@@ -327,6 +327,7 @@ class Category:
                     properties.update(item)
                     updated += 1
                 elif page == 404:
+                    closed += 1
                     self.items[itemid].append([datetime.now(), -1])
                     self.df.at[itemid, 'closed_item'] = 1
                     self.df.at[itemid, 'update_date'] = datetime.now().date()

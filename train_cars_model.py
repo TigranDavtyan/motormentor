@@ -68,7 +68,7 @@ data_encoded = pd.DataFrame(data_encoded, columns=onehot_encoder.get_feature_nam
 data_encoded = pd.concat([data[['itemid', 'year', 'engine_size', 'mileage', 'wheel_size','dollar_price']],data_encoded], axis=1)
 data_encoded.set_index('itemid', inplace=True)
 
-with open('encoder.pkl', 'wb') as file:
+with open('trained_model/encoder.pkl', 'wb') as file:
     pickle.dump(onehot_encoder, file)
 
 
@@ -149,7 +149,7 @@ data_encoded['score'] = data_encoded['dollar_price'] - pred
 
 logger.info('Saving model...')
 # Save the model to a file
-with open('xgb_model.pkl', 'wb') as file:
+with open('trained_model/xgb_model.pkl', 'wb') as file:
     pickle.dump(xgb_model, file)
 
 
@@ -172,7 +172,7 @@ for column in categorical_cols:
         unique_values[column] = sorted_values
 
 # Save the dictionary to a JSON file
-with open('categorical.json', 'w') as file:
+with open('trained_model/categorical.json', 'w') as file:
     json.dump(unique_values, file)
 
 logging.info('Finished model training!')
