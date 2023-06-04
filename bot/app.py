@@ -11,6 +11,8 @@ from commands import *
 from loader import *
 from tasks import Tasks
 from utils.logging import LoggingMiddleware
+from notifications import to_admin
+import ad_engine
 
 dp.middleware.setup(LoggingMiddleware())
 
@@ -53,10 +55,10 @@ def all_exception_handler(loop, context):
     tb = str(context['exception'])  + '\n' + "".join(traceback.format_tb(tb))
 
     logging.error(tb)
-    asyncio.create_task(bot.send_message(config.REPORT_CHANNEL_ID, text=text))
+    asyncio.create_task(bot.send_message(config.ADMIN_CHAT_ID, text=text))
 
 async def on_polling_startup(dp):
-    t = Tasks()
+    Tasks()
     root_logger= logging.getLogger()
     root_logger.setLevel(logging.INFO)
     handler = logging.FileHandler('botlog.log', 'a', 'utf-8')
@@ -68,6 +70,7 @@ async def on_polling_startup(dp):
 
 async def on_polling_shutdown(dp):
     logging.warning("Shutting down..")
+    to_admin.report()
     cm.save_all()
     logging.warning("Bot down")
 

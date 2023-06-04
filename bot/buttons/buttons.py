@@ -20,6 +20,9 @@ class Buttons:
     def add(self,text:str,action:str,data='-',btype = 'main'):
         self.markup.add(InlineKeyboardButton(text, callback_data=button_cb.new(type=btype, action=action, data=data)))
     
+    def addLink(self, text:str, action:str, link: str, data='-', btype = 'main'):
+        self.markup.add(InlineKeyboardButton(text, url=link, callback_data=button_cb.new(type=btype, action=action, data=data)))
+
     def row(self,buttons):
         '''[[text,action,data='-',type='main'],[text2,action2,data2='-',type='main']]'''
         mButtons = []

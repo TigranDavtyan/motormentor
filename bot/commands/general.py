@@ -1,8 +1,8 @@
 import asyncio
 import inspect
 
-import utils.utils as utils
-from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
+from utils import utils
+from aiogram.types import CallbackQuery, Message
 from buttons.buttons import *
 from config import ADMIN_CHAT_ID, DEFAULT_LANGUAGE
 from phrases import phrases as P
@@ -10,6 +10,7 @@ from loader import *
 from notifications import to_admin
 from states.states import ADMIN, GENERAL,USER, State
 from utils.logging import logging
+import ad_engine
 
 languages = {'arm': 0, 'ru' : 1, 'en' : 2}
 
@@ -68,23 +69,24 @@ async def message_handler_handler(message: Message):
 
 
 @setActionFor(GENERAL.START)
-async def cmd_start(message: Message):
+async def cmd_start_ad(message: Message):
     cid, chat = message.chat.id, cm[message.chat.id]
-    
+
     if not db.userExists(cid):
         lang = DEFAULT_LANGUAGE
         db.query('INSERT INTO users (cid, name, joining_date, state_id, preferred_language)  VALUES (?, ?, ?, ?, ?)', (cid,message.from_user.full_name, utils.now(), GENERAL.START.ID, lang))
         await to_admin.new_user(message)
 
     if cid == ADMIN_CHAT_ID:
-        pass#TODO
-    
-    await chat.send(P.start(cid))
+        await State.get(ADMIN.MENU)(message)
+        return
+
+    await ad_engine.sendAdTo(cid)
 
     if await checkForLink(message):
         logging.info(f"User {cid}:{message.from_user.full_name} used a link {message.text}")
     else:
-        await State.get(USER.CAR_PRICE.INFO)(message)
+        await State.get(USER.MAIN_MENU)(message, True)
 
 
 async def checkForLink(message: types.Message) -> bool:
@@ -129,5 +131,5 @@ async def choose_language(message: Message, lang):
     db.setUserLang(cid,lang)
     await chat.edit(P.language_set(cid))
 
-    await State.get(USER.CAR_PRICE.INFO)(message)
+    await State.get(USER.MAIN_MENU)(message)
 

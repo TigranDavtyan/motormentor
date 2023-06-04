@@ -99,12 +99,16 @@ class Timers:
 class Tasks:
     def __init__(self):
         asyncio.create_task(self.report_activity())
+        asyncio.create_task(self.save_old_chats())
         #asyncio.create_task(self.check_masters_subscriptions())
     
     @Timers.run_every_at_day(3600)
     async def report_activity(self):
         await to_admin.report()
 
+    @Timers.run_every_at_day(600)
+    async def save_old_chats(self):
+        cm.save_old_chats()
 
 
     @Timers.run_everyday_at(datetime.time(hour=1, minute=0, second=0))

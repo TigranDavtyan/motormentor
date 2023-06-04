@@ -47,37 +47,50 @@ class GENERAL:
         FINISH = State(4)
 
 class ADMIN:
-    pass
+    MENU = State(1000)
+    ADD_AD = State(1010, 1012)
+    AD_HANDLE = State(1012)
+
+    SHOW_ADS = State(1030)
+    DELETE_AD = State(1032)
+    DISABLE_AD = State(1034)
+    ACTIVATE_AD = State(1036)
 
 class USER:
     MAIN_MENU = State(10)
+    LINK_CLICK = State(20)
+    INFO_PAGE = State(30)
+    class IMPORT_LISTAM:
+        INFO = State(400, 402)
+        HANDLE_URL = State(402)
+
     class CAR_PRICE:
-        INFO = State(100)#
-        BRAND = State(110)#
-        MODEL = State(120)#
-        YEAR = State(130,132)#
-        YEAR_HANDLE = State(132)#
+        INFO = State(100)
+        BRAND = State(110)
+        MODEL = State(120)
+        YEAR = State(130,132)
+        YEAR_HANDLE = State(132)
 
-        MILEAGE = State(140, 142)#
-        MILEAGE_HANDLE = State(142)#
+        MILEAGE = State(140, 142)
+        MILEAGE_HANDLE = State(142)
 
-        EXTERIOR_COLOR = State(150)#
-        BODY_TYPE = State(160)#
-        ENGINE_TYPE = State(170)#
-        ENGINE_SIZE = State(180, 182)#
-        ENGINE_SIZE_HANDLE = State(182)#
+        EXTERIOR_COLOR = State(150)
+        BODY_TYPE = State(160)
+        ENGINE_TYPE = State(170)
+        ENGINE_SIZE = State(180, 182)
+        ENGINE_SIZE_HANDLE = State(182)
 
-        TRANSMISSION = State(190)#
-        DRIVE_TYPE = State(200)#
-        CONDITION = State(210)#
-        GAS_EQUIPMENT = State(220)#
-        STEERING_WHEEL = State(230)#
-        HEADLIGHTS = State(240)#
-        INTERIOR_COLOR = State(250)#
-        INTERIOR_MATERIAL = State(260)#
+        TRANSMISSION = State(190)
+        DRIVE_TYPE = State(200)
+        CONDITION = State(210)
+        GAS_EQUIPMENT = State(220)
+        STEERING_WHEEL = State(230)
+        HEADLIGHTS = State(240)
+        INTERIOR_COLOR = State(250)
+        INTERIOR_MATERIAL = State(260)
         SUNROOF = State(270)
-        WHEEL_SIZE = State(280, 282)#
-        WHEEL_SIZE_HANDLE = State(282)#
+        WHEEL_SIZE = State(280, 282)
+        WHEEL_SIZE_HANDLE = State(282)
 
         CALCULATE_PRICE = State(290)
         CALCULATE_GOOD = State(292)

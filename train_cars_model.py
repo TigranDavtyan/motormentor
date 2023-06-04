@@ -27,11 +27,12 @@ logger.addHandler(fh)
 logger.info('Loading data...')
 #LOAD
 data = pd.read_csv('ForSale/Cars/listings.csv')
+data['gas_equipment'].fillna('no', inplace=True)
+data.to_csv('ForSale/Cars/listings.csv')
 
 data = data[data['cleared_customs'] == 'yes']
 data.drop('cleared_customs',axis=1,inplace=True)
 
-data['gas_equipment'].fillna('no', inplace=True)
 
 data = data[['itemid', 'car_brand', 'model', 'body_type', 'year', 'engine_type',
        'engine_size', 'transmission', 'drive_type', 'mileage', 'condition',
@@ -46,8 +47,8 @@ data.dropna(inplace=True)
 car_brand_counts = data['car_brand'].value_counts()
 model_counts = data['model'].value_counts()
 
-car_brand_threshold = 0.001 * len(data)
-model_threshold = 0.001 * len(data)
+car_brand_threshold = 0.0001 * len(data)
+model_threshold = 0.0001 * len(data)
 logger.info(f'Brand threshold {car_brand_threshold}')
 logger.info(f'Model threshold {model_threshold}')
 

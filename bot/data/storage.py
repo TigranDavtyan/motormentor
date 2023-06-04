@@ -5,8 +5,9 @@ import logging
 language_suffixes = ['phrase_arm','phrase_rus','phrase_eng']
 
 def log_queries(query):
-    if query.startswith(("INSERT", "UPDATE", "DELETE", "insert", "update", "delete")):
-        logging.info('SQL: '+query)
+    #if query.startswith(("INSERT", "UPDATE", "DELETE", "insert", "update", "delete")):
+    logging.debug('SQL: '+query)
+    
 
 class DatabaseManager(object):
     def __init__(self):
@@ -81,6 +82,11 @@ class DatabaseManager(object):
         year INTEGER, mileage REAL, exterior_color TEXT, body_type TEXT, engine_type TEXT, engine_size REAL,transmission TEXT,
         drive_type TEXT,condition TEXT,gas_equipment TEXT,steering_wheel TEXT,headlights TEXT,interior_color TEXT,interior_material TEXT,
         sunroof TEXT, wheel_size REAL, price REAL)''')
+
+        self.query('''CREATE TABLE IF NOT EXISTS user_cars (cid INTEGER PRIMARY KEY, car_brand TEXT, model TEXT,
+        year INTEGER, mileage REAL, exterior_color TEXT, body_type TEXT, engine_type TEXT, engine_size REAL,transmission TEXT,
+        drive_type TEXT,condition TEXT,gas_equipment TEXT,steering_wheel TEXT,headlights TEXT,interior_color TEXT,interior_material TEXT,
+        sunroof TEXT, wheel_size REAL, price REAL)''')
         
         self.query('''CREATE TABLE IF NOT EXISTS car_price_results (cid INTEGER, car_brand TEXT, model TEXT,
         year INTEGER, mileage REAL, exterior_color TEXT, body_type TEXT, engine_type TEXT, engine_size REAL,transmission TEXT,
@@ -88,6 +94,8 @@ class DatabaseManager(object):
         sunroof TEXT, wheel_size REAL, price REAL)''')
 
         self.query('CREATE TABLE IF NOT EXISTS files (filename TEXT PRIMARY KEY, fileid INTEGER)')
+
+        self.query('CREATE TABLE IF NOT EXISTS ads (id INTEGER PRIMARY KEY AUTOINCREMENT, active INTEGER DEFAULT 1, click_count INTEGER DEFAULT 0, price TEXT, language INTEGER, messageid INTEGER)')
 
     def query(self, arg, values=None):
         if values == None:

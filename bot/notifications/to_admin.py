@@ -27,14 +27,36 @@ Language - {message.from_user.language_code}"""
             await cm[config.ADMIN_CHAT_ID].send(text, temporary=True)
         logging.info(f'NOTIF: ADMIN - {config.ADMIN_CHAT_ID} new user {message.chat.id}')
 
-async def report_log(log_message):
-
-    await cm[config.REPORT_CHANNEL_ID].send(log_message, disable_notification=True)
-
 async def report():
-    text = "Report for the last 1 hour\n"
+    all_user_count = db.fetchone('SELECT count(*) FROM users;')[0]
+    text = f"Report for the last 1 hour\n<pre>User count - {all_user_count}\n"
+    now = utils.now()
+    new_users_count = 0
+    count = 0
+    activity_count = 0
+    
+    more_than_limit = False
     for userid, activity in lgm.user_activity.items():
-        text += f"{db.getUserName(userid)}:{userid} sent - {activity['sent']}\n"
+        count += 1
+        user = db.fetchone('SELECT name, joining_date FROM users WHERE cid = ?', (userid,))
 
-    await cm[config.REPORT_CHANNEL_ID].send(text, disable_notification=True)
+        if now - utils.str2dt(user[1]) < utils.datetime.timedelta(hours=1):
+            new_or_old = 'N-'
+            new_users_count += 1
+        else:
+            new_or_old = 'O-'
+        activity_count += activity['sent']
+        
+        if len(text) < 1000:
+            text += f"{new_or_old}{userid:<11}:{user[0][:10]:<10} - {activity['sent']:<3}\n"
+            more_than_limit = True
+    
+    if more_than_limit:
+        text += '......'
+
+    if count > 0:
+        text += f"""\nAll users {count} | New users {new_users_count} | {new_users_count/count*100:.1f}% 
+Activity All actions {activity_count} | Average {activity_count/count:.1f} actions"""
+    text+='</pre>'
+    await cm[config.ADMIN_CHAT_ID].send(text, disable_notification=True)
     lgm.user_activity = {}

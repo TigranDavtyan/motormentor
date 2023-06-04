@@ -21,7 +21,7 @@ def getCallbackQueryButtonText(query: types.CallbackQuery):
 class LoggingMiddleware(BaseMiddleware): 
     def __init__(self, logger=__name__):
         if not isinstance(logger, logging.Logger):
-            logger = logging.getLogger(logger)
+            logger = logging.getLogger()
 
         self.logger = logger
 
@@ -41,7 +41,7 @@ class LoggingMiddleware(BaseMiddleware):
     async def on_post_process_update(self, update: types.Update, result, data: dict):
         timeout = self.check_timeout(update)
         if timeout > 0:
-            self.logger.info(f"Process update [ID:{update.update_id}]: [success] (in {timeout} ms)")
+            self.logger.debug(f"Process update [ID:{update.update_id}]: [success] (in {timeout} ms)")
 
     async def on_pre_process_message(self, message: types.Message, data: dict):
         global user_activity
@@ -166,7 +166,7 @@ class LoggingMiddleware(BaseMiddleware):
     async def on_pre_process_error(self, update, error, data: dict):
         timeout = self.check_timeout(update)
         if timeout > 0:
-            self.logger.info(f"Process update [ID:{update.update_id}]: [failed] (in {timeout} ms)")
+            self.logger.debug(f"Process update [ID:{update.update_id}]: [failed] (in {timeout} ms)")
 
     async def on_pre_process_poll(self, poll, data):
         self.logger.info(f"Received poll [ID:{poll.id}]")

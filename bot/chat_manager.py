@@ -16,6 +16,7 @@ import datetime
 
 from states.states import State, USER
 from buttons.buttons import Buttons
+from utils import utils
 
 from data.storage import DatabaseManager
 db = DatabaseManager()
@@ -46,7 +47,14 @@ class Chat:
         self.history.temporary_messages = []
         self.history.states.append([state.ID, data])
         db.setState(self.cid, state.ID)
-    
+
+    def isNewUser(self):
+        jd = db.fetchone('SELECT joining_date FROM users WHERE cid = ?', (self.cid,))[0]
+        jd = utils.str2dt(jd)
+        if utils.now() - jd < datetime.timedelta(hours=1):
+            return True
+        return False
+
     def getState(self):
         return db.getState(self.cid)
     
@@ -177,8 +185,6 @@ class Chat:
 
         if len(self.history.unhandled_messages):
             logging.debug(f"Messages {self.history.unhandled_messages} from {self.cid} are not handled")
-
-            # await TODO each state should have its error message
         
         self.history.unhandled_messages.clear()
 
@@ -189,12 +195,14 @@ class ChatManager:
         self.chats = {}
     
     def save_old_chats(self):
-        for cid in self.chats.keys():
-            chat = self.chats[cid]
+        keys = list(self.chats.keys())
+        for cid in keys:
+            chat = self[cid]
             if datetime.datetime.now() - chat.history.lastInteractionDate > datetime.timedelta(minutes=5):
                 try:
-                    self.save(chat)
-                except:
+                    self.save(cid)
+                except Exception as e:
+                    print(e)
                     logging.error(f'Cant save chat {cid}')
             
     def save_all(self):
@@ -214,6 +222,7 @@ class ChatManager:
         chat = self[cid]
         with open(f'chats/{cid}.chat',mode='wb') as chatFile:
             pickle.dump(chat.history, chatFile)
+        self.chats.pop(cid)
     
     def load(self, cid):
         with open(f'chats/{cid}.chat',mode='rb') as chatFile:

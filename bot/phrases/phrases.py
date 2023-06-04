@@ -42,8 +42,8 @@ Enjoy using the Motor Mentor Bot! Feel free to ask any questions you may have al
     return phrases[lang]
 
 def help(cid : int, all : bool = False) -> str:
-    '''If you are stuck or have any questions you can contact the admin at <a href="https://t.me/propertizeadmin">Propertize Admin</a>․ He will definitely help you🙂'''
-    phrases = ['''Եթե անելանելի վիճակում եք կամ հարցեր ունեք, կարող եք կապվել ադմինիստրատորի հետ <a href="https://t.me/propertizeadmin">Propertize Admin</a>։ Նա անպայման կօգնի ձեզ🙂''', '''Если вы застряли или у вас есть какие-либо вопросы, вы можете связаться с администратором по адресу <a href="https://t.me/propertizeadmin">Propertize Admin</a>․ Он обязательно вам поможет🙂''', '''If you are stuck or have any questions you can contact the admin at <a href="https://t.me/propertizeadmin">Propertize Admin</a>․ He will definitely help you🙂''']
+    '''If you are stuck or have any questions you can contact the admin at <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>․ He will definitely help you🙂'''
+    phrases = ['''Եթե անելանելի վիճակում եք կամ հարցեր ունեք, կարող եք կապվել ադմինիստրատորի հետ <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>։ Նա անպայման կօգնի ձեզ🙂''', '''Если вы застряли или у вас есть какие-либо вопросы, вы можете связаться с администратором по адресу <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>․ Он обязательно вам поможет🙂''', '''If you are stuck or have any questions you can contact the admin at <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>․ He will definitely help you🙂''']
     if all:
         return phrases
     if cid > 10:
@@ -235,28 +235,6 @@ def wrong_action(cid : int, all : bool = False) -> str:
  Կրկին կարդացեք հաղորդագրությունը☝️, ստացեք /help ադմինիստրատորից կամ /start արեք և նորից փորձեք:''', '''❌Неверное действие❌
  Прочитайте сообщение еще раз☝️, получите /help от администратора или вернитесь и повторите попытку.''', '''❌Wrong action❌
  Read the message again☝️, get /help from admin or go to /start and try again.''']
-    if all:
-        return phrases
-    if cid > 10:
-        lang = db.getUserLang(cid)
-    else: 
-        lang = cid
-    return phrases[lang]
-
-def main_menu(cid : int, all : bool = False) -> str:
-    '''📜 Menu'''
-    phrases = ['''📜 Մենյու''', '''📜 Меню''', '''📜 Menu''']
-    if all:
-        return phrases
-    if cid > 10:
-        lang = db.getUserLang(cid)
-    else: 
-        lang = cid
-    return phrases[lang]
-
-def get_car_price(cid : int, all : bool = False) -> str:
-    '''Car prices'''
-    phrases = ['''Car prices''', '''Car prices''', '''Car prices''']
     if all:
         return phrases
     if cid > 10:
@@ -680,9 +658,101 @@ def deleted(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
+def main_menu(cid : int, all : bool = False) -> str:
+    '''For advertisement write to t.me/motormentoradmin
+📜 Menu'''
+    phrases = ['''Գովազդի համար գրեք t.me/motormentoradmin
+📜 Մենյու''', '''Для рекламы пишите t.me/motormentoradmin
+📜 Меню''', '''For advertisement write to t.me/motormentoradmin
+📜 Menu''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
 def get_car_price(cid : int, all : bool = False) -> str:
-    '''Car prices'''
-    phrases = ['''Car prices''', '''Car prices''', '''Car prices''']
+    '''🚗 Your car price'''
+    phrases = ['''🚗 Ձեր մեքենայի արժեքը''', '''🚗 Цена вашего автомобиля''', '''🚗 Your car price''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def import_from_listam(cid : int, all : bool = False) -> str:
+    '''🧾 Import from List.am'''
+    phrases = ['''🧾 Ներմուծել List.am-ից''', '''🧾 Импорт из List.am''', '''🧾 Import from List.am''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def general_info(cid : int, all : bool = False) -> str:
+    '''ℹ️ Info'''
+    phrases = ['''ℹ️ Ինֆո''', '''ℹ️ Информация''', '''ℹ️ Info''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def add_ad(cid : int, all : bool = False) -> str:
+    '''Add advertisement'''
+    phrases = ['''Add advertisement''', '''Add advertisement''', '''Add advertisement''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def visit_website(cid : int, all : bool = False) -> str:
+    '''Visit website'''
+    phrases = ['''Visit website''', '''Visit website''', '''Visit website''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def list_am_usage(cid : int, all : bool = False) -> str:
+    '''Import car detailes from List.am by copy and pasting the car page url here, like "https://www.list.am/item/19911991"'''
+    phrases = ['''Ներմուծեք ավտոմեքենայի տվյալները List.am-ից՝ պատճենելով և տեղադրելով մեքենայի էջի url-ը այստեղ, օրինակ՝ «https://www.list.am/item/19911991»''', '''Импортируйте информацию об автомобиле из List.am, скопировав и вставив URL-адрес страницы автомобиля, например «https://www.list.am/item/19911991».''', '''Import car detailes from List.am by copy and pasting the car page url here, like "https://www.list.am/item/19911991"''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def listam_not_possible(cid : int, all : bool = False) -> str:
+    '''I cant import this cars data, try another one.'''
+    phrases = ['''Ես չեմ կարող ներմուծել այս մեքենաների տվյալները, փորձեք մեկ ուրիշը:''', '''Я не могу импортировать данные этого автомобиля, попробуйте другой.''', '''I cant import this cars data, try another one.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def wrong_format(cid : int, all : bool = False) -> str:
+    '''❌ Wrong format, try again'''
+    phrases = ['''❌ Սխալ ձևաչափ, նորից փորձեք''', '''❌ Неверный формат, попробуйте еще раз''', '''❌ Wrong format, try again''']
     if all:
         return phrases
     if cid > 10:
@@ -768,35 +838,43 @@ def calculate(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
-def calculate_result(cid : int,price,price_dram,price_rub, all : bool = False) -> str:
-    '''Car price is:
+def calculate_result_and_ask(cid : int,url,price,price_dram,price_rub, all : bool = False) -> str:
+    '''[url]
+Car price is:
 ------- [price] $ 💵
 ------- [price_dram] dram
 ------- [price_rub] rub
 
 *Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+
 Do you think this car is reasonably priced? You dont have to answer this but it will help build a better AI.
 '''
-    phrases = ['''Մեքենայի գինը. 
+    phrases = ['''[url]
+Մեքենայի գինը. 
 ------- [price] $
 ------- [price_dram] դրամ
 ------- [price_rub] ռուբլի
 
 *Դրամի և ռուբլու գները հաշվարկված են 385 և 79,7 փոխարժեքներով:
+
 Ի՞նչ եք կարծում, այս մեքենան խելամի՞տ է գնահատված: Պարտադիր չէ պատասխանեք այս հարցին, բայց դա կօգնի ավելի խելացի արհեստական ինտելեկտ կառուցել:
-''', '''Цена автомобиля:
+''', '''[url]
+Цена автомобиля:
 ------- [price] $
 ------- [price_dram] драм
 ------- [price_rub] руб
 
 *Цены в драмах и рублях рассчитаны по курсам 385 и 79,7.
+
 Считаете ли вы, что этот автомобиль имеет разумную цену? Вам не обязательно отвечать на этот вопрос, но это поможет создать более умный ИИ.
-''', '''Car price is:
+''', '''[url]
+Car price is:
 ------- [price] $ 💵
 ------- [price_dram] dram
 ------- [price_rub] rub
 
 *Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+
 Do you think this car is reasonably priced? You dont have to answer this but it will help build a better AI.
 ''']
     if all:
@@ -805,7 +883,46 @@ Do you think this car is reasonably priced? You dont have to answer this but it 
         lang = db.getUserLang(cid)
     else: 
         lang = cid
-    return phrases[lang].replace("[price]",str(price)).replace("[price_dram]",str(price_dram)).replace("[price_rub]",str(price_rub))
+    return phrases[lang].replace("[url]",str(url)).replace("[price]",str(price)).replace("[price_dram]",str(price_dram)).replace("[price_rub]",str(price_rub))
+
+def calculate_result(cid : int,url,price,price_dram,price_rub, all : bool = False) -> str:
+    '''[url]
+Car price is:
+------- [price] $
+------- [price_dram] dram
+------- [price_rub] rub
+
+*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+'''
+    phrases = ['''[url]
+Մեքենայի գինը. 
+------- [price] $
+------- [price_dram] դրամ
+------- [price_rub] ռուբլի
+
+*Դրամի և ռուբլու գները հաշվարկված են 385 և 79,7 փոխարժեքներով:
+''', '''[url]
+Цена автомобиля:
+------- [price] $
+------- [price_dram] драм
+------- [price_rub] руб
+
+*Цены в драмах и рублях рассчитаны по курсам 385 и 79,7.
+''', '''[url]
+Car price is:
+------- [price] $
+------- [price_dram] dram
+------- [price_rub] rub
+
+*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[url]",str(url)).replace("[price]",str(price)).replace("[price_dram]",str(price_dram)).replace("[price_rub]",str(price_rub))
 
 def dont_know(cid : int, all : bool = False) -> str:
     '''I don't know'''
@@ -820,7 +937,7 @@ def dont_know(cid : int, all : bool = False) -> str:
 
 def my_price(cid : int, all : bool = False) -> str:
     '''Offer my price'''
-    phrases = ['''Առաջարկել իմ գինը''', '''Предложи мою цену''', '''Offer my price''']
+    phrases = ['''Առաջարկել իմ գինը''', '''Предложить мою цену''', '''Offer my price''']
     if all:
         return phrases
     if cid > 10:
@@ -830,8 +947,8 @@ def my_price(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def my_price_offer(cid : int, all : bool = False) -> str:
-    '''What do you think this car costs? Write your answer like this "18000" '''
-    phrases = ['''Ի՞նչ եք կարծում, ինչ արժե այս մեքենան: Գրեք ձեր պատասխանը այսպես «18000»''', '''Как вы думаете, сколько стоит эта машина? Напишите свой ответ так: "18000"''', '''What do you think this car costs? Write your answer like this "18000" ''']
+    '''What do you think this car costs in dollars? Write your answer like this "18000" '''
+    phrases = ['''Ի՞նչ եք կարծում, ինչ արժե այս մեքենան դոլլարով: Գրեք ձեր պատասխանը այսպես «18000»''', '''Как вы думаете, сколько долларов стоит эта машина? Напишите свой ответ так: "18000"''', '''What do you think this car costs in dollars? Write your answer like this "18000" ''']
     if all:
         return phrases
     if cid > 10:
@@ -851,20 +968,24 @@ def thanks_for_opinion(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
-def car_price_info(cid : int, all : bool = False) -> str:
-    '''Choose car parameters and press calculate to get the price.
-⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in Armenia, dont base your decisions only on this results when buying or selling.'''
-    phrases = ['''Ընտրեք մեքենայի պարամետրերը և սեղմեք հաշվարկել՝ գինը ստանալու համար:
-⚠️Արհեստական ինտելեկտը հաշվարկում է այս կոնկրետ մեքենայի ՄԻՋԻՆ ՇՈՒԿԱՅԱԿԱՆ ԱՐԺԵՔԸ հայաստանում, գնելիս կամ վաճառելիս մի հիմնեք ձեր որոշումները միայն այս արդյունքների վրա:''', '''Выберите параметры автомобиля и нажмите рассчитать, чтобы узнать цену․
-⚠️ИИ рассчитывает СРЕДНЮЮ РЫНОЧНУЮ СТОИМОСТЬ для данного конкретного автомобиля в Армении, не основывайте свои решения только на этих результатах при покупке или продаже.''', '''Choose car parameters and press calculate to get the price.
-⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in Armenia, dont base your decisions only on this results when buying or selling.''']
+def car_price_info(cid : int,satisfied,notsatisfied,percent, all : bool = False) -> str:
+    '''Satisfaction: [satisfied][notsatisfied] [percent]%
+Choose car parameters and press calculate to get the price.
+⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in Armenia. Dont base your decisions only on this results when buying or selling.'''
+    phrases = ['''Գոհունակություն. [satisfied][notsatisfied] [percent]%
+Ընտրեք մեքենայի պարամետրերը և սեղմեք հաշվարկել՝ գինը ստանալու համար:
+⚠️Արհեստական ինտելեկտը հաշվարկում է այս կոնկրետ մեքենայի ՄԻՋԻՆ ՇՈՒԿԱՅԱԿԱՆ ԱՐԺԵՔԸ հայաստանում: Գնելիս կամ վաճառելիս մի հիմնեք ձեր որոշումները միայն այս արդյունքների վրա:''', '''Удовлетворенность: [satisfied][notsatisfied] [percent]%
+Выберите параметры автомобиля и нажмите рассчитать, чтобы узнать цену․
+⚠️ИИ рассчитывает СРЕДНЮЮ РЫНОЧНУЮ СТОИМОСТЬ для данного конкретного автомобиля в Армении․ Не основывайте свои решения только на этих результатах при покупке или продаже.''', '''Satisfaction: [satisfied][notsatisfied] [percent]%
+Choose car parameters and press calculate to get the price.
+⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in Armenia. Dont base your decisions only on this results when buying or selling.''']
     if all:
         return phrases
     if cid > 10:
         lang = db.getUserLang(cid)
     else: 
         lang = cid
-    return phrases[lang]
+    return phrases[lang].replace("[satisfied]",str(satisfied)).replace("[notsatisfied]",str(notsatisfied)).replace("[percent]",str(percent))
 
 def choose_car_brand(cid : int, all : bool = False) -> str:
     '''Please choose the brand of your car. If the brand of your car is not shown below it means there is not enough data and the AI cant make a good prediction.'''

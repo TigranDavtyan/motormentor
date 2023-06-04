@@ -1,269 +1,13 @@
-import asyncio
-import inspect
-
 import utils.utils as utils
-from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
+from aiogram.types import Message
 from buttons.buttons import *
-from config import ADMIN_CHAT_ID, DEFAULT_LANGUAGE
-from phrases import phrases as P
+from config import ADMIN_CHAT_ID
 from loader import *
 from notifications import to_admin
-from states.states import ADMIN, GENERAL,USER, State
+from phrases import phrases as P
+from states.states import ADMIN, GENERAL, USER, State
 from utils.logging import logging
-import json
-import os
-import pickle
-import pandas as pd
-
-class Model:
-    file = None
-    mtime = None
-    filename = '../trained_model/categorical.json'
-
-    model = None
-    mmodel = None
-    model_filename = '../trained_model/xgb_model.pkl'
-
-    encoder = None
-    mencoder = None
-    encoder_filename = '../trained_model/encoder.pkl'
-
-    def __init__(self):
-        if not Model.file:
-            with open(Model.filename, 'r') as file:
-                Model.file = json.load(file)
-            Model.mtime = os.path.getmtime(Model.filename)
-
-        if not Model.encoder:
-            with open(Model.encoder_filename, 'rb') as file:
-                Model.encoder = pickle.load(file)
-            Model.mencoder = os.path.getmtime(Model.encoder_filename)
-
-        if not Model.model:
-            with open(Model.model_filename, 'rb') as file:
-                Model.model = pickle.load(file)
-            Model.mmodel = os.path.getmtime(Model.model_filename)
-
-    def update(self):
-        new_mtime = os.path.getmtime(Model.filename)
-        if new_mtime > Model.mtime:
-            Model.mtime = new_mtime
-            with open(Model.filename, 'r') as file:
-                Model.file = json.load(file)
-
-
-        new_mtime = os.path.getmtime(Model.encoder_filename)
-        if new_mtime > Model.mencoder:
-            Model.mencoder = new_mtime
-            with open(Model.encoder_filename, 'rb') as file:
-                Model.encoder = pickle.load(file)
-
-
-        new_mtime = os.path.getmtime(Model.model_filename)
-        if new_mtime > Model.mmodel:
-            Model.mmodel = new_mtime
-            with open(Model.model_filename, 'rb') as file:
-                Model.model = pickle.load(file)
-
-    def getModel(self):
-        return Model.model
-    def getEncoder(self):
-        return Model.encoder
-    
-    def getBrands(self):
-        ret = []
-        indexes = list(Model.file['brands'].keys())
-        for index in indexes:
-            name = index.replace('_',' ')
-            name = name[0].upper() + name[1:]
-            ret.append((index, name))
-
-        return ret
-    
-    def getModelsFor(self, brand):
-        ret = []
-        models_or_brand = Model.file['brands'][brand]
-        for index in models_or_brand:
-            name = index.replace('_',' ')
-            name = name[0].upper() + name[1:]
-            ret.append((index,name))
-        
-        return ret
-    
-    def getExteriorColors(self, lang):
-        colors = Model.file['exterior_color']
-        return [(color,eval(f'P.exterior_{color}({lang})')) for color in colors]
-    def getInteriorColors(self, lang):
-        colors = Model.file['interior_color']
-        return [(color,eval(f'P.interior_{color}({lang})')) for color in colors]
-
-    def getInteriorMaterials(self, lang):
-        materials = Model.file['interior_material']
-        return [(material,eval(f'P.{material}({lang})')) for material in materials]
-
-    def getBodyTypes(self, lang):
-        body_types = Model.file['body_type']
-        ret = []
-        for body_type in body_types:
-            _body_type = body_type
-            if body_type.startswith('suv'):
-                _body_type = 'crossover'
-            ret.append((body_type,eval(f'P.{_body_type}({lang})')))
-        return ret
-
-    def getEngineTypes(self, lang):
-        engine_types = Model.file['engine_type']
-        return [(engine_type ,eval(f'P.{engine_type}({lang})')) for engine_type in engine_types]
-
-    def getTransmissions(self, lang):
-        transmissions = Model.file['transmission']
-        return [(transmission ,eval(f'P.{transmission}({lang})')) for transmission in transmissions]
-
-
-    def getDriveTypes(self, lang):
-        drive_types = Model.file['drive_type']
-        return [(drive_type ,eval(f'P.{drive_type}({lang})')) for drive_type in drive_types]
-    def getConditions(self, lang):
-        conditions = Model.file['condition']
-        return [(condition ,eval(f'P.{condition}({lang})')) for condition in conditions]
-    def getGasEquipments(self, lang):
-        gas_equipments = Model.file['gas_equipment']
-        return [(gas_equipment ,eval(f'P.gas_{gas_equipment}({lang})')) for gas_equipment in gas_equipments]
-
-
-    def getSteeringWheels(self, lang):
-        steering_wheels = Model.file['steering_wheel']
-        return [(steering_wheel ,eval(f'P.{steering_wheel}_steering({lang})')) for steering_wheel in steering_wheels]
-    def getHeadlights(self, lang):
-        headlightss = Model.file['headlights']
-        return [(headlights ,eval(f'P.{headlights}({lang})')) for headlights in headlightss]
-    def getSunroofs(self, lang):
-        sunroofs = Model.file['sunroof']
-        return [(sunroof ,eval(f'P.{sunroof}_sunroof({lang})')) for sunroof in sunroofs]
-
-model = Model()
-
-class Car:
-    def __init__(self, cid):
-        car = db.fetchone('SELECT car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,transmission,drive_type,condition,gas_equipment,steering_wheel,headlights,interior_color,interior_material,sunroof,wheel_size,price FROM car_prices WHERE cid = ?',(cid,))
-
-        if not car:
-            db.query('''INSERT INTO car_prices (cid,car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,
-                     transmission,drive_type,condition,gas_equipment,steering_wheel,headlights,interior_color,interior_material,sunroof,wheel_size,price)
-                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,-1)''',(cid,'Toyota','camry',2020,50000,'white','sedan','gasoline',
-                                                                           2.5, 'automatic', 'front_wheel_drive','car_is_not_damaged','no','left',
-                                                                           'led_headlights','black','leather','no',17))
-            car = db.fetchone('SELECT car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,transmission,drive_type,condition,gas_equipment,steering_wheel,headlights,interior_color,interior_material,sunroof,wheel_size,price FROM car_prices WHERE cid = ?',(cid,))
-
-        self.car_brand = car[0]
-        self.model = car[1]
-        self.year = car[2]
-        self.mileage = car[3]
-        self.exterior_color = car[4]
-        self.body_type = car[5]
-        self.engine_type = car[6]
-        self.engine_size = car[7]
-        self.transmission = car[8]
-        self.drive_type = car[9]
-        self.condition = car[10]
-        self.gas_equipment = car[11]
-        self.steering_wheel = car[12]
-        self.headlights = car[13]
-        self.interior_color = car[14]
-        self.interior_material = car[15]
-        self.sunroof = car[16]
-        self.wheel_size = car[17]
-        self.price = car[18]
-
-    def save(self, cid):
-        db.query('''INSERT INTO car_price_results (cid,car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,
-                     transmission,drive_type,condition,gas_equipment,steering_wheel,headlights,interior_color,interior_material,sunroof,wheel_size,price)
-                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(cid,self.car_brand,self.model,self.year,self.mileage,self.exterior_color,
-                                                                           self.body_type,self.engine_type,
-                                                                           self.engine_size, self.transmission, self.drive_type,
-                                                                           self.condition,self.gas_equipment,self.steering_wheel,
-                                                                           self.headlights,self.interior_color,self.interior_material,self.sunroof,self.wheel_size,self.price))
-    def calculatePrice(self):
-        car = {}
-        car['car_brand'] = self.car_brand
-        car['model'] = self.model
-
-        car['year'] = self.year
-        car['engine_size'] = self.engine_size
-        car['engine_type'] = self.engine_type
-        car['mileage'] = self.mileage
-        car['body_type'] = self.body_type
-        car['transmission'] = self.transmission
-        car['drive_type'] = self.drive_type
-        car['condition'] = self.condition
-        car['gas_equipment'] = self.gas_equipment
-        car['steering_wheel'] = self.steering_wheel
-        car['exterior_color'] = self.exterior_color
-        car['headlights'] = self.headlights
-        car['interior_color'] = self.interior_color
-        car['interior_material'] = self.interior_material
-        car['sunroof'] = self.sunroof
-        car['wheel_size'] = self.wheel_size
-
-        encoder = model.getEncoder()
-        # print(len(encoder.get_feature_names_out()),'-----',encoder.get_feature_names_out())
-
-        new_car_data = pd.DataFrame(car,index = [0])
-        # Encode categorical variables using the trained OneHotEncoder
-        encoded_data = encoder.transform(new_car_data[['car_brand', 'model', 'body_type', 'engine_type', 'transmission', 'drive_type',
-                                                            'condition', 'gas_equipment', 'steering_wheel', 'exterior_color',
-                                                            'headlights', 'interior_color', 'interior_material', 'sunroof']]).toarray()
-
-        
-        # Create a DataFrame from the encoded data
-        encoded_car_data = pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out())
-
-        # Concatenate the encoded data with the numerical columns
-        new_car_data_encoded = pd.concat([new_car_data[['year', 'engine_size', 'mileage', 'wheel_size']], encoded_car_data], axis=1)
-
-        # Make predictions on the new car data
-        predictions = model.getModel().predict(new_car_data_encoded)
-
-        return predictions[0]
-
-
-    def getBrand(self):
-        brand = self.car_brand.replace('_',' ')
-        return brand[0].upper() + brand[1:]
-    def getModel(self):
-        model = self.model.replace('_',' ')
-        return model[0].upper() + model[1:]
-    def getExteriorColor(self, lang):
-        return eval(f'P.exterior_{self.exterior_color}({lang})')
-    def getBodyType(self, lang):
-        body_type = self.body_type
-        if self.body_type.startswith('suv'):
-            body_type = 'crossover'
-        return eval(f'P.{body_type}({lang})')
-    def getEngineType(self,lang):
-        return eval(f'P.{self.engine_type}({lang})')
-    def getTransmission(self,lang):
-        return eval(f'P.{self.transmission}({lang})')
-
-    def getDriveType(self,lang):
-        return eval(f'P.{self.drive_type}({lang})')
-    def getCondition(self,lang):
-        return eval(f'P.{self.condition}({lang})')
-    def getSteeringWheel(self,lang):
-        return eval(f'P.{self.steering_wheel}_steering({lang})')
-    def getHeadlights(self,lang):
-        return eval(f'P.{self.headlights}({lang})')
-    def getInteriorColor(self,lang):
-        return eval(f'P.interior_{self.interior_color}({lang})')
-  
-    def getGasEquipment(self,lang):
-        return eval(f'P.gas_{self.gas_equipment}({lang})')
-
-    def getInteriorMaterial(self,lang):
-        return eval(f'P.{self.interior_material}({lang})')
-    def getSunroof(self,lang):
-        return eval(f'P.{self.sunroof}_sunroof({lang})')
-
+from .car_engine import model, Car
 
 @setActionFor(USER.CAR_PRICE.INFO)
 async def menu_car_price(message: Message, data = None):
@@ -277,7 +21,7 @@ async def menu_car_price(message: Message, data = None):
     
     user_car = Car(cid)
     lang = db.getUserLang(cid)
-    markup.add(P.language_change(cid), GENERAL.LANGUAGE.CHOOSE)
+    
     markup.row([[user_car.getBrand(),USER.CAR_PRICE.BRAND],[user_car.getModel(),USER.CAR_PRICE.MODEL]])
     markup.row([[P.year(cid, user_car.year), USER.CAR_PRICE.YEAR],[P.mileage(cid, int(user_car.mileage)), USER.CAR_PRICE.MILEAGE]])
 
@@ -289,10 +33,18 @@ async def menu_car_price(message: Message, data = None):
     markup.row([[P.interior_color(cid, user_car.getInteriorColor(lang)), USER.CAR_PRICE.INTERIOR_COLOR],[P.interior_material(cid, user_car.getInteriorMaterial(lang)), USER.CAR_PRICE.INTERIOR_MATERIAL]])
     markup.row([[user_car.getSunroof(lang), USER.CAR_PRICE.SUNROOF],[P.wheel_size(cid, int(user_car.wheel_size)), USER.CAR_PRICE.WHEEL_SIZE]])
 
-
     markup.add(P.calculate(cid), USER.CAR_PRICE.CALCULATE_PRICE)
+    markup.add(P.main_menu(cid), USER.MAIN_MENU)
 
-    await chat.edit(P.car_price_info(cid), markup)
+    satisfaction = db.fetchone('''SELECT COUNT(*) AS total_count,SUM(CASE WHEN price % 100 = 0 THEN 1 ELSE 0 END) AS divisible_by_100_count FROM car_price_results;''')
+    count = satisfaction[0]
+    notsatisfied = int(satisfaction[1] / count * 100)
+    satisfied = 100 - notsatisfied
+
+    filled = int(round(satisfied/10))
+    empty = 10 - filled
+
+    await chat.edit(P.car_price_info(cid, filled * '█', empty * '░', satisfied), markup)
     await chat.setState(USER.CAR_PRICE.INFO)
 
 
@@ -303,15 +55,23 @@ async def car_calculate(message: Message):
 
     user_car = Car(cid)
     price = int(round(user_car.calculatePrice()))
-    price_dram = int(round(price * 385))
-    price_rub = int(round(price * 79.7))
+    user_car.price = price
+
+    is_first_calculation = int(db.fetchone('SELECT count(*) FROM user_cars WHERE cid = ?', (cid,))[0]) == 0
+    if is_first_calculation:
+        user_car.save_user_car(cid)
 
     markup = Buttons()
     markup.add(P.yes(cid), USER.CAR_PRICE.CALCULATE_GOOD, price)
-    markup.add(P.dont_know(cid), USER.CAR_PRICE.CALCULATE_DONT_KNOW)
+    markup.add(P.dont_know(cid), USER.CAR_PRICE.CALCULATE_DONT_KNOW, price)
     markup.add(P.my_price(cid), USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
 
-    await chat.send(P.calculate_result(cid, price, price_dram, price_rub), markup, temporary=True)
+    
+    price_dram = f'{round(price * 385):,}'
+    price_rub = f'{round(price * 79.7):,}'
+    price = f'{price:,}'
+
+    await chat.send(P.calculate_result_and_ask(cid,'', price, price_dram, price_rub), markup, temporary=True)
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_GOOD)
 async def car_calculate(message: Message, data):
@@ -320,33 +80,46 @@ async def car_calculate(message: Message, data):
     user_car = Car(cid)
     user_car.price = float(data)
     user_car.save(cid)
+    
+    price_dram = f'{round(user_car.price * 385):,}'
+    price_rub = f'{round(user_car.price * 79.7):,}'
+    price = f'{user_car.price:,}'
 
-    await chat.edit(message.text,message_id=message.message_id)
+    await chat.edit(P.calculate_result(cid,'',price, price_dram, price_rub), message_id=message.message_id)
 
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_DONT_KNOW)
-async def car_calculate(message: Message):
+async def car_calculate(message: Message, data):
     cid, chat = message.chat.id,cm[message.chat.id]
+    
+    data = float(data)
+    price_dram = f'{round(data * 385):,}'
+    price_rub = f'{round(data * 79.7):,}'
+    price = f'{data:,}'
 
-    await chat.edit(message.text,message_id=message.message_id)
+    await chat.edit(P.calculate_result(cid,'',price, price_dram, price_rub), message_id=message.message_id)
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
 
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
-async def car_calculate(message: Message):
+async def car_calculate_offer(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
-    back = Buttons(True)
     await chat.setState(USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
-    await chat.send(P.my_price_offer(cid), back, temporary=True)
+    await chat.send(P.my_price_offer(cid), Buttons(True), temporary=True)
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_OFFER_PRICE_HANDLE)
-async def car_calculate(message: Message):
+async def car_calculate_offer_handle(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     user_car = Car(cid)
-    user_car.price = float(message.text)
+    try:
+        user_car.price = float(message.text)
+    except:
+        await chat.send(P.wrong_format(cid), temporary=True)
+        return
+    
     user_car.save(cid)
 
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
@@ -530,8 +303,6 @@ async def car_interior_color(message: Message):
     await chat.setState(USER.CAR_PRICE.INTERIOR_COLOR)
 
 
-
-
 @setActionFor(USER.CAR_PRICE.INTERIOR_MATERIAL)
 async def car_interior_material(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
@@ -545,8 +316,6 @@ async def car_interior_material(message: Message):
     await chat.edit(P.choose_car_interior_material(cid), markup)
 
     await chat.setState(USER.CAR_PRICE.INTERIOR_MATERIAL)
-
-
 
 @setActionFor(USER.CAR_PRICE.SUNROOF)
 async def car_sunroof(message: Message):
@@ -584,14 +353,14 @@ async def car_year_handle(message: Message):
 
 
 @setActionFor(USER.CAR_PRICE.MILEAGE)
-async def car_year(message: Message):
+async def car_mileage(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     await chat.setState(USER.CAR_PRICE.MILEAGE)
     await chat.send(P.choose_car_mileage(cid), temporary=True)
 
 @setActionFor(USER.CAR_PRICE.MILEAGE_HANDLE)
-async def car_year_handle(message: Message):
+async def car_mileage_handle(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     try:
@@ -604,18 +373,18 @@ async def car_year_handle(message: Message):
 
 
 @setActionFor(USER.CAR_PRICE.ENGINE_SIZE)
-async def car_year(message: Message):
+async def car_engine_size(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     await chat.setState(USER.CAR_PRICE.ENGINE_SIZE)
     await chat.send(P.choose_car_engine_size(cid), temporary=True)
 
 @setActionFor(USER.CAR_PRICE.ENGINE_SIZE_HANDLE)
-async def car_year_handle(message: Message):
+async def car_engine_size_handle(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     try:
-        engine_size = float(message.text)
+        engine_size = float(message.text.replace(',','.'))
     except:
         await chat.send(P.wrong_action(cid),temporary=True)
         return
@@ -625,14 +394,14 @@ async def car_year_handle(message: Message):
 
 
 @setActionFor(USER.CAR_PRICE.WHEEL_SIZE)
-async def car_year(message: Message):
+async def car_wheel_size(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     await chat.setState(USER.CAR_PRICE.WHEEL_SIZE)
     await chat.send(P.choose_car_wheel_size(cid), temporary=True)
 
 @setActionFor(USER.CAR_PRICE.WHEEL_SIZE_HANDLE)
-async def car_year_handle(message: Message):
+async def car_wheel_size_handle(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     try:
