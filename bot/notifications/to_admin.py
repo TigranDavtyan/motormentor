@@ -19,13 +19,13 @@ Language - {message.from_user.language_code}"""
         
         if photos.total_count > 0:
             try:
-                await cm[config.ADMIN_CHAT_ID].send(text,photo=photos.photos[0][0].file_id, temporary=True)
+                await cm[config.REPORT_CHANNEL_ID].send(text,photo=photos.photos[0][0].file_id, temporary=True)
             except Exception as e:
                 print(e)
-                await cm[config.ADMIN_CHAT_ID].send(text, temporary=True)
+                await cm[config.REPORT_CHANNEL_ID].send(text, temporary=True)
         else:
-            await cm[config.ADMIN_CHAT_ID].send(text, temporary=True)
-        logging.info(f'NOTIF: ADMIN - {config.ADMIN_CHAT_ID} new user {message.chat.id}')
+            await cm[config.REPORT_CHANNEL_ID].send(text, temporary=True)
+        logging.info(f'NOTIF: ADMIN - {config.REPORT_CHANNEL_ID} new user {message.chat.id}')
 
 async def report():
     all_user_count = db.fetchone('SELECT count(*) FROM users;')[0]
@@ -58,5 +58,5 @@ async def report():
         text += f"""\nAll users {count} | New users {new_users_count} | {new_users_count/count*100:.1f}% 
 Activity All actions {activity_count} | Average {activity_count/count:.1f} actions"""
     text+='</pre>'
-    await cm[config.ADMIN_CHAT_ID].send(text, disable_notification=True)
+    await cm[config.REPORT_CHANNEL_ID].send(text, disable_notification=True)
     lgm.user_activity = {}

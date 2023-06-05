@@ -3,7 +3,6 @@ import logging
 
 from loader import *
 from aiogram.utils import exceptions, executor
-from data.config import ADMIN_CHAT_ID
 log = logging.getLogger('broadcast')
 
 def get_users():

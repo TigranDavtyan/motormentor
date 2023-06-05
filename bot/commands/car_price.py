@@ -34,7 +34,7 @@ async def menu_car_price(message: Message, data = None):
     markup.row([[user_car.getSunroof(lang), USER.CAR_PRICE.SUNROOF],[P.wheel_size(cid, int(user_car.wheel_size)), USER.CAR_PRICE.WHEEL_SIZE]])
 
     markup.add(P.calculate(cid), USER.CAR_PRICE.CALCULATE_PRICE)
-    markup.add(P.main_menu(cid), USER.MAIN_MENU)
+    markup.add(P.menu(cid), USER.MAIN_MENU)
 
     satisfaction = db.fetchone('''SELECT COUNT(*) AS total_count,SUM(CASE WHEN price % 100 = 0 THEN 1 ELSE 0 END) AS divisible_by_100_count FROM car_price_results;''')
     count = satisfaction[0]

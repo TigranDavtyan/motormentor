@@ -55,7 +55,7 @@ def all_exception_handler(loop, context):
     tb = str(context['exception'])  + '\n' + "".join(traceback.format_tb(tb))
 
     logging.error(tb)
-    asyncio.create_task(bot.send_message(config.ADMIN_CHAT_ID, text=text))
+    asyncio.create_task(bot.send_message(config.REPORT_CHANNEL_ID, text=text))
 
 async def on_polling_startup(dp):
     Tasks()
@@ -80,6 +80,7 @@ def signal_handler(signal, frame):
 if __name__ == '__main__':
     # Register the signal handler
     signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
     executor.start_polling(dp, on_startup=on_polling_startup,on_shutdown=on_polling_shutdown, skip_updates=False)
 
 

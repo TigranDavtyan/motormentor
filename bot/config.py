@@ -13,7 +13,7 @@ if platform.system() in ['Linux', 'Darwin']:
     TOKEN = '5945899256:AAHkaeHkf9GZwKSNbV2HoDz1oXW3khjuTL0'
 
     BOT_USERNAME = 'MotorMentor'
-    REPORT_CHANNEL_ID = -1001830553096#TODO create report channel
+    REPORT_CHANNEL_ID = -1001507986820
 else:
     print('Development mode on davtyantestbot')
     TOKEN = os.environ.get('TEST_BOT_TOKEN')

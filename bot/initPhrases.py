@@ -166,6 +166,7 @@ insertPhrase('deleted', '❌ Ջնջված է ❌','❌ Удалено ❌','❌ 
 
 
 #User menu
+insertPhrase('menu','📜 Մենյու','📜 Меню','📜 Menu')
 insertPhrase('main_menu',
              '''Գովազդի համար գրեք t.me/motormentoradmin
 📜 Մենյու''', 
