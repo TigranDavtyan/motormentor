@@ -9,8 +9,9 @@ from phrases import phrases as P
 from loader import *
 from notifications import to_admin
 from states.states import ADMIN, GENERAL,USER, State
-from utils.logging import logging
+import logging
 import ad_engine
+from .car_engine import model
 
 ad_channel = -1001901523079
 
@@ -22,13 +23,20 @@ async def admin_menu(message: Message, is_main_message: bool = False):
     
     markup.add('Add advertisement', ADMIN.ADD_AD)
     markup.add('Show ads', ADMIN.SHOW_ADS)
+    markup.add('Update data', ADMIN.UPDATE_DATA)
    
     if not message.from_user.is_bot or is_main_message:
-        await chat.send(P.main_menu(cid), markup, main_message=is_main_message)
+        await chat.send(P.menu(cid), markup, main_message=is_main_message)
     else:
-        await chat.edit(P.main_menu(cid), markup)
+        await chat.edit(P.menu(cid), markup)
 
     await chat.setState(ADMIN.MENU)
+
+@setActionFor(ADMIN.UPDATE_DATA)
+async def update_data(message: Message):
+    cid, chat = message.chat.id, cm[message.chat.id]
+    model.update()
+    await chat.send('Data updated!',temporary=True)
 
 @setActionFor(ADMIN.SHOW_ADS)
 async def add_ad(message: Message):

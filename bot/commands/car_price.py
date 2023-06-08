@@ -8,6 +8,9 @@ from phrases import phrases as P
 from states.states import ADMIN, GENERAL, USER, State
 from utils.logging import logging
 from .car_engine import model, Car
+import matplotlib.pyplot as plt
+import os
+import numpy as np
 
 @setActionFor(USER.CAR_PRICE.INFO)
 async def menu_car_price(message: Message, data = None):
@@ -34,6 +37,8 @@ async def menu_car_price(message: Message, data = None):
     markup.row([[user_car.getSunroof(lang), USER.CAR_PRICE.SUNROOF],[P.wheel_size(cid, int(user_car.wheel_size)), USER.CAR_PRICE.WHEEL_SIZE]])
 
     markup.add(P.calculate(cid), USER.CAR_PRICE.CALCULATE_PRICE)
+    markup.add(P.calculate_by_year(cid), USER.CAR_PRICE.CALCULATE_PRICE_BY_YEAR)
+    markup.add(P.calculate_by_mileage(cid), USER.CAR_PRICE.CALCULATE_PRICE_BY_MILEAGE)
     markup.add(P.menu(cid), USER.MAIN_MENU)
 
     satisfaction = db.fetchone('''SELECT COUNT(*) AS total_count,SUM(CASE WHEN price % 100 = 0 THEN 1 ELSE 0 END) AS divisible_by_100_count FROM car_price_results;''')
@@ -47,6 +52,72 @@ async def menu_car_price(message: Message, data = None):
     await chat.edit(P.car_price_info(cid, filled * '█', empty * '░', satisfied), markup)
     await chat.setState(USER.CAR_PRICE.INFO)
 
+
+@setActionFor(USER.CAR_PRICE.CALCULATE_PRICE_BY_YEAR)
+async def car_calculate_by_year(message: Message):
+    cid, chat = message.chat.id,cm[message.chat.id]
+
+    user_car = Car(cid)
+    start = 2000
+    end = 2023
+    years = range(start,end+1)
+    prices = user_car.calculateByYear(years).astype(int)
+    plt.figure(figsize=(13, 8))
+    plt.plot(years, prices, linewidth=2)
+    plt.xlabel(P.label_year(cid))
+    plt.ylabel(P.label_price(cid))
+    plt.title(P.calculate_by_year(cid))
+    plt.grid(linestyle='-', linewidth=1.5)
+    plt.xticks(years, years)
+
+    min_price = int(np.floor(min(prices)/1000)*1000)
+    max_price = int(np.ceil(max(prices)/1000)*1000)+1000
+    price_labels = range(min_price,max_price, 1000)
+    plt.yticks(price_labels, price_labels)
+
+    plt.tight_layout()
+
+    graph_path = 'car_prices_graph.jpg'
+    plt.savefig(graph_path)
+
+    with open(graph_path, 'rb') as graph_file:
+        await chat.send('', photo=graph_file.read(), temporary=True)
+
+    os.remove(graph_path)
+    
+
+@setActionFor(USER.CAR_PRICE.CALCULATE_PRICE_BY_MILEAGE)
+async def car_calculate_by_mileage(message: Message):
+    cid, chat = message.chat.id,cm[message.chat.id]
+
+    user_car = Car(cid)
+    start = 0
+    end = 300000
+    step = 15000
+    mileages = range(start, end+step, step)
+    prices = user_car.calculateByMileage(mileages).astype(int)
+    plt.figure(figsize=(13, 8))
+    plt.plot(mileages, prices, linewidth=2)
+    plt.xlabel(P.label_mileage(cid))
+    plt.ylabel(P.label_price(cid))
+    plt.title(P.calculate_by_mileage(cid))
+    plt.grid(linestyle='-', linewidth=1.5)
+    plt.xticks(mileages, mileages,rotation=90)
+
+    min_price = int(np.floor(min(prices)/1000)*1000)
+    max_price = int(np.ceil(max(prices)/1000)*1000)+1000
+    price_labels = range(min_price, max_price, 1000)
+    plt.yticks(price_labels, price_labels)
+
+    plt.tight_layout()
+
+    graph_path = 'car_prices_graph.jpg'
+    plt.savefig(graph_path)
+
+    with open(graph_path, 'rb') as graph_file:
+        await chat.send('', photo=graph_file.read(), temporary=True)
+
+    os.remove(graph_path)
 
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_PRICE)
@@ -66,7 +137,6 @@ async def car_calculate(message: Message):
     markup.add(P.dont_know(cid), USER.CAR_PRICE.CALCULATE_DONT_KNOW, price)
     markup.add(P.my_price(cid), USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
 
-    
     price_dram = f'{round(price * 385):,}'
     price_rub = f'{round(price * 79.7):,}'
     price = f'{price:,}'

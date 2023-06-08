@@ -658,6 +658,17 @@ def deleted(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
+def menu(cid : int, all : bool = False) -> str:
+    '''📜 Menu'''
+    phrases = ['''📜 Մենյու''', '''📜 Меню''', '''📜 Menu''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
 def main_menu(cid : int, all : bool = False) -> str:
     '''For advertisement write to t.me/motormentoradmin
 📜 Menu'''
@@ -830,6 +841,61 @@ def wheel_size(cid : int,wheel_size, all : bool = False) -> str:
 def calculate(cid : int, all : bool = False) -> str:
     '''Calculate'''
     phrases = ['''Հաշվել''', '''Рассчитать''', '''Calculate''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def calculate_by_year(cid : int, all : bool = False) -> str:
+    '''Price graph by year'''
+    phrases = ['''Գների գրաֆիկը ըստ տարիների''', '''График цен по годам''', '''Price graph by year''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def calculate_by_mileage(cid : int, all : bool = False) -> str:
+    '''Price graph by mileage'''
+    phrases = ['''Գների գրաֆիկը ըստ վազքի''', '''График цен по пробегу''', '''Price graph by mileage''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def label_price(cid : int, all : bool = False) -> str:
+    '''Price'''
+    phrases = ['''Գինը''', '''Цена''', '''Price''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def label_year(cid : int, all : bool = False) -> str:
+    '''Year'''
+    phrases = ['''Տարի''', '''Год''', '''Year''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def label_mileage(cid : int, all : bool = False) -> str:
+    '''Mileage'''
+    phrases = ['''Վազքը''', '''Пробег''', '''Mileage''']
     if all:
         return phrases
     if cid > 10:

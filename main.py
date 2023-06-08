@@ -45,7 +45,7 @@ def run():
     logger.info('Saving data...')
     ForSale.Cars.save()
     
-    import train_cars_model
+    #import train_cars_model
     
     botlog("FINISHED SCRAPING")
     

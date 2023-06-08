@@ -22,15 +22,15 @@ async def sendAdTo(cid):
 
 
 async def edit_message(message: Message, id):
-    pattern = r"\s*href=(\S+)"
-
+    pattern = r"href=(.+)"
+    language = int(message.caption[0])
     match = re.search(pattern, message.caption[1:])
+
     if match:
-        language = int(message.caption[0])
-        description = message.caption[2:match.span(1)[0]-4]
         link = match.group(1)
+        description = message.caption[2:match.span(1)[0]-4]
     else:
-        return None, None
+        return language, None
     pattern = r"💳(\d+)([A-Z]+)"
 
     match = re.search(pattern, message.caption)
@@ -45,5 +45,3 @@ async def edit_message(message: Message, id):
 
     await bot.edit_message_caption(message.chat.id, id, caption=description,reply_markup=link_button.getMarkup())
     return language, str(price)+currency
-
-

@@ -56,6 +56,7 @@ class ADMIN:
     DISABLE_AD = State(1034)
     ACTIVATE_AD = State(1036)
 
+    UPDATE_DATA = State(1040)
 class USER:
     MAIN_MENU = State(10)
     LINK_CLICK = State(20)
@@ -98,6 +99,9 @@ class USER:
         CALCULATE_OFFER_PRICE = State(296, 298)
         CALCULATE_OFFER_PRICE_HANDLE = State(298)
         
+        CALCULATE_PRICE_BY_YEAR = State(300)
+        CALCULATE_PRICE_BY_MILEAGE = State(310)
+
     class SUBSCRIPTION:
         INFO = State(900)
         pass

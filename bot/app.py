@@ -59,18 +59,18 @@ def all_exception_handler(loop, context):
 
 async def on_polling_startup(dp):
     Tasks()
-    root_logger= logging.getLogger()
+    root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
     handler = logging.FileHandler('botlog.log', 'a', 'utf-8')
-    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-    root_logger.addHandler(handler)
 
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    root_logger.handlers[0] = handler
     loop = asyncio.get_event_loop()
     loop.set_exception_handler(all_exception_handler)
 
 async def on_polling_shutdown(dp):
     logging.warning("Shutting down..")
-    to_admin.report()
+    await to_admin.report()
     cm.save_all()
     logging.warning("Bot down")
 

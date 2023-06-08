@@ -9,7 +9,7 @@ from phrases import phrases as P
 from loader import *
 from notifications import to_admin
 from states.states import ADMIN, GENERAL,USER, State
-from utils.logging import logging
+import logging
 import ad_engine
 
 languages = {'arm': 0, 'ru' : 1, 'en' : 2}

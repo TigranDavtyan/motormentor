@@ -278,6 +278,86 @@ class Car:
 
         return predictions[0]
 
+    def calculateByYear(self, years):
+        cars = []
+        car = {}
+        car['car_brand'] = self.car_brand
+        car['model'] = self.model
+        car['engine_size'] = self.engine_size
+        car['engine_type'] = self.engine_type
+        car['mileage'] = self.mileage
+        car['body_type'] = self.body_type
+        car['transmission'] = self.transmission
+        car['drive_type'] = self.drive_type
+        car['condition'] = self.condition
+        car['gas_equipment'] = self.gas_equipment
+        car['steering_wheel'] = self.steering_wheel
+        car['exterior_color'] = self.exterior_color
+        car['headlights'] = self.headlights
+        car['interior_color'] = self.interior_color
+        car['interior_material'] = self.interior_material
+        car['sunroof'] = self.sunroof
+        car['wheel_size'] = self.wheel_size
+
+        for year in years:
+            c = car.copy()
+            c['year'] = year
+            cars.append(c)
+
+        encoder = model.getEncoder()
+
+        new_car_data = pd.DataFrame(cars,index = years)
+
+        encoded_data = encoder.transform(new_car_data[['car_brand', 'model', 'body_type', 'engine_type', 'transmission', 'drive_type',
+                                                            'condition', 'gas_equipment', 'steering_wheel', 'exterior_color',
+                                                            'headlights', 'interior_color', 'interior_material', 'sunroof']]).toarray()
+
+        encoded_car_data = pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out(), index  = years)
+        new_car_data_encoded = pd.concat([new_car_data[['year', 'engine_size', 'mileage', 'wheel_size']], encoded_car_data], axis=1)
+
+        predictions = model.getModel().predict(new_car_data_encoded)
+        return predictions
+
+    def calculateByMileage(self, mileages):
+        cars = []
+        car = {}
+        car['car_brand'] = self.car_brand
+        car['model'] = self.model
+        car['year'] = self.year
+        car['engine_size'] = self.engine_size
+        car['engine_type'] = self.engine_type
+        
+        car['body_type'] = self.body_type
+        car['transmission'] = self.transmission
+        car['drive_type'] = self.drive_type
+        car['condition'] = self.condition
+        car['gas_equipment'] = self.gas_equipment
+        car['steering_wheel'] = self.steering_wheel
+        car['exterior_color'] = self.exterior_color
+        car['headlights'] = self.headlights
+        car['interior_color'] = self.interior_color
+        car['interior_material'] = self.interior_material
+        car['sunroof'] = self.sunroof
+        car['wheel_size'] = self.wheel_size
+
+        for mileage in mileages:
+            c = car.copy()
+            c['mileage'] = mileage
+            cars.append(c)
+        
+        encoder = model.getEncoder()
+
+        new_car_data = pd.DataFrame(cars,index = mileages)
+
+        encoded_data = encoder.transform(new_car_data[['car_brand', 'model', 'body_type', 'engine_type', 'transmission', 'drive_type',
+                                                            'condition', 'gas_equipment', 'steering_wheel', 'exterior_color',
+                                                            'headlights', 'interior_color', 'interior_material', 'sunroof']]).toarray()
+
+        encoded_car_data = pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out(), index = mileages)
+        new_car_data_encoded = pd.concat([new_car_data[['year', 'engine_size', 'mileage', 'wheel_size']], encoded_car_data], axis=1)
+
+        predictions = model.getModel().predict(new_car_data_encoded)
+        return predictions
 
     def getBrand(self):
         brand = self.car_brand.replace('_',' ')

@@ -211,6 +211,14 @@ insertPhrase('wheel_size', 'R[wheel_size]', 'R[wheel_size]', 'R[wheel_size]')
 
 
 insertPhrase('calculate', 'Հաշվել', 'Рассчитать', 'Calculate')
+insertPhrase('calculate_by_year', 'Գների գրաֆիկը ըստ տարիների', 'График цен по годам', 'Price graph by year')
+insertPhrase('calculate_by_mileage', 'Գների գրաֆիկը ըստ վազքի', 'График цен по пробегу', 'Price graph by mileage')
+
+insertPhrase('label_price','Գինը','Цена','Price')
+insertPhrase('label_year','Տարի','Год','Year')
+insertPhrase('label_mileage','Վազքը','Пробег','Mileage')
+
+
 insertPhrase('calculate_result_and_ask', 
 '''[url]
 Մեքենայի գինը. 
