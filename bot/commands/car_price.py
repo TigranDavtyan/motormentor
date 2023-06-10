@@ -1,5 +1,5 @@
 import utils.utils as utils
-from aiogram.types import Message
+from aiogram.types import Message, ChatActions
 from buttons.buttons import *
 from config import ADMIN_CHAT_ID
 from loader import *
@@ -36,10 +36,12 @@ async def menu_car_price(message: Message, data = None):
     markup.row([[P.interior_color(cid, user_car.getInteriorColor(lang)), USER.CAR_PRICE.INTERIOR_COLOR],[P.interior_material(cid, user_car.getInteriorMaterial(lang)), USER.CAR_PRICE.INTERIOR_MATERIAL]])
     markup.row([[user_car.getSunroof(lang), USER.CAR_PRICE.SUNROOF],[P.wheel_size(cid, int(user_car.wheel_size)), USER.CAR_PRICE.WHEEL_SIZE]])
 
-    markup.add(P.calculate(cid), USER.CAR_PRICE.CALCULATE_PRICE)
-    markup.add(P.calculate_by_year(cid), USER.CAR_PRICE.CALCULATE_PRICE_BY_YEAR)
-    markup.add(P.calculate_by_mileage(cid), USER.CAR_PRICE.CALCULATE_PRICE_BY_MILEAGE)
-    markup.add(P.menu(cid), USER.MAIN_MENU)
+    markup.add(P.calculate(lang), USER.CAR_PRICE.CALCULATE_PRICE)
+    markup.add(P.calculate_by_year(lang), USER.CAR_PRICE.CALCULATE_PRICE_BY_YEAR)
+    markup.add(P.calculate_by_mileage(lang), USER.CAR_PRICE.CALCULATE_PRICE_BY_MILEAGE)
+    markup.addLink(P.search_for_cars(lang),USER.CAR_PRICE.INFO, link=user_car.getLink())
+
+    markup.add(P.menu(lang), USER.MAIN_MENU)
 
     satisfaction = db.fetchone('''SELECT COUNT(*) AS total_count,SUM(CASE WHEN price % 100 = 0 THEN 1 ELSE 0 END) AS divisible_by_100_count FROM car_price_results;''')
     count = satisfaction[0]
@@ -49,17 +51,18 @@ async def menu_car_price(message: Message, data = None):
     filled = int(round(satisfied/10))
     empty = 10 - filled
 
-    await chat.edit(P.car_price_info(cid, filled * '█', empty * '░', satisfied), markup)
+    await chat.edit(P.car_price_info(lang, filled * '█', empty * '░', satisfied), markup)
     await chat.setState(USER.CAR_PRICE.INFO)
 
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_PRICE_BY_YEAR)
 async def car_calculate_by_year(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
+    await bot.send_chat_action(cid, ChatActions.TYPING)
 
     user_car = Car(cid)
     start = 2000
-    end = 2023
+    end = 2022
     years = range(start,end+1)
     prices = user_car.calculateByYear(years).astype(int)
     plt.figure(figsize=(13, 8))
@@ -68,7 +71,7 @@ async def car_calculate_by_year(message: Message):
     plt.ylabel(P.label_price(cid))
     plt.title(P.calculate_by_year(cid))
     plt.grid(linestyle='-', linewidth=1.5)
-    plt.xticks(years, years)
+    plt.xticks(years, years,rotation=45)
 
     min_price = int(np.floor(min(prices)/1000)*1000)
     max_price = int(np.ceil(max(prices)/1000)*1000)+1000
@@ -90,12 +93,20 @@ async def car_calculate_by_year(message: Message):
 async def car_calculate_by_mileage(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
+    await bot.send_chat_action(cid, ChatActions.TYPING)
+
     user_car = Car(cid)
     start = 0
     end = 300000
-    step = 15000
+    step = 5000
     mileages = range(start, end+step, step)
-    prices = user_car.calculateByMileage(mileages).astype(int)
+    prices = user_car.calculateByMileage(mileages)
+    
+    window_size = 10
+    weights = np.ones(window_size) / window_size
+    prices_avg = np.convolve(prices, weights, mode='valid')
+    prices = np.concatenate((prices[:window_size-1], prices_avg)).astype(int)
+
     plt.figure(figsize=(13, 8))
     plt.plot(mileages, prices, linewidth=2)
     plt.xlabel(P.label_mileage(cid))
@@ -118,7 +129,6 @@ async def car_calculate_by_mileage(message: Message):
         await chat.send('', photo=graph_file.read(), temporary=True)
 
     os.remove(graph_path)
-
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_PRICE)
 async def car_calculate(message: Message):
@@ -144,7 +154,7 @@ async def car_calculate(message: Message):
     await chat.send(P.calculate_result_and_ask(cid,'', price, price_dram, price_rub), markup, temporary=True)
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_GOOD)
-async def car_calculate(message: Message, data):
+async def car_calculate_good(message: Message, data):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     user_car = Car(cid)
@@ -160,7 +170,7 @@ async def car_calculate(message: Message, data):
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_DONT_KNOW)
-async def car_calculate(message: Message, data):
+async def car_calculate_dont_know(message: Message, data):
     cid, chat = message.chat.id,cm[message.chat.id]
     
     data = float(data)
@@ -170,7 +180,6 @@ async def car_calculate(message: Message, data):
 
     await chat.edit(P.calculate_result(cid,'',price, price_dram, price_rub), message_id=message.message_id)
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
-
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
 async def car_calculate_offer(message: Message):
@@ -193,7 +202,6 @@ async def car_calculate_offer_handle(message: Message):
     user_car.save(cid)
 
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
-
 
 @setActionFor(USER.CAR_PRICE.BRAND)
 async def car_brand(message: Message):
@@ -221,7 +229,6 @@ async def car_model(message: Message):
 
     await chat.setState(USER.CAR_PRICE.MODEL)
 
-
 @setActionFor(USER.CAR_PRICE.EXTERIOR_COLOR)
 async def car_exterior_color(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
@@ -236,7 +243,6 @@ async def car_exterior_color(message: Message):
 
     await chat.setState(USER.CAR_PRICE.EXTERIOR_COLOR)
 
-
 @setActionFor(USER.CAR_PRICE.BODY_TYPE)
 async def car_body_type(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
@@ -250,7 +256,6 @@ async def car_body_type(message: Message):
     await chat.edit(P.choose_car_body_type(cid), markup)
 
     await chat.setState(USER.CAR_PRICE.BODY_TYPE)
-
 
 @setActionFor(USER.CAR_PRICE.ENGINE_TYPE)
 async def car_engine_type(message: Message):
@@ -308,8 +313,6 @@ async def car_condition(message: Message):
 
     await chat.setState(USER.CAR_PRICE.CONDITION)
 
-
-
 @setActionFor(USER.CAR_PRICE.STEERING_WHEEL)
 async def car_steering_wheel(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
@@ -323,8 +326,6 @@ async def car_steering_wheel(message: Message):
     await chat.edit(P.choose_car_steering_wheel(cid), markup)
 
     await chat.setState(USER.CAR_PRICE.STEERING_WHEEL)
-
-
 
 @setActionFor(USER.CAR_PRICE.HEADLIGHTS)
 async def car_headlights(message: Message):
@@ -340,8 +341,6 @@ async def car_headlights(message: Message):
 
     await chat.setState(USER.CAR_PRICE.HEADLIGHTS)
 
-
-
 @setActionFor(USER.CAR_PRICE.GAS_EQUIPMENT)
 async def car_gas_equipment(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
@@ -356,8 +355,6 @@ async def car_gas_equipment(message: Message):
 
     await chat.setState(USER.CAR_PRICE.GAS_EQUIPMENT)
 
-
-
 @setActionFor(USER.CAR_PRICE.INTERIOR_COLOR)
 async def car_interior_color(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
@@ -371,7 +368,6 @@ async def car_interior_color(message: Message):
     await chat.edit(P.choose_car_interior_color(cid), markup)
 
     await chat.setState(USER.CAR_PRICE.INTERIOR_COLOR)
-
 
 @setActionFor(USER.CAR_PRICE.INTERIOR_MATERIAL)
 async def car_interior_material(message: Message):
@@ -402,88 +398,93 @@ async def car_sunroof(message: Message):
     await chat.setState(USER.CAR_PRICE.SUNROOF)
 
 
+
+
+
 @setActionFor(USER.CAR_PRICE.YEAR)
-async def car_year(message: Message):
+async def car_year(message: Message, data=None):
     cid, chat = message.chat.id,cm[message.chat.id]
+    if data:
+        start_year = int(data)
+    else:
+        start_year = 2010
 
-    await chat.setState(USER.CAR_PRICE.YEAR)
-    await chat.send(P.choose_car_year(cid), temporary=True)
-
-@setActionFor(USER.CAR_PRICE.YEAR_HANDLE)
-async def car_year_handle(message: Message):
-    cid, chat = message.chat.id,cm[message.chat.id]
-
-    try:
-        year = int(message.text)
-    except:
-        await chat.send(P.wrong_action(cid))
-        return
+    markup = Buttons()
     
-    await State.get(USER.CAR_PRICE.INFO)(message, f'year:{year}')
+    markup.add('🔼', USER.CAR_PRICE.YEAR, start_year - 8)
+    
+    for year in range(start_year,start_year + 8):
+        markup.add(str(year), USER.CAR_PRICE.INFO, f'year:{year}')
+    
+    markup.add('🔽', USER.CAR_PRICE.YEAR, start_year + 8)
+
+    await chat.edit(P.choose_car_year(cid), markup)
+    await chat.setState(USER.CAR_PRICE.YEAR)
 
 
 @setActionFor(USER.CAR_PRICE.MILEAGE)
-async def car_mileage(message: Message):
+async def car_mileage(message: Message, data = None):
     cid, chat = message.chat.id,cm[message.chat.id]
+    if data:
+        start_mileage = int(data)
+    else:
+        start_mileage = 100000
 
-    await chat.setState(USER.CAR_PRICE.MILEAGE)
-    await chat.send(P.choose_car_mileage(cid), temporary=True)
-
-@setActionFor(USER.CAR_PRICE.MILEAGE_HANDLE)
-async def car_mileage_handle(message: Message):
-    cid, chat = message.chat.id,cm[message.chat.id]
-
-    try:
-        mileage = int(message.text)
-    except:
-        await chat.send(P.wrong_action(cid))
-        return
+    markup = Buttons()
+    step = 5000
+    markup.add('🔼', USER.CAR_PRICE.MILEAGE, start_mileage-step*8)
     
-    await State.get(USER.CAR_PRICE.INFO)(message, f'mileage:{mileage}')
+    for mileage in range(start_mileage, start_mileage+step*8, step):
+        markup.add(P.mileage(cid, mileage), USER.CAR_PRICE.INFO, f'mileage:{mileage}')
+    
+    markup.add('🔽', USER.CAR_PRICE.MILEAGE, start_mileage+step*8)
+    
+    await chat.edit(P.choose_car_mileage(cid), markup)
+    await chat.setState(USER.CAR_PRICE.MILEAGE)
 
 
 @setActionFor(USER.CAR_PRICE.ENGINE_SIZE)
-async def car_engine_size(message: Message):
+async def car_engine_size(message: Message, data = None):
     cid, chat = message.chat.id,cm[message.chat.id]
 
+    if data:
+        start_engine_size= float(data)
+    else:
+        start_engine_size = 1.0
+
+    markup = Buttons()
+    step = 0.8
+    markup.add('🔼', USER.CAR_PRICE.ENGINE_SIZE, start_engine_size - step)
+    
+    for engine_size in np.arange(start_engine_size, start_engine_size + step, 0.1):
+        engine_size = round(engine_size, 1)
+        markup.add(f'{engine_size} L', USER.CAR_PRICE.INFO, f'engine_size:{engine_size}')
+    
+    markup.add('🔽', USER.CAR_PRICE.ENGINE_SIZE, start_engine_size + step)
+
+    await chat.edit(P.choose_car_engine_size(cid), markup)
     await chat.setState(USER.CAR_PRICE.ENGINE_SIZE)
-    await chat.send(P.choose_car_engine_size(cid), temporary=True)
-
-@setActionFor(USER.CAR_PRICE.ENGINE_SIZE_HANDLE)
-async def car_engine_size_handle(message: Message):
-    cid, chat = message.chat.id,cm[message.chat.id]
-
-    try:
-        engine_size = float(message.text.replace(',','.'))
-    except:
-        await chat.send(P.wrong_action(cid),temporary=True)
-        return
-    
-    await State.get(USER.CAR_PRICE.INFO)(message, f'engine_size:{engine_size}')
-    
-
 
 @setActionFor(USER.CAR_PRICE.WHEEL_SIZE)
-async def car_wheel_size(message: Message):
+async def car_wheel_size(message: Message, data = None):
     cid, chat = message.chat.id,cm[message.chat.id]
 
-    await chat.setState(USER.CAR_PRICE.WHEEL_SIZE)
-    await chat.send(P.choose_car_wheel_size(cid), temporary=True)
+    if data:
+        start_wheel_size= int(data)
+    else:
+        start_wheel_size = 13
 
-@setActionFor(USER.CAR_PRICE.WHEEL_SIZE_HANDLE)
-async def car_wheel_size_handle(message: Message):
-    cid, chat = message.chat.id,cm[message.chat.id]
-
-    try:
-        wheel_size = int(message.text)
-    except:
-        await chat.send(P.wrong_action(cid))
-        return
+    markup = Buttons()
     
-    await State.get(USER.CAR_PRICE.INFO)(message, f'wheel_size:{wheel_size}')
+    markup.add('🔼', USER.CAR_PRICE.WHEEL_SIZE, start_wheel_size - 8)
+    
+    for wheel_size in range(start_wheel_size, start_wheel_size + 8):
+        markup.add('R'+str(wheel_size), USER.CAR_PRICE.INFO, f'wheel_size:{wheel_size}')
+    
+    markup.add('🔽', USER.CAR_PRICE.WHEEL_SIZE, start_wheel_size + 8)
 
-
-
+    await chat.edit(P.choose_car_wheel_size(cid), markup)
+    await chat.setState(USER.CAR_PRICE.WHEEL_SIZE)
 
 
 

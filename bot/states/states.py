@@ -57,6 +57,11 @@ class ADMIN:
     ACTIVATE_AD = State(1036)
 
     UPDATE_DATA = State(1040)
+
+    BROADCAST = State(1050, 1052)
+    BROADCAST_HANDLE = State(1052, 1054)
+    BROADCAST_CONFIRM = State(1054)
+
 class USER:
     MAIN_MENU = State(10)
     LINK_CLICK = State(20)

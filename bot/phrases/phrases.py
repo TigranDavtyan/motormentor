@@ -761,6 +761,17 @@ def listam_not_possible(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
+def search_for_cars(cid : int, all : bool = False) -> str:
+    '''Search for cars like this'''
+    phrases = ['''Փնտրել նման մեքենաներ''', '''Искать такие машины''', '''Search for cars like this''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
 def wrong_format(cid : int, all : bool = False) -> str:
     '''❌ Wrong format, try again'''
     phrases = ['''❌ Սխալ ձևաչափ, նորից փորձեք''', '''❌ Неверный формат, попробуйте еще раз''', '''❌ Wrong format, try again''']
@@ -1076,8 +1087,8 @@ def choose_car_model(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def choose_car_year(cid : int, all : bool = False) -> str:
-    '''⚠️Please enter the manufacturing year of your car, for example "2018".'''
-    phrases = ['''⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի արտադրության տարեթիվը, օրինակ՝ «2018»:''', '''⚠️Пожалуйста, введите год выпуска вашего автомобиля, например "2018".''', '''⚠️Please enter the manufacturing year of your car, for example "2018".''']
+    '''Please choose the manufacturing year of your car.'''
+    phrases = ['''Խնդրում ենք ընտրել ձեր մեքենայի արտադրության տարեթիվը:''', '''Пожалуйста, выберите год выпуска вашего автомобиля.''', '''Please choose the manufacturing year of your car.''']
     if all:
         return phrases
     if cid > 10:
@@ -1087,8 +1098,8 @@ def choose_car_year(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def choose_car_mileage(cid : int, all : bool = False) -> str:
-    '''⚠️Please enter the mileage of your car, for example "68000".'''
-    phrases = ['''⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի վազքը, օրինակ՝ «68000»:''', '''⚠️Пожалуйста, введите пробег вашего автомобиля, например "68000".''', '''⚠️Please enter the mileage of your car, for example "68000".''']
+    '''Please choose the mileage of your car.'''
+    phrases = ['''Խնդրում ենք ընտրել ձեր մեքենայի վազքը:''', '''Пожалуйста, выберите пробег вашего автомобиля.''', '''Please choose the mileage of your car.''']
     if all:
         return phrases
     if cid > 10:
@@ -1098,8 +1109,8 @@ def choose_car_mileage(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def choose_car_engine_size(cid : int, all : bool = False) -> str:
-    '''⚠️Please enter the engine size of your car, for example "2.5".'''
-    phrases = ['''⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի շարժիչի չափը, օրինակ՝ «2.5»:''', '''⚠️Пожалуйста, введите объем двигателя вашего автомобиля, например "2,5".''', '''⚠️Please enter the engine size of your car, for example "2.5".''']
+    '''Please choose the engine size of your car.'''
+    phrases = ['''Խնդրում ենք ընտրել ձեր մեքենայի շարժիչի չափը:''', '''Пожалуйста, выберите объем двигателя вашего автомобиля.''', '''Please choose the engine size of your car.''']
     if all:
         return phrases
     if cid > 10:
@@ -1241,8 +1252,8 @@ def choose_car_sunroof(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def choose_car_wheel_size(cid : int, all : bool = False) -> str:
-    '''⚠️Please enter the wheel size of your car, for example "16".'''
-    phrases = ['''⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի անիվի չափը, օրինակ՝ «16»:''', '''⚠️Пожалуйста, введите размер колес вашего автомобиля, например "16".''', '''⚠️Please enter the wheel size of your car, for example "16".''']
+    '''Please choose the wheel size of your car.'''
+    phrases = ['''Խնդրում ենք ընտրել ձեր մեքենայի անիվի չափը:''', '''Пожалуйста, выберите размер колес вашего автомобиля.''', '''Please choose the wheel size of your car.''']
     if all:
         return phrases
     if cid > 10:

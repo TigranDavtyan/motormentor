@@ -192,7 +192,9 @@ insertPhrase('listam_not_possible',
              'Ես չեմ կարող ներմուծել այս մեքենաների տվյալները, փորձեք մեկ ուրիշը:', 
              'Я не могу импортировать данные этого автомобиля, попробуйте другой.', 
              'I cant import this cars data, try another one.')
-# insertPhrase('calculate', 'Հաշվել', 'Рассчитать', 'Calculate')
+
+insertPhrase('search_for_cars', 'Փնտրել նման մեքենաներ', 'Искать такие машины', 'Search for cars like this')
+
 # insertPhrase('calculate', 'Հաշվել', 'Рассчитать', 'Calculate')
 # insertPhrase('calculate', 'Հաշվել', 'Рассчитать', 'Calculate')
 # insertPhrase('calculate', 'Հաշվել', 'Рассчитать', 'Calculate')
@@ -314,17 +316,17 @@ insertPhrase('choose_car_model',
     'Please choose the model of your car. If the model of your car is not shown below it means there is not enough data and the AI cant make a good prediction.')
 
 insertPhrase('choose_car_year',
-    '⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի արտադրության տարեթիվը, օրինակ՝ «2018»:',
-    '⚠️Пожалуйста, введите год выпуска вашего автомобиля, например "2018".',
-    '⚠️Please enter the manufacturing year of your car, for example "2018".')
+    'Խնդրում ենք ընտրել ձեր մեքենայի արտադրության տարեթիվը:',
+    'Пожалуйста, выберите год выпуска вашего автомобиля.',
+    'Please choose the manufacturing year of your car.')
 insertPhrase('choose_car_mileage',
-    '⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի վազքը, օրինակ՝ «68000»:',
-    '⚠️Пожалуйста, введите пробег вашего автомобиля, например "68000".',
-    '⚠️Please enter the mileage of your car, for example "68000".')
+    'Խնդրում ենք ընտրել ձեր մեքենայի վազքը:',
+    'Пожалуйста, выберите пробег вашего автомобиля.',
+    'Please choose the mileage of your car.')
 insertPhrase('choose_car_engine_size',       
-    '⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի շարժիչի չափը, օրինակ՝ «2.5»:',
-    '⚠️Пожалуйста, введите объем двигателя вашего автомобиля, например "2,5".',
-    '⚠️Please enter the engine size of your car, for example "2.5".')
+    'Խնդրում ենք ընտրել ձեր մեքենայի շարժիչի չափը:',
+    'Пожалуйста, выберите объем двигателя вашего автомобиля.',
+    'Please choose the engine size of your car.')
 insertPhrase('choose_car_exterior_color',
     'Խնդրում ենք ընտրել ձեր մեքենայի արտաքին գույնը:',
     'Пожалуйста, выберите цвет кузова вашего автомобиля.',
@@ -374,10 +376,9 @@ insertPhrase('choose_car_sunroof',
     'Пожалуйста, укажите, есть ли в вашем автомобиле люк на крыше.',
     'Please specify if your car has a sunroof.')
 insertPhrase('choose_car_wheel_size',
-    '⚠️Խնդրում ենք մուտքագրել ձեր մեքենայի անիվի չափը, օրինակ՝ «16»:',
-    '⚠️Пожалуйста, введите размер колес вашего автомобиля, например "16".',
-    '⚠️Please enter the wheel size of your car, for example "16".')
-
+    'Խնդրում ենք ընտրել ձեր մեքենայի անիվի չափը:',
+    'Пожалуйста, выберите размер колес вашего автомобиля.',
+    'Please choose the wheel size of your car.')
 
 
 insertPhrase('best_offers', 'Լավագույն առաջարկներ', 'Лучшие предложения', 'Best offers')

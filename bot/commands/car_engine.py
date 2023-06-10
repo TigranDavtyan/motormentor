@@ -22,6 +22,9 @@ class Model:
     mdata = None
     data_filename = '../ForSale/Cars/listings.csv'
 
+    brand_ids = None
+    brand_ids_filename = 'brands.json'
+
     def __init__(self):
         if not Model.file:
             with open(Model.filename, 'r') as file:
@@ -42,6 +45,10 @@ class Model:
             Model.data = pd.read_csv(Model.data_filename)
             Model.data.set_index('itemid', inplace=True)
             Model.mdata = os.path.getmtime(Model.data_filename)
+        
+        if not Model.brand_ids:
+            with open(Model.brand_ids_filename, 'r') as file:
+                Model.brand_ids = json.load(file)
 
     def update(self):
         new_mtime = os.path.getmtime(Model.filename)
@@ -169,6 +176,75 @@ default_car = {
     'wheel_size' : 17
    }
 
+body_types = {
+"sedan":1,
+"hatchback":2,
+"wagon":3,
+"coupe":4,
+"suv_/_crossover":5,
+"minivan":6,
+"pickup":7,
+"minibus":8,
+"van":9,
+"convertible":10,
+"limo":11,
+"roadster":12,
+"liftback":13,
+"fastback":14,
+"compact mpv":15
+}
+
+engine_types = {
+"gasoline" : 1,
+"diesel" : 2,
+"hybrid" : 4,
+"electric" : 5
+}
+
+transmissions = {
+    'manual' : 1,
+    'automatic' : 2
+}
+
+drive_types = {
+"front_wheel_drive" : 1,
+"rear_wheel_drive" : 2,
+"all_wheel_drive" : 3
+}
+
+conditions = {
+"car_is_not_damaged":1,
+"car_is_damaged":2
+}
+
+gas_equipments = {
+ 'not Installed' : 1,
+ 'installed' : 2
+}
+
+steering_wheels = {
+    'left' : 1,
+    'right' : 2
+}
+
+exterior_colors = {
+"white" : 1,
+"silver" : 2,
+"gray" : 3,
+"black" : 4,
+"brown" : 5,
+"gold" : 6,
+"beige" : 7,
+"red" : 8,
+"blue" : 9,
+"orange" : 10,
+"yellow" : 11,
+"green" : 12,
+"cyan" : 13,
+"maroon" : 14,
+"pink" : 15,
+"purple" : 16
+}
 class Car:
     def __init__(self, cid, df_item = None):
         car = db.fetchone('SELECT car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,transmission,drive_type,condition,gas_equipment,steering_wheel,headlights,interior_color,interior_material,sunroof,wheel_size,price FROM car_prices WHERE cid = ?',(cid,))
@@ -358,6 +434,34 @@ class Car:
 
         predictions = model.getModel().predict(new_car_data_encoded)
         return predictions
+
+    def getLink(self):
+        brand_data = Model.brand_ids[self.car_brand]
+        brand = brand_data['id']
+        model = brand_data['models'][self.model]
+        body_type = body_types[self.body_type]
+        start_year = self.year
+        end_year = self.year
+        engine_type = engine_types[self.engine_type]
+        engine_size = self.engine_size
+        transmission = transmissions[self.transmission]
+        drive_type = drive_types[self.drive_type]
+
+        condition = conditions[self.condition]
+
+        mileage_start = self.mileage-8000
+        mileage_end = self.mileage+8000
+
+        gas_equipment = gas_equipments[self.gas_equipment]
+        steering_wheel = steering_wheels[self.steering_wheel]
+        exterior_color = exterior_colors[self.exterior_color]
+        wheel_size = self.wheel_size
+
+        link = f'''https://www.list.am/category/23?n=0&bid={brand}&mid={model}&crc=&_a27={body_type}&_a2_1={start_year}&_a2_2={end_year}&_a15={engine_type}
+        &_a28_1={engine_size}&_a28_2=&_a13={transmission}&_a23={drive_type}&_a1_1={mileage_start}&_a1_2={mileage_end}&_a109={condition}&_a43={gas_equipment}
+        &_a16={steering_wheel}&_a17=2&_a22={exterior_color}&_a105={wheel_size}&_a106=0&_a102=0&_a103=0&_a104=0'''
+        
+        return link
 
     def getBrand(self):
         brand = self.car_brand.replace('_',' ')
