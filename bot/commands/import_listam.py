@@ -57,6 +57,12 @@ async def show_price_updates(message: Message, data):
 
     text = ''
     for i,update in enumerate(updates):
-        text += f'\n{i+1} | {update[0]} {update[1]}$'
+        if update[1] == -1:
+            continue
+        date_str = str(update[0])[:10]
+        text += f'\n{i+1} | {date_str}   {round(update[1])}$'
     
-    await chat.send(text, temporary=True)
+    if text == '':
+        await chat.send(P.no_price_updates(cid), temporary=True)
+    else:
+        await chat.send(text, temporary=True)

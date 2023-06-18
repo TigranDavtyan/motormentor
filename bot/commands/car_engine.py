@@ -277,11 +277,12 @@ class Car:
     def __init__(self, cid, df_item = None):
         car = db.fetchone('SELECT car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,transmission,drive_type,condition,gas_equipment,steering_wheel,headlights,interior_color,interior_material,sunroof,wheel_size,price FROM car_prices WHERE cid = ?',(cid,))
         if df_item is not None:
+            df_item = dict(df_item)
             for column in df_item.keys():
                 if pd.isna(df_item[column]):
                     if column in default_car.keys():
                         df_item[column] = default_car[column]
-                        
+
             if not car:
                 db.query('''INSERT INTO car_prices (cid,car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,
                     transmission,drive_type,condition,gas_equipment,steering_wheel,headlights,interior_color,interior_material,sunroof,wheel_size,price)

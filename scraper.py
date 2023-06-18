@@ -278,12 +278,12 @@ class Category:
         closed = 0
 
         #if there is an item id which exists in db but not in the newly scraped list we flag them as finished
-        for itemid in self.df.index:
-            new_ids = [item['itemid'] for item in self.itemids]
+        new_ids = set([item['itemid'] for item in self.itemids])
+        for itemid in self.df[self.df['closed_item']==0].index:
             if itemid not in new_ids:
                 if itemid not in self.items:
                     self.items[itemid] = []
-                self.items[itemid].append([datetime.now(), -1])
+                self.items[itemid].append([datetime.now().date(), -1])
                 self.df.at[itemid, 'closed_item'] = 1
                 self.df.at[itemid, 'update_date'] = datetime.now().date()
                 closed += 1
@@ -329,13 +329,14 @@ class Category:
                     updated += 1
                 elif page == 404:
                     closed += 1
-                    self.items[itemid].append([datetime.now(), -1])
+                    self.items[itemid].append([datetime.now().date(), -1])
                     self.df.at[itemid, 'closed_item'] = 1
                     self.df.at[itemid, 'update_date'] = datetime.now().date()
 
             except Exception as e:
-                traceback.print_exc()
-                logger.error(f'{item} passed because {e}')
+                time.sleep(1)
+                # traceback.print_exc()
+                logger.error(f'{item} passed')
                 error+=1
                 continue
 
