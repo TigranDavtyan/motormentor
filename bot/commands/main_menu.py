@@ -13,7 +13,10 @@ async def cmd_menu_user(message: Message, is_main_message: bool = False):
 
     markup.add(P.get_car_price(cid), USER.CAR_PRICE.INFO)
     markup.add(P.import_from_listam(cid), USER.IMPORT_LISTAM.INFO)
+    markup.add(P.saved_cars(cid), USER.SAVED.INFO)
     markup.add(P.general_info(cid), USER.INFO_PAGE)
+    markup.add(P.referral(cid), USER.REFERRAL.INFO)
+    markup.add(P.subscription(cid), USER.SUBSCRIPTION.INFO)
     markup.add(P.language_change(cid), GENERAL.LANGUAGE.CHOOSE)
 
     if not message.from_user.is_bot or is_main_message:

@@ -185,6 +185,7 @@ class Category:
     def __init__(self, id, url, verbose=True):
         self.id = id
         self.url = url
+        self.df = None
         self.itemids = []
         self.items = {}
         self.verbose = verbose
@@ -211,7 +212,7 @@ class Category:
 
             self.df = pd.DataFrame(columns=parent_class.properties.getColumnNames())
             self.df.set_index('itemid', inplace=True)
-            self.df.to_csv(filename)
+            self.df.to_csv(filename, index=False)
 
         filename = f'{self.clsname}/{self.objname}/updates.pickle'
         if os.path.isfile(filename):
@@ -226,7 +227,6 @@ class Category:
         else: pagestr = page
 
         return self.url.format(id=self.id, page=pagestr)
-
 
     def getItemIds(self, limit=None):
         next = None
@@ -361,6 +361,14 @@ class Category:
         
         with open(f'{directory}/updates.pickle', 'wb') as f:
             pickle.dump(self.items, f)
+
+    def clear(self):
+        del self.itemids
+        del self.items
+        del self.df
+        self.itemids = []
+        self.items = {}
+        self.df = None
 
 class ForSale:
     url = 'https://www.list.am/en/category/{id}/{page}'

@@ -13,26 +13,30 @@ By providing details about your car, such as brand, model, year, mileage, and mo
 
 Please note that the predictions provided are estimates based on available data. Actual market prices may vary due to factors like location, condition, and market demand.
 
-Enjoy using the Motor Mentor Bot! Feel free to ask any questions you may have along the way. Let's begin!'''
+Enjoy using the Motor Mentor Bot! Feel free to ask any questions to the admin. Let's begin! 
+<a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>'''
     phrases = ['''Բարի գալուստ Motor Mentor Bot: Այս բոտը կանխատեսում է մեքենաների գները՝ հիմնվելով տարբեր հատկանիշների վրա: Անկախ նրանից, թե դուք վաճառում եք, գնում եք կամ հետաքրքրված եք շուկայի միտումների վերլուծությամբ, այս բոտն այստեղ է ձեզ օգնելու համար:
 
 Տրամադրելով ձեր մեքենայի մասին մանրամասներ, ինչպիսիք են ապրանքանիշը, մոդելը, տարին, վազքը և այլն, բոտը կգնահատի ձեր մեքենայի գների միջակայքը: Սա կարող է օգնել ձեզ սահմանել մրցունակ վաճառքի գին, կայացնել տեղեկացված գնման որոշումներ կամ ձեռք բերել պատկերացումներ մեքենաների գների վրա ազդող գործոնների մասին:
 
 Խնդրում ենք նկատի ունենալ, որ ներկայացված կանխատեսումները գնահատումներ են՝ հիմնված առկա տվյալների վրա: Իրական շուկայական գները կարող են տարբեր լինել՝ պայմանավորված այնպիսի գործոններով, ինչպիսիք են գտնվելու վայրը, վիճակը և շուկայական պահանջարկը:
 
-Ազատորեն տվեք ցանկացած հարց: Վայելե՛ք Motor Mentor Bot-ը: Եկեք սկսենք!''', '''Добро пожаловать в бота Motor Mentor! Этот бот прогнозирует цены на автомобили на основе различных характеристик. Если вы продаете, покупаете или интересуетесь анализом рыночных тенденций, этот бот здесь, чтобы помочь вам.
+Ազատորեն ցանկացած հարց ուղղեք ադմինին: Վայելե՛ք Motor Mentor Bot-ը: Եկեք սկսենք!
+<a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''', '''Добро пожаловать в бота Motor Mentor! Этот бот прогнозирует цены на автомобили на основе различных характеристик. Если вы продаете, покупаете или интересуетесь анализом рыночных тенденций, этот бот здесь, чтобы помочь вам.
 
 Предоставляя информацию о вашем автомобиле, такую как марка, модель, год выпуска, пробег и т. д., бот оценит диапазон цен на ваш автомобиль. Это может помочь вам установить конкурентоспособную цену продажи, принять обоснованное решение о покупке или получить представление о факторах, влияющих на цену автомобиля.
 
 Обратите внимание, что представленные прогнозы являются оценками, основанными на доступных данных. Фактические рыночные цены могут варьироваться в зависимости от таких факторов, как местоположение, состояние и рыночный спрос.
 
-Наслаждайтесь использованием бота Motor Mentor! Не стесняйтесь задавать любые вопросы, которые могут у вас возникнуть по пути. Давай начнем!''', '''Welcome to the Motor Mentor Bot! This bot predicts car prices based on various features. Whether you're selling, buying, or interested in analyzing market trends, this bot is here to assist you.
+Наслаждайтесь использованием бота Motor Mentor! Не стесняйтесь задавать любые вопросы администратору. Давай начнем!
+<a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''', '''Welcome to the Motor Mentor Bot! This bot predicts car prices based on various features. Whether you're selling, buying, or interested in analyzing market trends, this bot is here to assist you.
 
 By providing details about your car, such as brand, model, year, mileage, and more, the bot will estimate the price range for your vehicle. This can help you set a competitive selling price, make informed buying decisions, or gain insights into the factors that influence car prices.
 
 Please note that the predictions provided are estimates based on available data. Actual market prices may vary due to factors like location, condition, and market demand.
 
-Enjoy using the Motor Mentor Bot! Feel free to ask any questions you may have along the way. Let's begin!''']
+Enjoy using the Motor Mentor Bot! Feel free to ask any questions to the admin. Let's begin! 
+<a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''']
     if all:
         return phrases
     if cid > 10:
@@ -529,31 +533,20 @@ def anonymous(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
-def payment_successfull(cid : int,pay_amount,days, all : bool = False) -> str:
-    '''You have paid [pay_amount] dram so your subscription is prolonged for [days] days.'''
-    phrases = ['''Դուք վճարել եք [pay_amount] դրամ, ուստի ձեր բաժանորդագրությունը երկարաձգվում է [days] օրով:''', '''Вы заплатили [pay_amount] драм, ваша подписка продлена на [days] дней.''', '''You have paid [pay_amount] dram so your subscription is prolonged for [days] days.''']
+def payment_successfull(cid : int,sub_end, all : bool = False) -> str:
+    '''Your payment was successfull🎉 Subscription ends at [sub_end]. Now you can feel the real power of this bot💪'''
+    phrases = ['''Ձեր վճարումը հաջող է եղել🎉 Բաժանորդագրությունն ավարտվում է [sub_end]-ին: Այժմ դուք կարող եք զգալ այս բոտի իրական ուժը💪''', '''Ваш платеж прошел успешно🎉 Подписка заканчивается в [sub_end]. Теперь вы можете почувствовать настоящую мощь этого бота💪''', '''Your payment was successfull🎉 Subscription ends at [sub_end]. Now you can feel the real power of this bot💪''']
     if all:
         return phrases
     if cid > 10:
         lang = db.getUserLang(cid)
     else: 
         lang = cid
-    return phrases[lang].replace("[pay_amount]",str(pay_amount)).replace("[days]",str(days))
+    return phrases[lang].replace("[sub_end]",str(sub_end))
 
-def billing_info(cid : int,date,days,pay_amount, all : bool = False) -> str:
-    '''Payment date is [date] ([days] days until payment). Payment amount is [pay_amount] dram.'''
-    phrases = ['''Վճարման ամսաթիվը [date] է ([days] օր մինչև վճարումը): Վճարման գումարը [pay_amount] դրամ է:''', '''Дата платежа [date] ([days] дней до платежа). Сумма платежа составляет [pay_amount] драм.''', '''Payment date is [date] ([days] days until payment). Payment amount is [pay_amount] dram.''']
-    if all:
-        return phrases
-    if cid > 10:
-        lang = db.getUserLang(cid)
-    else: 
-        lang = cid
-    return phrases[lang].replace("[date]",str(date)).replace("[days]",str(days)).replace("[pay_amount]",str(pay_amount))
-
-def pay_button(cid : int, all : bool = False) -> str:
-    '''💵 Pay'''
-    phrases = ['''💵 Վճարել''', '''💵 Платить''', '''💵 Pay''']
+def subscription(cid : int, all : bool = False) -> str:
+    '''⭐️ Subscription'''
+    phrases = ['''⭐️ Բաժանորդագրություն''', '''⭐️ Подписка''', '''⭐️ Subscription''']
     if all:
         return phrases
     if cid > 10:
@@ -562,9 +555,9 @@ def pay_button(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
-def payment_image_sent(cid : int, all : bool = False) -> str:
-    '''Thank you! The admin will review the invoice and will prolong your subscription 🙂'''
-    phrases = ['''Շնորհակալություն! Ադմինը կվերանայի հաշիվ-ապրանքագիրը և կերկարաձգի ձեր բաժանորդագրությունը 🙂''', '''Спасибо! Админ рассмотрит счет и продлит подписку 🙂''', '''Thank you! The admin will review the invoice and will prolong your subscription 🙂''']
+def sub_free(cid : int, all : bool = False) -> str:
+    '''Free'''
+    phrases = ['''Անվճար''', '''Бесплатный''', '''Free''']
     if all:
         return phrases
     if cid > 10:
@@ -573,20 +566,53 @@ def payment_image_sent(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
-def payment_accepted(cid : int,price, all : bool = False) -> str:
-    '''Your payment of [price] dram was successful.'''
-    phrases = ['''Ձեր [price] դրամ վճարումը հաջող է եղել''', '''Ваш платеж в размере [price] драма успешно завершен''', '''Your payment of [price] dram was successful.''']
+def sub_premium(cid : int, all : bool = False) -> str:
+    '''Premium'''
+    phrases = ['''Պրեմիում''', '''Премиум''', '''Premium''']
     if all:
         return phrases
     if cid > 10:
         lang = db.getUserLang(cid)
     else: 
         lang = cid
-    return phrases[lang].replace("[price]",str(price))
+    return phrases[lang]
+
+def sub_business(cid : int, all : bool = False) -> str:
+    '''Business'''
+    phrases = ['''Բիզնես''', '''Бизнес''', '''Business''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def sub_info_free(cid : int, all : bool = False) -> str:
+    '''Your subscription is "Free". If you want to have a "Premium" subscription contact the admin. It only costs <b>990 AMD</b> but you get a lot of useful functionality. <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>'''
+    phrases = ['''Ձեր բաժանորդագրությունը «Անվճար» է: Եթե ցանկանում եք ունենալ «Պրեմիում» բաժանորդագրություն, դիմեք ադմինիստրատորին: Այն արժե ընդամենը <b>990 դրամ</b>, բայց դուք ստանում եք շատ օգտակար ֆունկցիոնալություն: <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''', '''Ваша подписка "Бесплатная". Если вы хотите иметь подписку «Премиум», свяжитесь с администратором. Это стоит всего <b>990 драм</b>, но вы получаете много полезного функционала. <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''', '''Your subscription is "Free". If you want to have a "Premium" subscription contact the admin. It only costs <b>990 AMD</b> but you get a lot of useful functionality. <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def sub_info_premium(cid : int,sub_end_days, all : bool = False) -> str:
+    '''Your subscription is "Premium". It ends in [sub_end_days] days. If you want to prolonge the subscription contact the admin. <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>'''
+    phrases = ['''Ձեր բաժանորդագրությունը «Պրեմիում» է: Այն ավարտվում է [sub_end_days] օրից: Եթե ցանկանում եք երկարացնել բաժանորդագրությունը, դիմեք ադմինիստրատորին։ <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''', '''Ваша подписка "Премиум". Он заканчивается через [sub_end_days] дней. Если вы хотите продлить подписку, свяжитесь с администратором. <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''', '''Your subscription is "Premium". It ends in [sub_end_days] days. If you want to prolonge the subscription contact the admin. <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[sub_end_days]",str(sub_end_days))
 
 def subscription_not_enough(cid : int,user_sub,min_sub, all : bool = False) -> str:
-    '''Your subscription level ([user_sub]) is not sufficient for this action. Minimum subscription level for this action is [min_sub]'''
-    phrases = ['''Ձեր բաժանորդագրության մակարդակը ([user_sub]) բավարար չէ այս գործողության համար: Այս գործողության համար բաժանորդագրության նվազագույն մակարդակը [min_sub] է''', '''Уровень вашей подписки ([user_sub]) недостаточен для этого действия. Минимальный уровень подписки для этого действия: [min_sub]''', '''Your subscription level ([user_sub]) is not sufficient for this action. Minimum subscription level for this action is [min_sub]''']
+    '''Your subscription ([user_sub]) is not sufficient for this action. Minimum subscription level for this action is "[min_sub]"․ Contact the admin '''
+    phrases = ['''Ձեր բաժանորդագրությանը ([user_sub]) բավարար չէ այս գործողության համար: Այս գործողության համար բաժանորդագրության նվազագույն մակարդակը "[min_sub]" է''', '''Уровень вашей подписки ([user_sub]) недостаточен для этого действия. Минимальный уровень подписки для этого действия: "[min_sub]"''', '''Your subscription ([user_sub]) is not sufficient for this action. Minimum subscription level for this action is "[min_sub]"․ Contact the admin ''']
     if all:
         return phrases
     if cid > 10:
@@ -595,35 +621,20 @@ def subscription_not_enough(cid : int,user_sub,min_sub, all : bool = False) -> s
         lang = cid
     return phrases[lang].replace("[user_sub]",str(user_sub)).replace("[min_sub]",str(min_sub))
 
-def subscription_end_close(cid : int,days, all : bool = False) -> str:
-    '''⚠️ Warning ⚠️
-Your subscrbtion ends in [days] days. Go to "Billing" menu to pay and prolong the subscription.'''
-    phrases = ['''⚠️ Զգուշացում ⚠️
-Ձեր բաժանորդագրությունն ավարտվում է [days] օրից: Բաժանորդագրությունը վճարելու և երկարացնելու համար գնացեք «Վճարումներ» ընտրացանկը:''', '''⚠️ Внимание ⚠️
-Ваша подписка заканчивается через [days] дней. Перейдите в меню «Оплата», чтобы оплатить и продлить подписку.''', '''⚠️ Warning ⚠️
-Your subscrbtion ends in [days] days. Go to "Billing" menu to pay and prolong the subscription.''']
-    if all:
-        return phrases
-    if cid > 10:
-        lang = db.getUserLang(cid)
-    else: 
-        lang = cid
-    return phrases[lang].replace("[days]",str(days))
-
-def subscription_end(cid : int,days, all : bool = False) -> str:
+def subscription_end(cid : int, all : bool = False) -> str:
     '''❗️ Warning ❗️
-Your subscrbtion ended and your account will be deactivated in [days] days. New people cant make an appointment with you. Contact the administrator to activate your account. <a href="https://t.me/pheriadmin">Pheri Admin</a>'''
+Your "Premium" subscribtion ended. Contact the administrator to activate it. <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>'''
     phrases = ['''❗️ Զգուշացում ❗️
-Ձեր բաժանորդագրությունն ավարտվել է, և ձեր հաշիվը կանջատվի [days] օրվա ընթացքում: Նոր մարդիկ չեն կարող ձեր մոտ գրանցվել: Կապվեք ադմինիստրատորի հետ՝ ձեր հաշիվն ակտիվացնելու համար: <a href="https://t.me/pheriadmin">Pheri Admin</a>''', '''❗️ Предупреждение ❗️
-Ваша подписка закончилась, и ваша учетная запись будет деактивирована через [days] дней. Новые люди не могут записаться к вам на прием. Свяжитесь с администратором для активации вашей учетной записи. <a href="https://t.me/pheriadmin">Pheri Admin</a>''', '''❗️ Warning ❗️
-Your subscrbtion ended and your account will be deactivated in [days] days. New people cant make an appointment with you. Contact the administrator to activate your account. <a href="https://t.me/pheriadmin">Pheri Admin</a>''']
+Ձեր «Պրեմիում» բաժանորդագրությունն ավարտվել է: Կապվեք ադմինիստրատորի հետ՝ այն ակտիվացնելու համար: <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''', '''❗️ Предупреждение ❗️
+Ваша подписка "Премиум" закончилась. Свяжитесь с администратором, чтобы активировать его. <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''', '''❗️ Warning ❗️
+Your "Premium" subscribtion ended. Contact the administrator to activate it. <a href="https://t.me/MotorMentorAdmin">Motor Mentor Admin</a>''']
     if all:
         return phrases
     if cid > 10:
         lang = db.getUserLang(cid)
     else: 
         lang = cid
-    return phrases[lang].replace("[days]",str(days))
+    return phrases[lang]
 
 def referral(cid : int, all : bool = False) -> str:
     '''🔗 Referrals'''
@@ -635,6 +646,77 @@ def referral(cid : int, all : bool = False) -> str:
     else: 
         lang = cid
     return phrases[lang]
+
+def referral_info(cid : int,bonus_refs,bonus_days,ref_link, all : bool = False) -> str:
+    '''Send this link to your friends and if they use this bot you will get a bonus. 
+For every [bonus_refs] referrals your Premium subscription will be prolonged for [bonus_days] days.
+Your referral link is 
+<code>[ref_link]</code>'''
+    phrases = ['''Ուղարկեք այս հղումը ձեր ընկերներին և եթե նրանք օգտվեն այս բոտից, դուք կստանաք բոնուս:
+Յուրաքանչյուր [bonus_refs] ուղղորդման համար ձեր Premium բաժանորդագրությունը կերկարաձգվի [bonus_days] օրով:
+Ձեր ուղղորդման հղումն է 
+<code>[ref_link]</code>''', '''Отправьте эту ссылку своим друзьям, и если они воспользуются этим ботом, вы получите бонус.
+За каждого [bonus_refs] реферала ваша Премиум-подписка будет продлена на [bonus_days] дней.
+Ваша реферальная ссылка 
+<code>[ref_link]</code>''', '''Send this link to your friends and if they use this bot you will get a bonus. 
+For every [bonus_refs] referrals your Premium subscription will be prolonged for [bonus_days] days.
+Your referral link is 
+<code>[ref_link]</code>''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[bonus_refs]",str(bonus_refs)).replace("[bonus_days]",str(bonus_days)).replace("[ref_link]",str(ref_link))
+
+def no_referral_bonus(cid : int,referrals,nrefs,ndays, all : bool = False) -> str:
+    '''You have [referrals] referrals. You need at least [nrefs] referrals to get bonus [ndays] days.'''
+    phrases = ['''Դուք ունեք [referrals] ուղղորդումներ: Ձեզ անհրաժեշտ են առնվազն [nrefs] ուղղորդումներ՝ բոնուսային [ndays] օրեր ստանալու համար:''', '''У вас есть [referrals] рефералов. Вам нужно как минимум [nrefs] рефералов, чтобы получить бонусные [ndays] дней.''', '''You have [referrals] referrals. You need at least [nrefs] referrals to get bonus [ndays] days.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[referrals]",str(referrals)).replace("[nrefs]",str(nrefs)).replace("[ndays]",str(ndays))
+
+def referral_bonus(cid : int,referrals,ndays, all : bool = False) -> str:
+    '''You have [referrals] referrals. Press this button to get your [ndays] days bonus 😀'''
+    phrases = ['''Դուք ունեք [referrals] ուղղորդումներ: Սեղմեք այս կոճակը՝ ձեր [ndays] օրվա բոնուսը ստանալու համար 😀''', '''У вас есть [referrals] рефералов. Нажмите эту кнопку, чтобы получить бонус [ndays] дней 😀''', '''You have [referrals] referrals. Press this button to get your [ndays] days bonus 😀''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[referrals]",str(referrals)).replace("[ndays]",str(ndays))
+
+def get_referral_bonus(cid : int, all : bool = False) -> str:
+    '''🎉 GET BONUS!!! 🎉'''
+    phrases = ['''🎉 ՍՏԱՆԱԼ ԲՈՆՈՒՍ!!! 🎉''', '''🎉 ПОЛУЧИТЕ БОНУС!!! 🎉''', '''🎉 GET BONUS!!! 🎉''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def congratulate_bonus(cid : int,ndays, all : bool = False) -> str:
+    '''🎉 Congratulations!!! 🎉
+ You got [ndays] days bonus.'''
+    phrases = ['''🎉 Շնորհավորում ենք!!! 🎉
+ դուք ստացաք [ndays] օրվա բոնուս:''', '''🎉 Поздравляем!!! 🎉
+ Вы получили бонус [ndays] дней.''', '''🎉 Congratulations!!! 🎉
+ You got [ndays] days bonus.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[ndays]",str(ndays))
 
 def phone_number(cid : int, all : bool = False) -> str:
     '''Phone number'''
@@ -650,6 +732,17 @@ def phone_number(cid : int, all : bool = False) -> str:
 def deleted(cid : int, all : bool = False) -> str:
     '''❌ Deleted ❌'''
     phrases = ['''❌ Ջնջված է ❌''', '''❌ Удалено ❌''', '''❌ Deleted ❌''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def delete(cid : int, all : bool = False) -> str:
+    '''❌ Delete'''
+    phrases = ['''❌ Ջնջել''', '''❌ Удалить''', '''❌ Delete''']
     if all:
         return phrases
     if cid > 10:
@@ -706,6 +799,17 @@ def import_from_listam(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
+def saved_cars(cid : int, all : bool = False) -> str:
+    '''📌 Saved cars⭐️'''
+    phrases = ['''📌 Պահպանված մեքենաներ⭐️''', '''📌 Сохраненные автомобили⭐️''', '''📌 Saved cars⭐️''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
 def general_info(cid : int, all : bool = False) -> str:
     '''ℹ️ Info'''
     phrases = ['''ℹ️ Ինֆո''', '''ℹ️ Информация''', '''ℹ️ Info''']
@@ -716,6 +820,32 @@ def general_info(cid : int, all : bool = False) -> str:
     else: 
         lang = cid
     return phrases[lang]
+
+def found_saved_car(cid : int,nCars, all : bool = False) -> str:
+    '''Based on your saved car`s parameters I found [nCars] cars. You can always see this list in the "📌 Saved cars" menu.
+'''
+    phrases = ['''Ձեր պահպանված մեքենայի պարամետրերի հիման վրա ես գտա [nCars] մեքենաներ: Այս ցանկը միշտ կարող եք տեսնել «📌 Պահպանված մեքենաներ» բաժնում։
+''', '''По вашим сохраненным параметрам автомобиля я нашел [nCars] автомобилей. Вы всегда можете увидеть этот список в меню "📌 Сохраненные автомобили".
+''', '''Based on your saved car`s parameters I found [nCars] cars. You can always see this list in the "📌 Saved cars" menu.
+''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[nCars]",str(nCars))
+
+def found_cars_so_far(cid : int,nCars, all : bool = False) -> str:
+    '''Found [nCars] cars so far.'''
+    phrases = ['''Մինչ այժմ գտնվել են [nCars] մեքենաներ:''', '''На данный момент найдено [nCars] автомобилей.''', '''Found [nCars] cars so far.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[nCars]",str(nCars))
 
 def add_ad(cid : int, all : bool = False) -> str:
     '''Add advertisement'''
@@ -764,6 +894,138 @@ def listam_not_possible(cid : int, all : bool = False) -> str:
 def search_for_cars(cid : int, all : bool = False) -> str:
     '''Search for cars like this'''
     phrases = ['''Փնտրել նման մեքենաներ''', '''Искать такие машины''', '''Search for cars like this''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def listam_what_to_do(cid : int, all : bool = False) -> str:
+    '''What do you want to do with this?'''
+    phrases = ['''Ի՞նչ եք ուզում անել սրա հետ:''', '''Что вы хотите с этим делать?''', '''What do you want to do with this?''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def import_data(cid : int, all : bool = False) -> str:
+    '''Import car parameters'''
+    phrases = ['''Ներմուծել ավտոմեքենայի պարամետրերը''', '''Импорт параметров автомобиля''', '''Import car parameters''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def show_price_updates(cid : int, all : bool = False) -> str:
+    '''Show price updates'''
+    phrases = ['''Ցույց տալ գների թարմացումները''', '''Показать изменения цен''', '''Show price updates''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def no_price_updates(cid : int, all : bool = False) -> str:
+    '''❌ No price updates!'''
+    phrases = ['''❌ No price updates!''', '''❌ No price updates!''', '''❌ No price updates!''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def add_saved_car(cid : int, all : bool = False) -> str:
+    '''➕ Add car'''
+    phrases = ['''➕ Ավելացնել մեքենա''', '''➕ Добавить машину''', '''➕ Add car''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def saved_cars_info(cid : int, all : bool = False) -> str:
+    '''Here you can add cars and when there is a similar car on the market, bot will notify you.'''
+    phrases = ['''Այստեղ դուք կարող եք ավելացնել մեքենաներ, և երբ շուկայում նման մեքենա լինի, բոտը ձեզ կտեղեկացնի:''', '''Здесь вы можете добавлять автомобили и когда на рынке появится похожий автомобиль, бот уведомит вас об этом.''', '''Here you can add cars and when there is a similar car on the market, bot will notify you.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def save_car(cid : int, all : bool = False) -> str:
+    '''📌 Save car'''
+    phrases = ['''📌 Պահպանել մեքենան''', '''📌 Сохранить машину''', '''📌 Save car''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def car_saved(cid : int, all : bool = False) -> str:
+    '''✅ Car saved'''
+    phrases = ['''✅ Մեքենան պահպանված է''', '''✅ Автомобиль сохранен''', '''✅ Car saved''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def choose_car_mileage_start(cid : int, all : bool = False) -> str:
+    '''Please choose the minimal mileage of the car.'''
+    phrases = ['''Խնդրում ենք ընտրել մեքենայի նվազագույն վազքը:''', '''Пожалуйста, выберите минимальный пробег автомобиля.''', '''Please choose the minimal mileage of the car.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def choose_car_mileage_end(cid : int, all : bool = False) -> str:
+    '''Please choose the maximal mileage of the car.'''
+    phrases = ['''Խնդրում ենք ընտրել մեքենայի առավելագույն վազքը:''', '''Пожалуйста, выберите максимальный пробег автомобиля.''', '''Please choose the maximal mileage of the car.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def choose_car_price_start(cid : int, all : bool = False) -> str:
+    '''Please choose the minimal price of the car.'''
+    phrases = ['''Խնդրում ենք ընտրել մեքենայի նվազագույն արժեքը:''', '''Пожалуйста, выберите минимальную цену автомобиля.''', '''Please choose the minimal price of the car.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def choose_car_price_end(cid : int, all : bool = False) -> str:
+    '''Please choose the maximal price of the car.'''
+    phrases = ['''Խնդրում ենք ընտրել մեքենայի առավելագույն արժեքը:''', '''Пожалуйста, выберите максимальную цену автомобиля.''', '''Please choose the maximal price of the car.''']
     if all:
         return phrases
     if cid > 10:
@@ -861,8 +1123,8 @@ def calculate(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def calculate_by_year(cid : int, all : bool = False) -> str:
-    '''Price graph by year'''
-    phrases = ['''Գների գրաֆիկը ըստ տարիների''', '''График цен по годам''', '''Price graph by year''']
+    '''📈 Price graph by year'''
+    phrases = ['''📈 Գների գրաֆիկը ըստ տարիների''', '''📈 График цен по годам''', '''📈 Price graph by year''']
     if all:
         return phrases
     if cid > 10:
@@ -872,8 +1134,8 @@ def calculate_by_year(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def calculate_by_mileage(cid : int, all : bool = False) -> str:
-    '''Price graph by mileage'''
-    phrases = ['''Գների գրաֆիկը ըստ վազքի''', '''График цен по пробегу''', '''Price graph by mileage''']
+    '''📉 Price graph by mileage'''
+    phrases = ['''📉 Գների գրաֆիկը ըստ վազքի''', '''📉 График цен по пробегу''', '''📉 Price graph by mileage''']
     if all:
         return phrases
     if cid > 10:

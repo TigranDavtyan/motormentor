@@ -159,7 +159,6 @@ class Chat:
                     return await self.bot.edit_message_reply_markup(self.cid, message_id, reply_markup=reply_markup)
 
     async def pre_process_update(self, update: types.Update):
-        # await self.bot.send_chat_action(self.cid, ChatActions.TYPING)
         if update.callback_query:
             message = update.callback_query.message
         elif update.message:
@@ -219,10 +218,11 @@ class ChatManager:
         return self.chats[cid]
 
     def save(self, cid):
-        chat = self[cid]
-        with open(f'chats/{cid}.chat',mode='wb') as chatFile:
-            pickle.dump(chat.history, chatFile)
-        self.chats.pop(cid)
+        if cid in self.chats.keys():
+            chat = self[cid]
+            with open(f'chats/{cid}.chat',mode='wb') as chatFile:
+                pickle.dump(chat.history, chatFile)
+            self.chats.pop(cid)
     
     def load(self, cid):
         with open(f'chats/{cid}.chat',mode='rb') as chatFile:

@@ -1,11 +1,10 @@
 class USER_SUB_TYPE:
-    level_names = {0:'free', 1:'basic', 2:'expert', 3:'business'}
+    level_names = {0:'sub_free', 1:'sub_premium', 2:'sub_business'}
     
     @staticmethod
     def get(level: int):
         return USER_SUB_TYPE.level_names[level]
 
     FREE = 0
-    BASIC = 1
-    EXPERT = 2
-    BUSINESS = 3
+    PREMIUM = 1
+    BUSINESS = 2

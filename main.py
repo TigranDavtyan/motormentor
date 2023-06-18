@@ -44,13 +44,19 @@ def run():
 
     logger.info('Saving data...')
     ForSale.Cars.save()
-    
+    ForSale.Cars.clear()
+
     #import train_cars_model
     
     botlog("FINISHED SCRAPING")
     
 
 if __name__ == '__main__':
+    if platform.system() in ['Linux', 'Darwin']:
+        # Update the time zone information
+        os.environ['TZ'] = 'Asia/Yerevan'
+        time.tzset()
+
     if len(sys.argv) == 2:
         run_time = time.strptime(sys.argv[1], '%H:%M')
         now = datetime.datetime.now()
@@ -63,11 +69,6 @@ if __name__ == '__main__':
         print('No time parameter. You should give a time parameter like this main.py 8:00')
         next_run = datetime.datetime.now()
         wait_time = 0
-
-    if platform.system() in ['Linux', 'Darwin']:
-        # Update the time zone information
-        os.environ['TZ'] = 'Asia/Yerevan'
-        time.tzset()
 
     while True:
         time.sleep(wait_time)

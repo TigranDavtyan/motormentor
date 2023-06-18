@@ -62,6 +62,9 @@ class ADMIN:
     BROADCAST_HANDLE = State(1052, 1054)
     BROADCAST_CONFIRM = State(1054)
 
+    ACTIVATE_PREMIUM = State(1060, 1062)
+    ACTIVATE_PREMIUM_HANDLE = State(1062)
+
 class USER:
     MAIN_MENU = State(10)
     LINK_CLICK = State(20)
@@ -69,6 +72,42 @@ class USER:
     class IMPORT_LISTAM:
         INFO = State(400, 402)
         HANDLE_URL = State(402)
+        SHOW_UPDATES = State(404, min_subscription=USER_SUB_TYPE.PREMIUM)
+
+    class REFERRAL:
+        INFO = State(700)
+        GET_BOUNS = State(710)
+        
+    class SAVED:
+        INFO = State(500)
+        ADD = State(502)
+        DELETE = State(504)
+
+        class CAR:
+            BRAND = State(510)
+            MODEL = State(520)
+            YEAR = State(530,532)
+            YEAR_HANDLE = State(532)
+
+            MILEAGE_START = State(540)
+            MILEAGE_END = State(544)
+
+            EXTERIOR_COLOR = State(550)
+            BODY_TYPE = State(560)
+            ENGINE_TYPE = State(570)
+            ENGINE_SIZE = State(580, 582)
+            ENGINE_SIZE_HANDLE = State(582)
+
+            TRANSMISSION = State(590)
+            DRIVE_TYPE = State(600)
+            CONDITION = State(610)
+            GAS_EQUIPMENT = State(620)
+            STEERING_WHEEL = State(630)
+
+            PRICE_START = State(640)
+            PRICE_END = State(644)
+
+            SAVE = State(660, min_subscription=USER_SUB_TYPE.PREMIUM)
 
     class CAR_PRICE:
         INFO = State(100)
@@ -109,4 +148,3 @@ class USER:
 
     class SUBSCRIPTION:
         INFO = State(900)
-        pass

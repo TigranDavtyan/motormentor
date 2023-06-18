@@ -22,6 +22,10 @@ class Model:
     mdata = None
     data_filename = '../ForSale/Cars/listings.csv'
 
+    updates = None
+    mupdates = None
+    updates_filename = '../ForSale/Cars/updates.pickle'
+
     brand_ids = None
     brand_ids_filename = 'brands.json'
 
@@ -46,6 +50,11 @@ class Model:
             Model.data.set_index('itemid', inplace=True)
             Model.mdata = os.path.getmtime(Model.data_filename)
         
+        if not Model.updates:
+            with open(Model.updates_filename, 'rb') as file:
+                Model.updates = pickle.load(file)
+            Model.mupdates = os.path.getmtime(Model.updates_filename)
+        
         if not Model.brand_ids:
             with open(Model.brand_ids_filename, 'r') as file:
                 Model.brand_ids = json.load(file)
@@ -64,18 +73,36 @@ class Model:
             with open(Model.encoder_filename, 'rb') as file:
                 Model.encoder = pickle.load(file)
 
-
         new_mtime = os.path.getmtime(Model.model_filename)
         if new_mtime > Model.mmodel:
             Model.mmodel = new_mtime
             with open(Model.model_filename, 'rb') as file:
                 Model.model = pickle.load(file)
 
+        new_mtime = os.path.getmtime(Model.updates_filename)
+        if new_mtime > Model.mupdates:
+            Model.mupdates = new_mtime
+            with open(Model.updates_filename, 'rb') as file:
+                Model.updates = pickle.load(file)
+
         new_mtime = os.path.getmtime(Model.data_filename)
         if new_mtime > Model.mdata:
+            old_ids = set(Model.data.index.copy())
             Model.mdata = new_mtime
             Model.data = pd.read_csv(Model.data_filename)
             Model.data.set_index('itemid', inplace=True)
+            new_ids = list(set(Model.data.index).difference(old_ids))
+            if len(new_ids):
+                return Model.data.loc[new_ids]
+            else:
+                return pd.DataFrame()
+        return pd.DataFrame()
+
+    def getPriceUpdatesFor(self, itemid):
+        if itemid in Model.updates.keys():
+            return Model.updates[itemid]
+        else:
+            return []
 
     def getModel(self):
         return Model.model
@@ -173,7 +200,8 @@ default_car = {
     'interior_color' : 'black',
     'interior_material' : 'leather',
     'sunroof' : 'no',
-    'wheel_size' : 17
+    'wheel_size' : 17,
+    'price' : 10000
    }
 
 body_types = {
@@ -218,7 +246,7 @@ conditions = {
 }
 
 gas_equipments = {
- 'not Installed' : 1,
+ 'no' : 1,
  'installed' : 2
 }
 
@@ -318,7 +346,7 @@ class Car:
                                                                            self.engine_size, self.transmission, self.drive_type,
                                                                            self.condition,self.gas_equipment,self.steering_wheel,
                                                                            self.headlights,self.interior_color,self.interior_material,self.sunroof,self.wheel_size,self.price))
-    def calculatePrice(self):
+    def calculatePrice(self) -> float:
         car = {}
         car['car_brand'] = self.car_brand
         car['model'] = self.model
@@ -449,8 +477,8 @@ class Car:
 
         condition = conditions[self.condition]
 
-        mileage_start = self.mileage-8000
-        mileage_end = self.mileage+8000
+        mileage_start = self.mileage-10000
+        mileage_end = self.mileage+10000
 
         gas_equipment = gas_equipments[self.gas_equipment]
         steering_wheel = steering_wheels[self.steering_wheel]
@@ -459,7 +487,7 @@ class Car:
 
         link = f'''https://www.list.am/category/23?n=0&bid={brand}&mid={model}&crc=&_a27={body_type}&_a2_1={start_year}&_a2_2={end_year}&_a15={engine_type}
         &_a28_1={engine_size}&_a28_2=&_a13={transmission}&_a23={drive_type}&_a1_1={mileage_start}&_a1_2={mileage_end}&_a109={condition}&_a43={gas_equipment}
-        &_a16={steering_wheel}&_a17=2&_a22={exterior_color}&_a105={wheel_size}&_a106=0&_a102=0&_a103=0&_a104=0'''
+        &_a16={steering_wheel}&_a17=1&_a22={exterior_color}&_a105={wheel_size}&_a106=0&_a102=0&_a103=0&_a104=0'''
         
         return link
 
@@ -499,3 +527,38 @@ class Car:
         return eval(f'P.{self.interior_material}({lang})')
     def getSunroof(self,lang):
         return eval(f'P.{self.sunroof}_sunroof({lang})')
+
+class SavedCar (Car):
+    def __init__(self, cid):
+        car = db.fetchone('''SELECT car_brand,model,year,mileage_start, mileage_end,exterior_color,body_type,
+                          engine_type,engine_size,transmission,drive_type,condition,gas_equipment,steering_wheel,price_start, 
+                          price_end FROM saved_cars WHERE cid = ? AND editing = 1''',(cid,))
+        if not car:
+            db.query('''INSERT INTO saved_cars (cid, car_brand,model,year,mileage_start, mileage_end, exterior_color,body_type,engine_type,engine_size,
+                        transmission,drive_type,condition,gas_equipment,steering_wheel, price_start, price_end, found_cars)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?,?, '{}')''',(cid,default_car['car_brand'],default_car['model'],default_car['year'],default_car['mileage']-5000, default_car['mileage']+5000,
+                                                                        default_car['exterior_color'],default_car['body_type'],default_car['engine_type'],
+                                                                        default_car['engine_size'], default_car['transmission'], default_car['drive_type'],default_car['condition'],
+                                                                        default_car['gas_equipment'],default_car['steering_wheel'],default_car['price']-500,default_car['price']+500))
+            car = db.fetchone('SELECT car_brand,model,year,mileage_start, mileage_end,exterior_color,body_type,engine_type,engine_size,transmission,drive_type,condition,gas_equipment,steering_wheel,price_start, price_end FROM saved_cars WHERE cid = ? AND editing = 1',(cid,))
+
+        self.cid = cid
+        self.car_brand = car[0]
+        self.model = car[1]
+        self.year = car[2]
+        self.mileage_start = car[3]
+        self.mileage_end = car[4]
+        self.exterior_color = car[5]
+        self.body_type = car[6]
+        self.engine_type = car[7]
+        self.engine_size = car[8]
+        self.transmission = car[9]
+        self.drive_type = car[10]
+        self.condition = car[11]
+        self.gas_equipment = car[12]
+        self.steering_wheel = car[13]
+        self.price_start = car[14]
+        self.price_end = car[15]
+
+    def save(self):
+        db.query('UPDATE saved_cars SET editing=0 WHERE cid = ? and editing = 1', (self.cid,))

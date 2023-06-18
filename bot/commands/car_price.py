@@ -39,7 +39,10 @@ async def menu_car_price(message: Message, data = None):
     markup.add(P.calculate(lang), USER.CAR_PRICE.CALCULATE_PRICE)
     markup.add(P.calculate_by_year(lang), USER.CAR_PRICE.CALCULATE_PRICE_BY_YEAR)
     markup.add(P.calculate_by_mileage(lang), USER.CAR_PRICE.CALCULATE_PRICE_BY_MILEAGE)
-    markup.addLink(P.search_for_cars(lang),USER.CAR_PRICE.INFO, link=user_car.getLink())
+    try:
+        markup.addLink(P.search_for_cars(lang),USER.CAR_PRICE.INFO, link=user_car.getLink())
+    except:
+        pass
 
     markup.add(P.menu(lang), USER.MAIN_MENU)
 

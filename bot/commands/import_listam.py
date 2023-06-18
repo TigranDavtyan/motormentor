@@ -35,5 +35,28 @@ async def handle_listam_url(message: Message):
         await chat.send(P.listam_not_possible(cid), temporary=True)
         return
     
-    Car(cid, item)
-    await State.get(USER.CAR_PRICE.INFO)(message)
+    car = Car(cid, item)
+
+    markup = Buttons(True)
+    markup.add(P.import_data(cid), USER.CAR_PRICE.INFO)
+    markup.add(P.show_price_updates(cid), USER.IMPORT_LISTAM.SHOW_UPDATES, item_id)
+
+    await chat.edit(f'<b>{car.getBrand()} {car.getModel()} {car.engine_size}L</b>\n\n'+P.listam_what_to_do(cid), markup)
+    await chat.setState(USER.IMPORT_LISTAM.HANDLE_URL)
+
+
+@setActionFor(USER.IMPORT_LISTAM.SHOW_UPDATES)
+async def show_price_updates(message: Message, data):
+    cid, chat = message.chat.id,cm[message.chat.id]
+    itemid = int(data)
+
+    updates = model.getPriceUpdatesFor(itemid)
+    if len(updates) == 0:
+        await chat.send(P.no_price_updates(cid), temporary=True)
+        return
+
+    text = ''
+    for i,update in enumerate(updates):
+        text += f'\n{i+1} | {update[0]} {update[1]}$'
+    
+    await chat.send(text, temporary=True)

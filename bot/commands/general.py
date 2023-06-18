@@ -11,6 +11,7 @@ from notifications import to_admin
 from states.states import ADMIN, GENERAL,USER, State
 import logging
 import ad_engine
+from subscriptions.subscriptions import USER_SUB_TYPE
 
 languages = {'arm': 0, 'ru' : 1, 'en' : 2}
 
@@ -19,7 +20,10 @@ async def checkUserSubscription(chat, new_state: State):
     if sub >= new_state.min_subscription:
         return True
     
-    await chat.send(P.subscription_not_enough(chat.cid, sub, new_state.min_subscription))
+    subName = eval(f'P.{USER_SUB_TYPE.get(sub)}(chat.cid)')
+    minSubName =  eval(f'P.{USER_SUB_TYPE.get(new_state.min_subscription)}(chat.cid)')
+    
+    await chat.send(P.subscription_not_enough(chat.cid, subName, minSubName), temporary=True)
     return False
 
 @dp.callback_query_handler(button_cb.filter(type='main'))
@@ -98,7 +102,10 @@ async def checkForLink(message: types.Message) -> bool:
     
     if res[0] == '/start':
         param = res[1]
-        
+        #Handle referral
+        if param.startswith('ref'):
+            referral_id = param[3:]
+            db.query("UPDATE users SET referral_id=? WHERE cid = ? AND referral_id LIKE ''", (referral_id, cid))
     return False
 
 

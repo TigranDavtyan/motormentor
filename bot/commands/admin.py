@@ -4,16 +4,18 @@ import inspect
 import utils.utils as utils
 from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 from buttons.buttons import *
-from config import ADMIN_CHAT_ID, DEFAULT_LANGUAGE
+from config import SUBSCRIPTION_DAYS
 from phrases import phrases as P
 from loader import *
-from notifications import to_admin
+from notifications import to_admin, to_users
 from states.states import ADMIN, GENERAL,USER, State
 import logging
 import ad_engine
 from .car_engine import model
 from notifications import broadcast
 import re
+import json
+import datetime
 
 ad_channel = -1001901523079
 logger = logging.getLogger()
@@ -28,6 +30,7 @@ async def admin_menu(message: Message, is_main_message: bool = False):
     markup.add('Show ads', ADMIN.SHOW_ADS)
     markup.add('Update data', ADMIN.UPDATE_DATA)
     markup.add('Broadcast message', ADMIN.BROADCAST)
+    markup.add('Activate PREMIUM', ADMIN.ACTIVATE_PREMIUM)
    
     if not message.from_user.is_bot or is_main_message:
         await chat.send(P.menu(cid), markup, main_message=is_main_message)
@@ -36,8 +39,45 @@ async def admin_menu(message: Message, is_main_message: bool = False):
 
     await chat.setState(ADMIN.MENU)
 
+
+@setActionFor(ADMIN.ACTIVATE_PREMIUM)
+async def activate_premium(message: Message):
+    cid, chat = message.chat.id, cm[message.chat.id]
+    await chat.edit('Formard any message from the user who you want to activate the PREMIUM subscription or type the user id')
+    await chat.setState(ADMIN.ACTIVATE_PREMIUM)
+
+
+@setActionFor(ADMIN.ACTIVATE_PREMIUM_HANDLE)
+async def activate_premium_handle(message: Message):
+    cid, chat = message.chat.id, cm[message.chat.id]
+    if message.is_forward():
+        user_id = message.forward_from.id
+    else:
+        user_id = int(message.text)
+    
+    user_data = db.fetchone('SELECT name, subscription, subscription_end FROM users WHERE cid=?', (user_id, ))
+    if not user_data:
+        await chat.send('No user found in database!', temporary=True)
+        return
+    
+    name, sub, sub_end = user_data
+    await chat.send(f'User id {user_id} | Name {name} | Sub {sub} | Date {sub_end}', temporary=True)
+
+    if sub_end == '2025-01-01 00:00:00':
+        new_sub_end = utils.now().replace(hour=0,minute=0,second=0,microsecond=0) + datetime.timedelta(days=SUBSCRIPTION_DAYS+1)
+    else:
+        new_sub_end = utils.str2dt(sub_end) + datetime.timedelta(days=SUBSCRIPTION_DAYS)
+
+    db.query('UPDATE users SET subscription=1, subscription_end=? WHERE cid=?',(new_sub_end, cid))    
+
+    await to_users.subscription_prolonged(user_id, new_sub_end)
+
+    await chat.send(f'Subscription updated for the user. New subscription end date is {new_sub_end}', temporary=True)
+
+
+
 @setActionFor(ADMIN.BROADCAST)
-async def broadcast_message(message: Message):
+async def broadcast_message1(message: Message):
     cid, chat = message.chat.id, cm[message.chat.id]
 
     await chat.edit('Send a message to broadcast, you can include a link at the end like this "href=example.com"')
@@ -61,7 +101,7 @@ async def edit_broadcast_message(message: Message, id):
 
 
 @setActionFor(ADMIN.BROADCAST_HANDLE)
-async def broadcast_message(message: Message):
+async def broadcast_message2(message: Message):
     global message_id
     cid, chat = message.chat.id, cm[message.chat.id]
 
@@ -83,7 +123,7 @@ async def broadcast_message(message: Message):
 
 
 @setActionFor(ADMIN.BROADCAST_CONFIRM)
-async def broadcast_message(message: Message):
+async def broadcast_message3(message: Message):
     global message_id
     cid, chat = message.chat.id, cm[message.chat.id]
 
@@ -112,8 +152,77 @@ TelegramAPIError - {results[4]}'''
 @setActionFor(ADMIN.UPDATE_DATA)
 async def update_data(message: Message):
     cid, chat = message.chat.id, cm[message.chat.id]
-    model.update()
-    await chat.send('Data updated!',temporary=True)
+    new_cars_df = model.update()
+
+    # if new_cars_df is None or new_cars_df.empty:
+    #     return
+    
+    # df_columns = list(new_cars_df.columns)
+
+    # user_cars = db.fetchall('''SELECT cid, car_brand, model,
+    # year, mileage_start, mileage_end, exterior_color, body_type, engine_type, engine_size,transmission,
+    # drive_type,condition, gas_equipment,steering_wheel, price_start, price_end, id FROM saved_cars WHERE editing=0;''')
+
+    # nMessages = 0
+    # for db_car in user_cars:
+    #     db_car = {
+    #         'cid':db_car[0],
+    #         'car_brand':db_car[1],
+    #         'model':db_car[2],
+    #         'year':db_car[3],
+    #         'mileage_start':db_car[4],
+    #         'mileage_end':db_car[5],
+    #         'exterior_color':db_car[6],
+    #         'body_type':db_car[7],
+    #         'engine_type':db_car[8],
+    #         'engine_size':db_car[9],
+    #         'transmission':db_car[10],
+    #         'drive_type':db_car[11],
+    #         'condition':db_car[12],
+    #         'gas_equipment':db_car[13],
+    #         'steering_wheel':db_car[14],
+    #         'price_start':db_car[15],
+    #         'price_end':db_car[16],
+    #         'id':db_car[17]
+    #     }
+        
+    #     query = ""
+    #     for df_column in df_columns:
+    #         if df_column in db_car.keys() and db_car[df_column]:
+    #             val = db_car[df_column]
+    #             if type(val) == int or type(val) == float or val.isnumeric():
+    #                 query += f"`{df_column}` == {val} and "
+    #             else:
+    #                 query += f"`{df_column}` == '{val}' and "
+
+    #     if db_car['mileage_start']:
+    #         query += f'mileage >= {db_car["mileage_start"]}'
+    #     if db_car['mileage_end']:
+    #         query += f' and mileage <= {db_car["mileage_end"]}'
+        
+    #     if db_car['price_start']:
+    #         query += f' and dollar_price >= {db_car["price_start"]}'
+    #     if db_car['price_end']:
+    #         query += f' and dollar_price <= {db_car["price_end"]}'
+
+    #     results = list(new_cars_df.query(query).index)
+        
+    #     nMessages += len(results)
+
+    #     if len(results) > 0:
+    #         #send notification
+    #         await to_users.new_car(db_car['cid'], results)
+
+    #         #save in db
+    #         items = dict(json.loads(db.fetchone('SELECT found_cars FROM saved_cars WHERE id = ?', (db_car['id'],))[0]))
+    #         items.update({str(datetime.datetime.now().date()) : itemid for itemid in results})
+    #         db.query('UPDATE saved_cars SET found_cars = ? WHERE id = ?', (json.dumps(items), db_car['id']))
+
+
+    # logger.info(f'Data updated! Sent {nMessages} messages')
+
+
+'body_type == sedan and year == 2020 and engine_type == gasoline and engine_size == 2.5 and transmission == automatic and drive_type == front_wheel_drive and condition == car_is_not_damaged and gas_equipment == no and steering_wheel == left and exterior_color == white and mileage >= 45000.0 and mileage <= 55000.0 price >= 9500.0 and price <= 10500.0'
 
 @setActionFor(ADMIN.SHOW_ADS)
 async def add_ad(message: Message):

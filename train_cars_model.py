@@ -28,7 +28,7 @@ logger.info('Loading data...')
 #LOAD
 data = pd.read_csv('ForSale/Cars/listings.csv')
 data['gas_equipment'].fillna('no', inplace=True)
-data.to_csv('ForSale/Cars/listings.csv')
+data.to_csv('ForSale/Cars/listings.csv', index=False)
 
 data = data[data['cleared_customs'] == 'yes']
 data.drop('cleared_customs',axis=1,inplace=True)
