@@ -58,7 +58,7 @@ async def broadcast_users(from_chat: int, message_id: int, disable_notification)
         retry = 3
         while retry > 0 and res == 4:
             res = await forward_message(user_id, from_chat, message_id, disable_notification)
-            await asyncio.sleep(.05)  # 20 messages per second (Limit: 30 messages per second)
+            await asyncio.sleep(.15)  # 20 messages per second (Limit: 30 messages per second)
 
         results[res] += 1
 

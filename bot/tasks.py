@@ -214,8 +214,8 @@ class Tasks:
 
     @Timers.run_everyday_at(datetime.time(hour=12, minute=0, second=0))
     async def check_user_subscriptions(self):
-        ended_users = db.query("SELECT cid FROM users WHERE subsctiption > 0 AND subscription_end < DATETIME('now')")
-        db.query("UPDATE users SET subscription = 0 WHERE subsctiption > 0 AND subscription_end < DATETIME('now')")
+        ended_users = db.query("SELECT cid FROM users WHERE subscription > 0 AND subscription_end < DATETIME('now')")
+        db.query("UPDATE users SET subscription = 0 WHERE subscription > 0 AND subscription_end < DATETIME('now')")
 
         for cid in ended_users:
             await to_users.subscription_ended(cid)

@@ -185,7 +185,7 @@ class Category:
     def __init__(self, id, url, verbose=True):
         self.id = id
         self.url = url
-        self.df = None
+        self.df = []
         self.itemids = []
         self.items = {}
         self.verbose = verbose
