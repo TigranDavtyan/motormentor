@@ -140,15 +140,14 @@ class ListAmParser:
 import time
 import random
 import requests
+import asyncio
 
 class ListAm:
     main = 'https://www.list.am/en/'
     # headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
     headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0'}# Mozilla
-    def sleepRandom():
-        #time.sleep(random.randint(1,3))
-        time.sleep(random.random()*0.4 + 0.6)
-        pass
+    async def sleepRandom():
+        await asyncio.sleep(random.random()*0.8 + 1)
 
     def getPageHtml(response: requests.Response) -> str:
         if response.status_code != 200:
@@ -189,32 +188,32 @@ class Category:
         self.itemids = []
         self.items = {}
         self.verbose = verbose
+
+        self.parent_class = None
+        for cls in globals().values():
+            if isinstance(cls, type) and issubclass(cls, object):
+                for name, obj in cls.__dict__.items():
+                    if obj is self:
+                        self.parent_class = cls
+                        self.clsname, self.objname = cls.__name__, name
+
+        self.directory = f"../{self.clsname}/{self.objname}"
     
     def load(self):
         if len(getattr(self,'df',[])) > 0:
             return
         
-        parent_class = None
-        for cls in globals().values():
-            if isinstance(cls, type) and issubclass(cls, object):
-                for name, obj in cls.__dict__.items():
-                    if obj is self:
-                        parent_class = cls
-                        self.clsname, self.objname = cls.__name__, name
-        
-        directory = f"{self.clsname}/{self.objname}"
-
-        filename = f'{directory}/listings.csv'
+        filename = f'{self.directory}/listings.csv'
         if os.path.isfile(filename):
             self.df = pd.read_csv(filename, index_col=0)
         else:
-            os.makedirs(directory, exist_ok=True)
+            os.makedirs(self.directory, exist_ok=True)
 
-            self.df = pd.DataFrame(columns=parent_class.properties.getColumnNames())
+            self.df = pd.DataFrame(columns=self.parent_class.properties.getColumnNames())
             self.df.set_index('itemid', inplace=True)
             self.df.to_csv(filename, index=False)
 
-        filename = f'{self.clsname}/{self.objname}/updates.pickle'
+        filename = f'{self.directory}/updates.pickle'
         if os.path.isfile(filename):
             with open(filename, 'rb') as f:
                 self.items = pickle.load(f)
@@ -228,7 +227,7 @@ class Category:
 
         return self.url.format(id=self.id, page=pagestr)
 
-    def getItemIds(self, limit=None):
+    async def getItemIds(self, limit=None):
         next = None
         global_limit = len(self.itemids) + limit if limit else 0
         while True:
@@ -264,11 +263,11 @@ class Category:
                 break
             next = int(next)
             
-            ListAm.sleepRandom()
+            await ListAm.sleepRandom()
 
         self.itemids = list({item['itemid']:item for item in self.itemids}.values())
 
-    def getItems(self):
+    async def getItems(self):
         self.load()
         
         updated = 0
@@ -279,7 +278,7 @@ class Category:
 
         #if there is an item id which exists in db but not in the newly scraped list we flag them as finished
         new_ids = set([item['itemid'] for item in self.itemids])
-        for itemid in self.df[self.df['closed_item']==0].index:
+        for itemid in self.df[self.df['closed_item'] != 1].index:
             if itemid not in new_ids:
                 if itemid not in self.items:
                     self.items[itemid] = []
@@ -293,7 +292,10 @@ class Category:
         for i,item in enumerate(self.itemids):
             if i % percent_modulo == 0:
                 logger.info(f'Processed {round(i/len(self.itemids)*100)}% of {len(self.itemids)} items. Same {same} |  Updated {updated} |  Error {error} | No price {no_price} | Closed {closed}')
-
+            
+            if error > 200:
+                return False
+            
             new_dollar = item.get('dollar_price', None)
             new_dram   = item.get('dram_price', None)
             new_ruble  = item.get('ruble_price', None)
@@ -350,17 +352,17 @@ class Category:
             date = properties['update_date']# if 'update_date' in properties.keys() and properties['update_date'] else properties['posted_date']
             self.items[properties['itemid']].append([date, properties['dollar_price']])
 
-            ListAm.sleepRandom()
+            await ListAm.sleepRandom()
 
         logger.info(f'Category {self.clsname}/{self.objname}  Same {same} |  Updated {updated} |  Error {error} | No price {no_price} | Closed {closed}')
-
+        return True
+    
     def save(self):
-        directory = f'{self.clsname}/{self.objname}'
-        os.makedirs(directory, exist_ok=True)
+        os.makedirs(self.directory, exist_ok=True)
 
-        self.df.to_csv(f'{directory}/listings.csv')
+        self.df.to_csv(f'{self.directory}/listings.csv')
         
-        with open(f'{directory}/updates.pickle', 'wb') as f:
+        with open(f'{self.directory}/updates.pickle', 'wb') as f:
             pickle.dump(self.items, f)
 
     def clear(self):
@@ -369,7 +371,7 @@ class Category:
         del self.df
         self.itemids = []
         self.items = {}
-        self.df = None
+        self.df = []
 
 class ForSale:
     url = 'https://www.list.am/en/category/{id}/{page}'

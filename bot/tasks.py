@@ -10,6 +10,13 @@ from utils import utils
 from commands.car_engine import model
 import json
 
+import sys
+ 
+# setting path
+sys.path.append('../../motormentor')
+
+import scraper
+
 logger = logging.getLogger()
 
 def isNighttime(time: datetime.time) -> bool:
@@ -106,6 +113,7 @@ class Tasks:
         asyncio.create_task(self.save_old_chats())
         asyncio.create_task(self.update_data())
         asyncio.create_task(self.check_user_subscriptions())
+        asyncio.create_task(self.scrape_data())
     
     @Timers.run_every_at_day(3600)
     async def report_activity(self):
@@ -136,6 +144,26 @@ class Tasks:
         'sunroof' : 'no',
         'wheel_size' : 17
     }
+
+    @Timers.run_everyday_at(datetime.time(hour=2, minute=30, second=0))
+    async def scrape_data(self):
+        logger.info("START TO SCRAPE")
+
+        logger.info('Getting item ids...')
+
+        itemids_len = len(scraper.ForSale.Cars.itemids)
+        await scraper.ForSale.Cars.getItemIds()
+        itemids_len = len(scraper.ForSale.Cars.itemids) - itemids_len
+
+        logger.info(f'Found {itemids_len} listings')
+        
+        logger.info('Getting items...')
+        if await scraper.ForSale.Cars.getItems():
+            logger.info('Saving data...')
+            scraper.ForSale.Cars.save()
+        else:
+            logger.info('Too many errors while scraping data, aborting...')
+        scraper.ForSale.Cars.clear()
 
     @Timers.run_everyday_at(datetime.time(hour=11, minute=0, second=0))
     async def update_data(self):
