@@ -72,7 +72,7 @@ async def car_calculate_by_year(message: Message):
     plt.plot(years, prices, linewidth=2)
     plt.xlabel(P.label_year(cid))
     plt.ylabel(P.label_price(cid))
-    plt.title(P.calculate_by_year(cid))
+    plt.title(P.calculate_by_year(cid)[1:])
     plt.grid(linestyle='-', linewidth=1.5)
     plt.xticks(years, years,rotation=45)
 
@@ -114,7 +114,7 @@ async def car_calculate_by_mileage(message: Message):
     plt.plot(mileages, prices, linewidth=2)
     plt.xlabel(P.label_mileage(cid))
     plt.ylabel(P.label_price(cid))
-    plt.title(P.calculate_by_mileage(cid))
+    plt.title(P.calculate_by_mileage(cid)[1:])
     plt.grid(linestyle='-', linewidth=1.5)
     plt.xticks(mileages, mileages,rotation=90)
 

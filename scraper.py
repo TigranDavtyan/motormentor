@@ -188,7 +188,11 @@ class Category:
         self.itemids = []
         self.items = {}
         self.verbose = verbose
-
+    
+    def load(self):
+        if len(getattr(self,'df',[])) > 0:
+            return
+        
         self.parent_class = None
         for cls in globals().values():
             if isinstance(cls, type) and issubclass(cls, object):
@@ -198,11 +202,7 @@ class Category:
                         self.clsname, self.objname = cls.__name__, name
 
         self.directory = f"../{self.clsname}/{self.objname}"
-    
-    def load(self):
-        if len(getattr(self,'df',[])) > 0:
-            return
-        
+
         filename = f'{self.directory}/listings.csv'
         if os.path.isfile(filename):
             self.df = pd.read_csv(filename, index_col=0)
