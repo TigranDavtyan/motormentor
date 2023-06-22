@@ -20,11 +20,15 @@ async def new_car(cid, itemids: list):
 
 async def subscription_ended(cid):
     chat = cm[cid]
-    chat.send(P.subscription_end(cid), temporary=True)
+    await chat.send(P.subscription_end(cid), temporary=True)
     logger.info(f'User {cid} subscription ended.')
 
 async def subscription_prolonged(user_id, new_sub_end):
     chat = cm[user_id]
-    chat.send(P.payment_successfull(user_id, new_sub_end.date()))
+    await chat.send(P.payment_successfull(user_id, new_sub_end.date()))
     logger.info(f'User {user_id} subscription prolonged to {new_sub_end}.')
     
+
+async def car_price_update(cid, url, car_brand, model, year, engine_size, last_price, new_price):
+    chat = cm[cid]
+    await chat.send(P.notify_price_update(cid, car_brand, model, year, engine_size, last_price, new_price, url))

@@ -154,8 +154,8 @@ class ListAm:
             logger.error(response.status_code)
             return None
 
-        with open('page.html','wb') as pagefile:
-            pagefile.write(response.content)
+        # with open('page.html','wb') as pagefile:
+        #     pagefile.write(response.content)
 
         return response.content.decode('utf-8')
 
@@ -176,6 +176,15 @@ class ListAm:
             return response.status_code
         return ListAm.getPageHtml(response)
     
+    def getItemProperties(item):
+        if type(item) == int:
+            item_id = item
+        elif type(item) == str:
+            item_id = int(re.search(r"/(\d+)$", item).group(1))
+
+        item_page = ListAm.getItem(item_id)
+        return ListAmParser.Item.getCar(item_page)
+
 import pandas as pd
 import os
 import pickle
@@ -336,10 +345,9 @@ class Category:
                     self.df.at[itemid, 'update_date'] = datetime.now().date()
 
             except Exception as e:
-                time.sleep(1)
-                # traceback.print_exc()
+                await asyncio.sleep(1)
                 logger.error(f'{item} passed')
-                error+=1
+                error += 1
                 continue
 
             logger.debug(properties)

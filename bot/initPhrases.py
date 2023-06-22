@@ -272,7 +272,47 @@ insertPhrase('listam_what_to_do',
 
 insertPhrase('import_data', 'Ներմուծել ավտոմեքենայի պարամետրերը', 'Импорт параметров автомобиля', 'Import car parameters')
 insertPhrase('show_price_updates', 'Ցույց տալ գների թարմացումները⭐️', 'Показать изменения цен⭐️', 'Show price updates⭐️')
+insertPhrase('follow_price_updates', 'Հետևեք ապագա թարմացումներին⭐️', 'Следите за будущими обновлениями⭐️', 'Follow future updates⭐️')
 insertPhrase('no_price_updates', '❌ No price updates!', '❌ No price updates!', '❌ No price updates!')
+insertPhrase('follow_successfull', 
+             '''[car_brand] [model] 
+[year]   [engine_size] L
+[price] $
+✅ Մեքենան պահպանված է''', 
+             '''[car_brand] [model] 
+[year]   [engine_size] L
+[price] $
+✅ Автомобиль сохранен''', 
+             '''[car_brand] [model] 
+[year]   [engine_size] L
+[price] $
+✅ Car saved''')
+
+insertPhrase('notify_price_update', 
+             '''[car_brand] [model] 
+[year]   [engine_size] L
+
+Հին արժեք - [old_price] $
+Նոր արժեք - [new_price] $
+
+[url]''', 
+
+             '''[car_brand] [model] 
+[year]   [engine_size] L
+
+Старая цена - [old_price] $
+Новая цена  - [new_price] $
+
+[url]''', 
+
+             '''[car_brand] [model] 
+[year]   [engine_size] L
+
+Old price - [old_price] $
+New price - [new_price] $
+
+[url]''')
+
 
 #Saved cars
 insertPhrase('add_saved_car', '➕ Ավելացնել մեքենա', '➕ Добавить машину', '➕ Add car')

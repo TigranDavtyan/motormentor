@@ -638,7 +638,7 @@ Your "Premium" subscribtion ended. Contact the administrator to activate it. <a 
 
 def referral(cid : int, all : bool = False) -> str:
     '''🔗 Referrals'''
-    phrases = ['''🔗 Ուղղորդումներ''', '''🔗 Рефералы''', '''🔗 Referrals''']
+    phrases = ['''🔗 Ռեֆերալներ''', '''🔗 Рефералы''', '''🔗 Referrals''']
     if all:
         return phrases
     if cid > 10:
@@ -763,12 +763,12 @@ def menu(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def main_menu(cid : int, all : bool = False) -> str:
-    '''For advertisement write to t.me/motormentoradmin
-📜 Menu'''
-    phrases = ['''Գովազդի համար գրեք t.me/motormentoradmin
-📜 Մենյու''', '''Для рекламы пишите t.me/motormentoradmin
-📜 Меню''', '''For advertisement write to t.me/motormentoradmin
-📜 Menu''']
+    '''📜 Menu
+Buttons marked with ⭐️ have actions which require Premium subscription.'''
+    phrases = ['''📜 Մենյու
+⭐️-ով նշված կոճակներն ունեն գործողություններ, որոնք պահանջում են Պրեմիում բաժանորդագրություն:''', '''📜 Меню
+Кнопки, отмеченные ⭐️, имеют действия, требующие Премиум-подписки.''', '''📜 Menu
+Buttons marked with ⭐️ have actions which require Premium subscription.''']
     if all:
         return phrases
     if cid > 10:
@@ -789,8 +789,8 @@ def get_car_price(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def import_from_listam(cid : int, all : bool = False) -> str:
-    '''🧾 Import from List.am'''
-    phrases = ['''🧾 Ներմուծել List.am-ից''', '''🧾 Импорт из List.am''', '''🧾 Import from List.am''']
+    '''🧾 Import from List.am⭐️'''
+    phrases = ['''🧾 Ներմուծել List.am-ից⭐️''', '''🧾 Импорт из List.am⭐️''', '''🧾 Import from List.am⭐️''']
     if all:
         return phrases
     if cid > 10:
@@ -925,8 +925,19 @@ def import_data(cid : int, all : bool = False) -> str:
     return phrases[lang]
 
 def show_price_updates(cid : int, all : bool = False) -> str:
-    '''Show price updates'''
-    phrases = ['''Ցույց տալ գների թարմացումները''', '''Показать изменения цен''', '''Show price updates''']
+    '''Show price updates⭐️'''
+    phrases = ['''Ցույց տալ գների թարմացումները⭐️''', '''Показать изменения цен⭐️''', '''Show price updates⭐️''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def follow_price_updates(cid : int, all : bool = False) -> str:
+    '''Follow future updates⭐️'''
+    phrases = ['''Հետևեք ապագա թարմացումներին⭐️''', '''Следите за будущими обновлениями⭐️''', '''Follow future updates⭐️''']
     if all:
         return phrases
     if cid > 10:
@@ -945,6 +956,64 @@ def no_price_updates(cid : int, all : bool = False) -> str:
     else: 
         lang = cid
     return phrases[lang]
+
+def follow_successfull(cid : int,car_brand,model,year,engine_size,price, all : bool = False) -> str:
+    '''[car_brand] [model] 
+[year]   [engine_size] L
+[price] $
+✅ Car saved'''
+    phrases = ['''[car_brand] [model] 
+[year]   [engine_size] L
+[price] $
+✅ Մեքենան պահպանված է''', '''[car_brand] [model] 
+[year]   [engine_size] L
+[price] $
+✅ Автомобиль сохранен''', '''[car_brand] [model] 
+[year]   [engine_size] L
+[price] $
+✅ Car saved''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[car_brand]",str(car_brand)).replace("[model]",str(model)).replace("[year]",str(year)).replace("[engine_size]",str(engine_size)).replace("[price]",str(price))
+
+def notify_price_update(cid : int,car_brand,model,year,engine_size,old_price,new_price,url, all : bool = False) -> str:
+    '''[car_brand] [model] 
+[year]   [engine_size] L
+
+Old price - [old_price] $
+New price - [new_price] $
+
+[url]'''
+    phrases = ['''[car_brand] [model] 
+[year]   [engine_size] L
+
+Հին արժեք - [old_price] $
+Նոր արժեք - [new_price] $
+
+[url]''', '''[car_brand] [model] 
+[year]   [engine_size] L
+
+Старая цена - [old_price] $
+Новая цена  - [new_price] $
+
+[url]''', '''[car_brand] [model] 
+[year]   [engine_size] L
+
+Old price - [old_price] $
+New price - [new_price] $
+
+[url]''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[car_brand]",str(car_brand)).replace("[model]",str(model)).replace("[year]",str(year)).replace("[engine_size]",str(engine_size)).replace("[old_price]",str(old_price)).replace("[new_price]",str(new_price)).replace("[url]",str(url))
 
 def add_saved_car(cid : int, all : bool = False) -> str:
     '''➕ Add car'''

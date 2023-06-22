@@ -73,6 +73,7 @@ class USER:
         INFO = State(400, 402)
         HANDLE_URL = State(402)
         SHOW_UPDATES = State(404, min_subscription=USER_SUB_TYPE.PREMIUM)
+        FOLLOW_UPDATES = State(406, min_subscription=USER_SUB_TYPE.PREMIUM)
 
     class REFERRAL:
         INFO = State(700)

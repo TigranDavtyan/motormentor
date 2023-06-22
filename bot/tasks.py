@@ -11,10 +11,7 @@ from commands.car_engine import model
 import json
 
 import sys
- 
-# setting path
 sys.path.append('../../motormentor')
-
 import scraper
 
 logger = logging.getLogger()
@@ -114,6 +111,7 @@ class Tasks:
         asyncio.create_task(self.update_data())
         asyncio.create_task(self.check_user_subscriptions())
         asyncio.create_task(self.scrape_data())
+        asyncio.create_task(self.check_price_updates())
     
     @Timers.run_every_at_day(3600)
     async def report_activity(self):
@@ -240,9 +238,25 @@ class Tasks:
         logger.info(f'Data updated! Sent {nMessages} messages')
 
 
+    
+    @Timers.run_everyday_at(datetime.time(hour=23, minute=50, second=0))
+    async def check_price_updates(self):
+        cars = db.fetchall('SELECT url, cid, car_brand, model, year, engine_size, last_price FROM follow_listing;')
+        if not cars:
+            return
+        
+        for url, cid, car_brand, model, year, engine_size, last_price in cars:
+            properties = scraper.ListAm.getItemProperties(url)
+            if properties['dollar_price'] != last_price:
+                await to_users.car_price_update(cid, url, car_brand, model, year, engine_size, last_price, properties['dollar_price'])
+
+
     @Timers.run_everyday_at(datetime.time(hour=12, minute=0, second=0))
     async def check_user_subscriptions(self):
         ended_users = db.query("SELECT cid FROM users WHERE subscription > 0 AND subscription_end < DATETIME('now')")
+        if not ended_users:
+            return
+        
         db.query("UPDATE users SET subscription = 0 WHERE subscription > 0 AND subscription_end < DATETIME('now')")
 
         for cid in ended_users:

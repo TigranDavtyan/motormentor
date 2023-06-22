@@ -97,6 +97,8 @@ class DatabaseManager(object):
         year INTEGER, mileage_start REAL, mileage_end REAL, exterior_color TEXT, body_type TEXT, engine_type TEXT, engine_size REAL,transmission TEXT,
         drive_type TEXT, condition TEXT, gas_equipment TEXT, steering_wheel TEXT, price_start REAL, price_end REAL, found_cars TEXT )''')
 
+        self.query('CREATE TABLE IF NOT EXISTS follow_listing (url TEXT, cid INTEGER, car_brand TEXT, model TEXT, year INTEGER, engine_size REAL, last_price INTEGER)')
+
         self.query('CREATE TABLE IF NOT EXISTS files (filename TEXT PRIMARY KEY, fileid INTEGER)')
 
         self.query('CREATE TABLE IF NOT EXISTS ads (id INTEGER PRIMARY KEY AUTOINCREMENT, active INTEGER DEFAULT 1, click_count INTEGER DEFAULT 0, price TEXT, language INTEGER, messageid INTEGER)')

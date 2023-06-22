@@ -6,6 +6,10 @@ from phrases import phrases as P
 from states.states import ADMIN, GENERAL, USER, State
 from .car_engine import model, Car
 import re
+import sys
+sys.path.append('../../motormentor')
+
+import scraper
 
 @setActionFor(USER.IMPORT_LISTAM.INFO)
 async def import_listam(message: Message):
@@ -40,9 +44,22 @@ async def handle_listam_url(message: Message):
     markup = Buttons(True)
     markup.add(P.import_data(cid), USER.CAR_PRICE.INFO)
     markup.add(P.show_price_updates(cid), USER.IMPORT_LISTAM.SHOW_UPDATES, item_id)
+    markup.add(P.follow_price_updates(cid), USER.IMPORT_LISTAM.FOLLOW_UPDATES, item_id)
 
     await chat.edit(f'<b>{car.getBrand()} {car.getModel()} {car.engine_size}L</b>\n\n'+P.listam_what_to_do(cid), markup)
     await chat.setState(USER.IMPORT_LISTAM.HANDLE_URL)
+
+
+@setActionFor(USER.IMPORT_LISTAM.FOLLOW_UPDATES)
+async def follow_price_updates(message: Message, data):
+    cid, chat = message.chat.id,cm[message.chat.id]
+
+    itemid = int(data)
+    properties = scraper.ListAm.getItemProperties(itemid)
+    car_brand, car_model, year, engine_size, price = properties['car_brand'], properties['model'], properties['year'], properties['engine_size'], properties['dollar_price']
+    db.query('INSERT INTO follow_listing (url, cid, car_brand, model, year, engine_size, last_price) VALUES (?,?,?,?,?,?,?)',
+             ('list.am/en/item/'+str(itemid), cid, car_brand, car_model, year, engine_size, price))
+    await chat.send(P.follow_successfull(cid, car_brand, car_model, year, engine_size, price), temporary=True)
 
 
 @setActionFor(USER.IMPORT_LISTAM.SHOW_UPDATES)
