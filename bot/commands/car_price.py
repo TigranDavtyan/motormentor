@@ -85,7 +85,8 @@ async def car_calculate_by_year(message: Message):
 
     graph_path = 'car_prices_graph.jpg'
     plt.savefig(graph_path)
-
+    plt.close()
+    
     with open(graph_path, 'rb') as graph_file:
         await chat.send('', photo=graph_file.read(), temporary=True)
 
@@ -127,6 +128,7 @@ async def car_calculate_by_mileage(message: Message):
 
     graph_path = 'car_prices_graph.jpg'
     plt.savefig(graph_path)
+    plt.close()
 
     with open(graph_path, 'rb') as graph_file:
         await chat.send('', photo=graph_file.read(), temporary=True)

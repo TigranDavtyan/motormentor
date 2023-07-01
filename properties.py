@@ -61,7 +61,7 @@ class CarProperties:
     userid                  = property( bidict({}),lambda val : int(val)  if val else None)
     posted_date             = property( bidict({}),lambda val : val if val else None)
     update_date             = property( bidict({}),lambda val : val if val else None)
-    closed_item             = property( bidict({}),lambda val : val if val else None)
+    closed_item             = property( bidict({}),lambda val : val if val else 0)
 
     @staticmethod
     def get(key, value) -> int:

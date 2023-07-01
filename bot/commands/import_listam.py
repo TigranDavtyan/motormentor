@@ -9,7 +9,7 @@ import re
 import sys
 sys.path.append('../../motormentor')
 
-import scraper
+from scraper_listam import ListAm
 
 @setActionFor(USER.IMPORT_LISTAM.INFO)
 async def import_listam(message: Message):
@@ -55,7 +55,8 @@ async def follow_price_updates(message: Message, data):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     itemid = int(data)
-    properties = scraper.ListAm.getItemProperties(itemid)
+
+    properties = ListAm().getItemProperties(itemid)
     car_brand, car_model, year, engine_size, price = properties['car_brand'], properties['model'], properties['year'], properties['engine_size'], properties['dollar_price']
     db.query('INSERT INTO follow_listing (url, cid, car_brand, model, year, engine_size, last_price) VALUES (?,?,?,?,?,?,?)',
              ('list.am/en/item/'+str(itemid), cid, car_brand, car_model, year, engine_size, price))

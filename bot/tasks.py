@@ -12,7 +12,8 @@ import json
 
 import sys
 sys.path.append('../../motormentor')
-import scraper
+from scraper_listam import ListAm
+from scraper_myautoge import MyAutoGe
 
 logger = logging.getLogger()
 
@@ -143,25 +144,15 @@ class Tasks:
         'wheel_size' : 17
     }
 
-    @Timers.run_everyday_at(datetime.time(hour=2, minute=30, second=0))
+    @Timers.run_everyday_at(datetime.time(hour=12, minute=0, second=0))
     async def scrape_data(self):
-        logger.info("START TO SCRAPE")
+        listam = ListAm()
+        await listam.update_data(50)
+        del listam
 
-        logger.info('Getting item ids...')
-
-        itemids_len = len(scraper.ForSale.Cars.itemids)
-        await scraper.ForSale.Cars.getItemIds()
-        itemids_len = len(scraper.ForSale.Cars.itemids) - itemids_len
-
-        logger.info(f'Found {itemids_len} listings')
-        
-        logger.info('Getting items...')
-        if await scraper.ForSale.Cars.getItems():
-            logger.info('Saving data...')
-            scraper.ForSale.Cars.save()
-        else:
-            logger.info('Too many errors while scraping data, aborting...')
-        scraper.ForSale.Cars.clear()
+        myautoge = MyAutoGe()
+        await myautoge.updateData(3)
+        del myautoge
 
     @Timers.run_everyday_at(datetime.time(hour=11, minute=0, second=0))
     async def update_data(self):
@@ -245,9 +236,11 @@ class Tasks:
         if not cars:
             return
         
+        listam = ListAm()
         for url, cid, car_brand, model, year, engine_size, last_price in cars:
-            properties = scraper.ListAm.getItemProperties(url)
+            properties = listam.getItemProperties(url)
             if properties['dollar_price'] != last_price:
+                db.query('UPDATE follow_listing SET last_price = ? WHERE url = ? AND cid = ?', (properties['dollar_price'], url, cid))
                 await to_users.car_price_update(cid, url, car_brand, model, year, engine_size, last_price, properties['dollar_price'])
 
 

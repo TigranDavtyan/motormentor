@@ -40,15 +40,15 @@ async def report():
         count += 1
         user = db.fetchone('SELECT name, joining_date FROM users WHERE cid = ?', (userid,))
 
+        hours = round((now - utils.str2dt(user[1])).total_seconds() / 3600)
         if now - utils.str2dt(user[1]) < utils.datetime.timedelta(hours=1):
-            new_or_old = 'N-'
             new_users_count += 1
-        else:
-            new_or_old = 'O-'
+
         activity_count += activity['sent']
         
         if len(text) < 1000:
-            text += f"{new_or_old}{userid:<11}:{user[0][:10]:<10} - {activity['sent']:<3}\n"
+            text += f"{hours:<3}-{userid:<11}:{user[0][:8]:<8} - {activity['sent']:<3}\n"
+        else:
             more_than_limit = True
     
     if more_than_limit:

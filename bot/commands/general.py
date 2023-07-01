@@ -88,7 +88,9 @@ async def cmd_start_ad(message: Message):
     await ad_engine.sendAdTo(cid)
 
     if await checkForLink(message):
-        logging.info(f"User {cid}:{message.from_user.full_name} used a link {message.text}")
+        text = f"User {cid}:{message.from_user.full_name} used a link {message.text}"
+        logging.info(text)
+        await cm[ADMIN_CHAT_ID].send(text)
     else:
         await State.get(USER.MAIN_MENU)(message, True)
 
