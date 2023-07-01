@@ -144,14 +144,14 @@ class Tasks:
         'wheel_size' : 17
     }
 
-    @Timers.run_everyday_at(datetime.time(hour=12, minute=0, second=0))
+    @Timers.run_everyday_at(datetime.time(hour=2, minute=30, second=0))
     async def scrape_data(self):
         listam = ListAm()
-        await listam.update_data(50)
+        await listam.update_data()
         del listam
 
         myautoge = MyAutoGe()
-        await myautoge.updateData(3)
+        await myautoge.updateData()
         del myautoge
 
     @Timers.run_everyday_at(datetime.time(hour=11, minute=0, second=0))

@@ -10,6 +10,14 @@ import json
 import logging
 
 from collections import Counter
+import sqlite3
+import sys
+
+if len(sys.argv) > 1:
+    website = sys.argv[1]
+else:
+    print("No website provided. Shutting down")
+    exit()
 
 logger = logging.getLogger('listamscraper')
 logger.setLevel(logging.INFO)
@@ -26,21 +34,14 @@ logger.addHandler(fh)
 
 logger.info('Loading data...')
 #LOAD
-data = pd.read_csv('ForSale/Cars/listings.csv')
-data['gas_equipment'].fillna('no', inplace=True)
-data.to_csv('ForSale/Cars/listings.csv', index=False)
 
-data = data[data['cleared_customs'] == 'yes']
-data.drop('cleared_customs',axis=1,inplace=True)
+conn = sqlite3.connect('bot/data.db')
 
+data = pd.read_sql(f"""SELECT itemid, car_brand, model, year, mileage,
+       exterior_color, body_type, engine_type, engine_size,
+       transmission, drive_type, gas_equipment, steering_wheel,
+       interior_color, interior_material, dollar_price FROM listings WHERE website = '{website}'""", conn)
 
-data = data[['itemid', 'car_brand', 'model', 'body_type', 'year', 'engine_type',
-       'engine_size', 'transmission', 'drive_type', 'mileage', 'condition',
-       'gas_equipment', 'steering_wheel', 'exterior_color',
-       'headlights', 'interior_color', 'interior_material', 'sunroof',
-       'wheel_size', 'dollar_price']]
-
-# data.set_index('itemid',inplace=True)
 data.dropna(inplace=True)
 
 #PREPROCESS
@@ -58,20 +59,19 @@ rare_models = model_counts[model_counts < model_threshold].index.tolist()
 data['car_brand'] = data['car_brand'].apply(lambda x: 'Other' if x in rare_brands else x)
 data['model'] = data['model'].apply(lambda x: 'Other' if x in rare_models else x)
 
-categorical_cols = ['car_brand','model', 'body_type', 'engine_type', 'transmission', 'drive_type',
-                    'condition', 'gas_equipment', 'steering_wheel',
-                    'exterior_color', 'headlights', 'interior_color', 'interior_material', 'sunroof']
+categorical_cols = ['car_brand','model', 'body_type', 'engine_type', 'transmission',
+                     'drive_type', 'gas_equipment', 'steering_wheel',
+                    'exterior_color', 'interior_color', 'interior_material']
 
 onehot_encoder = OneHotEncoder(drop='first')
 onehot_encoder.fit(data[categorical_cols])
 data_encoded = onehot_encoder.transform(data[categorical_cols]).toarray()
 data_encoded = pd.DataFrame(data_encoded, columns=onehot_encoder.get_feature_names_out(), index = data.index)
-data_encoded = pd.concat([data[['itemid', 'year', 'engine_size', 'mileage', 'wheel_size','dollar_price']],data_encoded], axis=1)
+data_encoded = pd.concat([data[['itemid', 'year', 'engine_size', 'mileage', 'dollar_price']],data_encoded], axis=1)
 data_encoded.set_index('itemid', inplace=True)
 
-with open('trained_model/encoder.pkl', 'wb') as file:
+with open(f'trained_models/{website}_encoder.pkl', 'wb') as file:
     pickle.dump(onehot_encoder, file)
-
 
 #Remove outliers round 1
 # Calculate the IQR
@@ -150,7 +150,7 @@ data_encoded['score'] = data_encoded['dollar_price'] - pred
 
 logger.info('Saving model...')
 # Save the model to a file
-with open('trained_model/xgb_model.pkl', 'wb') as file:
+with open(f'trained_models/{website}_xgb_model.pkl', 'wb') as file:
     pickle.dump(xgb_model, file)
 
 
@@ -173,7 +173,7 @@ for column in categorical_cols:
         unique_values[column] = sorted_values
 
 # Save the dictionary to a JSON file
-with open('trained_model/categorical.json', 'w') as file:
+with open(f'trained_models/{website}_categorical.json', 'w') as file:
     json.dump(unique_values, file)
 
 logging.info('Finished model training!')

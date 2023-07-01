@@ -1,6 +1,7 @@
 import sqlite3 as lite
 import ast
 import datetime
+import shutil
 
 class DataDatabase:
     def __init__(self, path):
@@ -34,6 +35,11 @@ class DataDatabase:
             self.cur.execute(arg, values)
         return self.cur.fetchall()
 
+    def createBackup(self):
+        shutil.copy2('./data.db','./data.db.backup')
+    def restoreBackup(self):
+        shutil.copy2('./data.db.backup','./data.db')
+        
     def insertOrUpdateListing(self, item):
         '''same - 0  |  updated - 1'''
 

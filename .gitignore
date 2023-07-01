@@ -11,7 +11,7 @@ chats
 categorical.json
 *.db
 *.ipynb
-
+*.backup
 # C extensions
 *.so
 

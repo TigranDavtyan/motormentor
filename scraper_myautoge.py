@@ -79,6 +79,7 @@ class MyAutoGe:
         return npages, nitems, items
 
     async def updateData(self, page_limit = None):
+        db.createBackup()
         logger.info("STARTING TO SCRAPE MYAUTO GE")
         npages, nitems, _ = self.getPage(1)
         if page_limit and page_limit < npages:
@@ -91,7 +92,7 @@ class MyAutoGe:
             logger.error(f'Cant update data, last request status code is {npages}')
             return
 
-        logger.info(f'Pages = {npages}  |  Total number of items= {nitems}')
+        logger.info(f'Pages = {npages}  |  Total number of items = {nitems}')
         existing_ids = set([d[0] for d in db.fetchall('SELECT itemid FROM listings WHERE website = "myautoge" AND closed_item=0;')])
         same_or_updated = set()
 
@@ -99,9 +100,14 @@ class MyAutoGe:
         for page in range(1, npages+1)[:page_limit]:
             npages, nitems, page_data = self.getPage(page)
 
-            if nitems is None and self.error > 10:
+            if self.error/(self.updated+self.same+self.no_price)*100 > 8:
                 logger.error(f'Cant update data, last request status code is {npages}')
+                db.restoreBackup()
                 return
+            
+            if not nitems :
+                self.error += 15
+                continue
             
             percent = round(page/npages*100)
             if percent != last_percent:

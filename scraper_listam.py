@@ -107,6 +107,9 @@ class Parser:
             else:
                 properties['gas_equipment'] = 1
 
+            if 'interior_color' not in properties.keys():
+                properties['interior_color'] = 'black'
+
             try:
                 car_brand = Parser.Item.getCarBrand(page)
                 properties['car_brand'] = car_brand
@@ -139,6 +142,20 @@ class Parser:
             for key, value in properties.items():
                 properties[key] = CarProperties.get(key,value)
             
+            if 'engine_size' not in properties.keys():
+                engine_size = db.fetchone('''SELECT MODE(engine_size) FROM listings WHERE 
+                car_brand = ? 
+                AND model = ? 
+                AND body_type = ? 
+                AND year BETWEEN ? AND ?
+                AND transmission = ?''',(properties['car_brand'], properties['model'],
+                                          properties['body_type'], properties['year']-2,properties['year']+2, properties['transmission']))
+                if engine_size:
+                    properties['engine_size'] = engine_size[0]
+                    logging.info(f'FOUND median engine size {engine_size[0]} for item {properties["itemid"]}')
+                else:
+                    logging.info(f'NOT FOUND median engine size for item {properties["itemid"]}')
+
             return properties
         
 
@@ -234,6 +251,7 @@ class ListAm:
 
 
     async def getItems(self):
+        db.createBackup()
         #if there is an item id which exists in db but not in the newly scraped list we flag them as finished
         existing_ids = [d[0] for d in db.fetchall('SELECT itemid FROM listings WHERE website = "listam" AND closed_item=0;')]
         new_ids = set([item['itemid'] for item in self.itemids])
@@ -253,7 +271,9 @@ class ListAm:
             if i % percent_modulo == 0:
                 logger.info(f'Processed {round(i/len(self.itemids)*100)}% of {len(self.itemids)} items. Same {self.same} |  Updated {self.updated} |  Error {self.error} | No price {self.no_price} | Closed {self.closed}')
             
-            if self.error > 200:
+            if self.error/(self.updated+self.same+self.no_price)*100 > 8:
+                logger.error('Stopping scraping because too many error')
+                db.restoreBackup()
                 return False
 
             if item['original_price'] == 0: #Passing items which dont have a price
@@ -282,11 +302,9 @@ class ListAm:
                     raise ValueError('status code '+str(page))
                 
             except Exception as e:
-                logger.error(f'{item["itemid"]} passed  '+ str(e))
+                logger.debug(f'{item["itemid"]} passed  '+ str(e))
                 await asyncio.sleep(1)
-                
-                # traceback.print_exc()
-                # print(properties)
+
                 self.error += 1
                 continue
 
