@@ -36,10 +36,10 @@ def filter_and_transform_datapoint(d: dict) -> dict:
         'drive_type' :           myautoge_ids['drive_type_ids'][d['drive_type_id']],
         'mileage' :              d['car_run_km'],
         # 'condition' :            d['car_id'],
-        'gas_equipment' :        1 if d['fuel_type_id'] in [8,9] else 0,
+        'gas_equipment' :        'installed' if d['fuel_type_id'] in [8,9] else 'no',
         'steering_wheel' :       myautoge_ids['wheel_type_ids'][d['right_wheel'] is True],
         'exterior_color' :       myautoge_ids['color_ids'][d['color_id']],
-        'interior_color' :       myautoge_ids['color_ids'][d['saloon_color_id']],
+        'interior_color' :       myautoge_ids['interior_color_ids'][d['saloon_color_id']],
         'interior_material' :    myautoge_ids['interior_material_ids'][d['saloon_material_id']],
         'dollar_price' :         d['price_usd'],
         'original_price' :       d['price'],
@@ -80,63 +80,66 @@ class MyAutoGe:
 
     async def updateData(self, page_limit = None):
         db.createBackup()
-        logger.info("STARTING TO SCRAPE MYAUTO GE")
-        npages, nitems, _ = self.getPage(1)
-        if page_limit and page_limit < npages:
-            nitems = 15*page_limit
-            npages = page_limit
-        else:
-            page_limit = 100000000000
-        
-        if nitems is None or self.error > 10:
-            logger.error(f'Cant update data, last request status code is {npages}')
-            return
-
-        logger.info(f'Pages = {npages}  |  Total number of items = {nitems}')
-        existing_ids = set([d[0] for d in db.fetchall('SELECT itemid FROM listings WHERE website = "myautoge" AND closed_item=0;')])
-        same_or_updated = set()
-
-        last_percent = 0
-        for page in range(1, npages+1)[:page_limit]:
-            npages, nitems, page_data = self.getPage(page)
-
-            if self.error/(self.updated+self.same+self.no_price)*100 > 8:
+        try:
+            logger.info("STARTING TO SCRAPE MYAUTO GE")
+            npages, nitems, _ = self.getPage(1)
+            if page_limit and page_limit < npages:
+                nitems = 15*page_limit
+                npages = page_limit
+            else:
+                page_limit = 100000000000
+            
+            if nitems is None or self.error > 10:
                 logger.error(f'Cant update data, last request status code is {npages}')
-                db.restoreBackup()
                 return
-            
-            if not nitems :
-                self.error += 15
-                continue
-            
-            percent = round(page/npages*100)
-            if percent != last_percent:
-                logger.info(f'Processed {percent}% of {nitems} items. Same {self.same} |  Updated {self.updated} |  Error {self.error} | No price {self.no_price} | Closed {self.closed}')
-                last_percent = percent
 
-            for item in page_data:
-                item['car_id'] = self.id_appender + item['car_id']
-                if item['price'] == 0:
-                    self.no_price += 1
+            logger.info(f'Pages = {npages}  |  Total number of items = {nitems}')
+            existing_ids = set([d[0] for d in db.fetchall('SELECT itemid FROM listings WHERE website = "myautoge" AND closed_item=0;')])
+            same_or_updated = set()
+
+            last_percent = 0
+            for page in range(1, npages+1)[:page_limit]:
+                npages, nitems, page_data = self.getPage(page)
+
+                if self.error > 20 and self.error/(self.updated+self.same+self.no_price+1)*100 > 8:
+                    logger.error(f'Cant update data, last request status code is {npages}')
+                    db.restoreBackup()
+                    return
+                
+                if not nitems :
+                    self.error += 15
                     continue
-                try:
-                    item_filtered = filter_and_transform_datapoint(item)
-                    ret = db.insertOrUpdateListing(item_filtered)
-                    if ret == 0:
-                        self.same += 1
-                    elif ret == 1:
-                        self.updated += 1
-                    same_or_updated.add(item['car_id'])
+                
+                percent = round(page/npages*100)
+                if percent != last_percent:
+                    logger.info(f'Processed {percent}% of {nitems} items. Same {self.same} |  Updated {self.updated} |  Error {self.error} | No price {self.no_price} | Closed {self.closed}')
+                    last_percent = percent
 
-                except Exception as e:
-                    logger.error(f'Error for item {item["car_id"]}  '+str(e))
-                    continue
+                for item in page_data:
+                    item['car_id'] = self.id_appender + item['car_id']
+                    if item['price_usd'] == 0:
+                        self.no_price += 1
+                        continue
+                    try:
+                        item_filtered = filter_and_transform_datapoint(item)
+                        ret = db.insertOrUpdateListing(item_filtered)
+                        if ret == 0:
+                            self.same += 1
+                        elif ret == 1:
+                            self.updated += 1
+                        same_or_updated.add(item['car_id'])
 
-            await self.sleepRandom()
+                    except Exception as e:
+                        logger.error(f'Error for item {item["car_id"]}  '+str(e))
+                        continue
 
-        closed_ids = existing_ids.difference(same_or_updated)
-        for id in closed_ids:
-            db.closeItem(id)
-        
+                await self.sleepRandom()
+
+            closed_ids = existing_ids.difference(same_or_updated)
+            for id in closed_ids:
+                db.closeItem(id)
+        except Exception as e:
+            logger.error('Stopping scraping because too many error '+str(e))
+            db.restoreBackup()
         logger.info(f'Processed {nitems} items. Same {self.same} |  Updated {self.updated} |  Error {self.error} | No price {self.no_price} | Closed {self.closed}')
         logger.info("FINISHED SCRAPING MYAUTO GE")

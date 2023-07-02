@@ -712,7 +712,7 @@
             }
         },
         "146": {
-            "name": "Dongfeng",
+            "name": "DongFeng",
             "models": {
                 "6432": "aeolus_ax5",
                 "6533": "304",
@@ -3233,5 +3233,18 @@
         "3": "leatherette",
         "5": "leather",
         "4": "alcantara"
+    },
+    "interior_color_ids" : {
+        "16" : "black",
+        "1" : "white",
+        "13" : "grey",
+        "7" : "brown",
+        "2" : "beige",
+        "8" : "red",
+        "3" : "blue",
+        "4" : "yellow",
+        "9" : "orange",
+        "11" : "carnelian",
+        "6" : "golden"
     }
 }

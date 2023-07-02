@@ -7,13 +7,14 @@ from config import NIGHT_HOURS, ADMIN_CHAT_ID
 from loader import *
 from notifications import to_admin, to_users
 from utils import utils
-from commands.car_engine import model
+from commands.car_engine import XGBModel
 import json
 
 import sys
 sys.path.append('../../motormentor')
 from scraper_listam import ListAm
 from scraper_myautoge import MyAutoGe
+from data_storage import db as data_db
 
 logger = logging.getLogger()
 
@@ -154,19 +155,16 @@ class Tasks:
         await myautoge.updateData()
         del myautoge
 
-    @Timers.run_everyday_at(datetime.time(hour=11, minute=0, second=0))
+    @Timers.run_everyday_at(datetime.time(hour=23, minute=52, second=0))
     async def update_data(self):
         logger.info('Updating data...')
-        new_cars_df = model.update()
-
-        if new_cars_df is None or new_cars_df.empty:
-            return
+        XGBModel.update()
         
-        df_columns = list(new_cars_df.columns)
+        yesterday = utils.now() - datetime.timedelta(days=10)
 
         user_cars = db.fetchall('''SELECT sc.cid, sc.car_brand, sc.model,
         sc.year, sc.mileage_start, sc.mileage_end, sc.exterior_color, sc.body_type, sc.engine_type, sc.engine_size,sc.transmission,
-        sc.drive_type,sc.condition, sc.gas_equipment,sc.steering_wheel, sc.price_start, sc.price_end, sc.id 
+        sc.drive_type, sc.gas_equipment,sc.steering_wheel, sc.price_start, sc.price_end, sc.id 
         FROM saved_cars AS sc
         JOIN users AS u ON sc.cid==u.cid WHERE sc.editing=0 AND u.subscription > 0;''')#TODO test this
 
@@ -185,44 +183,34 @@ class Tasks:
                 'engine_size':db_car[9],
                 'transmission':db_car[10],
                 'drive_type':db_car[11],
-                'condition':db_car[12],
-                'gas_equipment':db_car[13],
-                'steering_wheel':db_car[14],
-                'price_start':db_car[15],
-                'price_end':db_car[16],
-                'id':db_car[17]
+                'gas_equipment':db_car[12],
+                'steering_wheel':db_car[13],
+                'price_start':db_car[14],
+                'price_end':db_car[15],
+                'id':db_car[16]
             }
-            
-            query = ""
-            for df_column in df_columns:
-                if df_column in db_car.keys() and db_car[df_column]:
-                    val = db_car[df_column]
-                    if type(val) == int or type(val) == float or val.isnumeric():
-                        query += f"`{df_column}` == {val} and "
-                    else:
-                        query += f"`{df_column}` == '{val}' and "
+            new_cars_for_user = data_db.fetchall('''SELECT itemid FROM listings WHERE update_date > ? 
+                AND car_brand = ? AND model = ? AND year = ? AND mileage BETWEEN ? AND ? 
+                AND exterior_color = ? AND body_type = ? AND engine_type = ? AND engine_size = ? 
+                AND transmission = ? AND drive_type = ? AND gas_equipment = ? AND steering_wheel = ? 
+                AND dollar_price BETWEEN ? AND ?''',(yesterday, db_car['car_brand'], db_car['model'], db_car['year']
+                                                     , db_car['mileage_start'], db_car['mileage_end'], db_car['exterior_color']
+                                                     , db_car['body_type'], db_car['engine_type'], db_car['engine_size']
+                                                     , db_car['transmission'], db_car['drive_type'], db_car['gas_equipment']
+                                                     , db_car['steering_wheel'], db_car['price_start'], db_car['price_end']))
 
-            if db_car['mileage_start']:
-                query += f'mileage >= {db_car["mileage_start"]}'
-            if db_car['mileage_end']:
-                query += f' and mileage <= {db_car["mileage_end"]}'
-            
-            if db_car['price_start']:
-                query += f' and dollar_price >= {db_car["price_start"]}'
-            if db_car['price_end']:
-                query += f' and dollar_price <= {db_car["price_end"]}'
-
-            results = list(new_cars_df.query(query).index)
+            if not new_cars_for_user:
+                continue
+            results = [itemid[0] for itemid in new_cars_for_user]
             
             nMessages += len(results)
 
             if len(results) > 0:
-                #send notification
                 await to_users.new_car(db_car['cid'], results)
 
-                #save in db
-                items = dict(json.loads(db.fetchone('SELECT found_cars FROM saved_cars WHERE id = ?', (db_car['id'],))[0]))
-                items.update({datetime.datetime.now().date : itemid for itemid in results})
+                items = list(json.loads(db.fetchone('SELECT found_cars FROM saved_cars WHERE id = ?', (db_car['id'],))[0]))
+                items.extend([[str(datetime.datetime.now().date()) , itemid] for itemid in results])
+
                 db.query('UPDATE saved_cars SET found_cars = ? WHERE id = ?', (json.dumps(items), db_car['id']))
 
 

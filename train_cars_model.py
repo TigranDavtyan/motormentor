@@ -12,12 +12,17 @@ import logging
 from collections import Counter
 import sqlite3
 import sys
+import os
 
 if len(sys.argv) > 1:
     website = sys.argv[1]
+    folder = f'./trained_models/{website}'
 else:
-    print("No website provided. Shutting down")
-    exit()
+    website = '%'
+    folder = './trained_models/combined'
+
+if not os.path.exists(folder):
+    os.makedirs(folder)
 
 logger = logging.getLogger('listamscraper')
 logger.setLevel(logging.INFO)
@@ -37,10 +42,12 @@ logger.info('Loading data...')
 
 conn = sqlite3.connect('bot/data.db')
 
-data = pd.read_sql(f"""SELECT itemid, car_brand, model, year, mileage,
+data = pd.read_sql(f"""SELECT itemid, website, car_brand, model, year, mileage,
        exterior_color, body_type, engine_type, engine_size,
        transmission, drive_type, gas_equipment, steering_wheel,
-       interior_color, interior_material, dollar_price FROM listings WHERE website = '{website}'""", conn)
+       interior_color, interior_material, dollar_price FROM listings WHERE website LIKE '{website}'""", conn)
+
+data = data.sample(frac=1)
 
 data.dropna(inplace=True)
 
@@ -59,7 +66,7 @@ rare_models = model_counts[model_counts < model_threshold].index.tolist()
 data['car_brand'] = data['car_brand'].apply(lambda x: 'Other' if x in rare_brands else x)
 data['model'] = data['model'].apply(lambda x: 'Other' if x in rare_models else x)
 
-categorical_cols = ['car_brand','model', 'body_type', 'engine_type', 'transmission',
+categorical_cols = ['website', 'car_brand','model', 'body_type', 'engine_type', 'transmission',
                      'drive_type', 'gas_equipment', 'steering_wheel',
                     'exterior_color', 'interior_color', 'interior_material']
 
@@ -70,7 +77,7 @@ data_encoded = pd.DataFrame(data_encoded, columns=onehot_encoder.get_feature_nam
 data_encoded = pd.concat([data[['itemid', 'year', 'engine_size', 'mileage', 'dollar_price']],data_encoded], axis=1)
 data_encoded.set_index('itemid', inplace=True)
 
-with open(f'trained_models/{website}_encoder.pkl', 'wb') as file:
+with open(f'{folder}/encoder.pkl', 'wb') as file:
     pickle.dump(onehot_encoder, file)
 
 #Remove outliers round 1
@@ -150,7 +157,7 @@ data_encoded['score'] = data_encoded['dollar_price'] - pred
 
 logger.info('Saving model...')
 # Save the model to a file
-with open(f'trained_models/{website}_xgb_model.pkl', 'wb') as file:
+with open(f'{folder}/xgb_model.pkl', 'wb') as file:
     pickle.dump(xgb_model, file)
 
 
@@ -167,13 +174,14 @@ for brand in brands:
 
 # Iterate over the categorical columns
 for column in categorical_cols:
-    if column != 'car_brand':
-        value_counts = Counter(data[column])
-        sorted_values = sorted(value_counts, key=value_counts.get, reverse=True)
-        unique_values[column] = sorted_values
+    if column == 'car_brand' or column == 'model':
+        continue
+    value_counts = Counter(data[column])
+    sorted_values = sorted(value_counts, key=value_counts.get, reverse=True)
+    unique_values[column] = sorted(sorted_values)
 
-# Save the dictionary to a JSON file
-with open(f'trained_models/{website}_categorical.json', 'w') as file:
+
+with open(f'{folder}/categorical.json', 'w') as file:
     json.dump(unique_values, file)
 
 logging.info('Finished model training!')

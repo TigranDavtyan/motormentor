@@ -62,18 +62,12 @@ class Parser:
         
         def getDatetimes(page: str):
             posted_match = Parser.Item.posted_dt.search(page)
-            renewed_match = Parser.Item.renewed_dt.search(page)
-            posted_date, renewed_date = None, None
+            posted_date = None
             if posted_match:
                 posted_date = posted_match.group(1)
                 posted_date = datetime.strptime(posted_date, '%d.%m.%Y').date()
 
-            if renewed_match:
-                renewed_date = renewed_match.group(1)
-                renewed_date = datetime.strptime(renewed_date, '%d.%m.%Y').date()
-            else: renewed_date = posted_date
-
-            return [posted_date,renewed_date]
+            return posted_date
         
         def getAddress(page: str):
             match = Parser.Item.address.search(page)
@@ -102,10 +96,8 @@ class Parser:
             properties['exterior_color'] = properties['color']
             properties.pop('color')
 
-            if 'gas_equipment' not in properties.keys() or properties['gas_equipment'] == 'installed':
-                properties['gas_equipment'] = 0
-            else:
-                properties['gas_equipment'] = 1
+            if 'gas_equipment' not in properties.keys():
+                properties['gas_equipment'] = 'no'
 
             if 'interior_color' not in properties.keys():
                 properties['interior_color'] = 'black'
@@ -131,19 +123,21 @@ class Parser:
                 pass
 
             try:
-                dts = Parser.Item.getDatetimes(page)
-                properties['posted_date'] = dts[0]
-                properties['update_date'] = dts[1]
+                properties['posted_date'] = Parser.Item.getDatetimes(page)
             except:
                 pass
 
+            properties['update_date'] = datetime.now().date()
             properties['closed_item'] = 0
             
             for key, value in properties.items():
                 properties[key] = CarProperties.get(key,value)
             
+            if properties['car_brand'] == 'Kia' and properties['model'] == "cee'd":
+                properties['model'] = 'ceed'
+
             if 'engine_size' not in properties.keys():
-                engine_size = db.fetchone('''SELECT MODE(engine_size) FROM listings WHERE 
+                engine_size = db.fetchone('''SELECT ROUND(AVG(engine_size), 1) FROM listings WHERE 
                 car_brand = ? 
                 AND model = ? 
                 AND body_type = ? 
@@ -152,9 +146,9 @@ class Parser:
                                           properties['body_type'], properties['year']-2,properties['year']+2, properties['transmission']))
                 if engine_size:
                     properties['engine_size'] = engine_size[0]
-                    logging.info(f'FOUND median engine size {engine_size[0]} for item {properties["itemid"]}')
+                    logging.info(f'FOUND median engine size {engine_size[0]} for item {properties["car_brand"]} {properties["model"]} {properties["year"]}')
                 else:
-                    logging.info(f'NOT FOUND median engine size for item {properties["itemid"]}')
+                    logging.info(f'NOT FOUND median engine size for item {properties["car_brand"]} {properties["model"]} {properties["year"]}')
 
             return properties
         
@@ -176,7 +170,7 @@ class ListAm:
         self.id_appender = 100000000000
 
     async def sleepRandom(self):
-        await asyncio.sleep(random.random()*0.8 + 1)
+        await asyncio.sleep(random.random()*0.8 + 0.5)
 
     def getUrl(self, page):
         if page > 1:
@@ -253,13 +247,12 @@ class ListAm:
     async def getItems(self):
         db.createBackup()
         #if there is an item id which exists in db but not in the newly scraped list we flag them as finished
-        existing_ids = [d[0] for d in db.fetchall('SELECT itemid FROM listings WHERE website = "listam" AND closed_item=0;')]
-        new_ids = set([item['itemid'] for item in self.itemids])
-
-        for itemid in existing_ids:
-            if itemid not in new_ids:
-                db.closeItem(itemid)
-                self.closed += 1
+        existing_ids = set([d[0] for d in db.fetchall('SELECT itemid FROM listings WHERE website = "listam" AND closed_item=0;')])
+        new_ids = set([self.id_appender + item['itemid'] for item in self.itemids])
+        
+        for itemid in existing_ids.difference(new_ids):
+            db.closeItem(itemid)
+            self.closed += 1
         del new_ids
         del existing_ids
         ###
@@ -271,7 +264,7 @@ class ListAm:
             if i % percent_modulo == 0:
                 logger.info(f'Processed {round(i/len(self.itemids)*100)}% of {len(self.itemids)} items. Same {self.same} |  Updated {self.updated} |  Error {self.error} | No price {self.no_price} | Closed {self.closed}')
             
-            if self.error/(self.updated+self.same+self.no_price)*100 > 8:
+            if self.error > 20 and self.error/(self.updated+self.same+self.no_price+1)*100 > 8:
                 logger.error('Stopping scraping because too many error')
                 db.restoreBackup()
                 return False
@@ -280,7 +273,7 @@ class ListAm:
                 self.no_price += 1
                 continue
 
-            op = db.fetchone('SELECT original_price FROM listings WHERE itemid = ?;',(item['itemid'],))
+            op = db.fetchone('SELECT original_price FROM listings WHERE itemid = ?;',(self.id_appender + item['itemid'],))
             if op and op[0] == item['original_price']: #Passing items which are the same
                 self.same += 1
                 continue
@@ -327,6 +320,10 @@ class ListAm:
         logger.info(f'Found {len(self.itemids)} listings')
         
         logger.info('Getting items...')
-        await self.getItems()
+        try:
+            await self.getItems()
+        except Exception as e:
+            logger.error('Stopping scraping because too many error ' + str(e))
+            db.restoreBackup()
         
         logger.info("FINISHED SCRAPING LIST AM")

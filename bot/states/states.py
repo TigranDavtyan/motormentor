@@ -101,7 +101,7 @@ class USER:
 
             TRANSMISSION = State(590)
             DRIVE_TYPE = State(600)
-            CONDITION = State(610)
+            # CONDITION = State(610)
             GAS_EQUIPMENT = State(620)
             STEERING_WHEEL = State(630)
 
@@ -128,15 +128,10 @@ class USER:
 
         TRANSMISSION = State(190)
         DRIVE_TYPE = State(200)
-        CONDITION = State(210)
         GAS_EQUIPMENT = State(220)
         STEERING_WHEEL = State(230)
-        HEADLIGHTS = State(240)
         INTERIOR_COLOR = State(250)
         INTERIOR_MATERIAL = State(260)
-        SUNROOF = State(270)
-        WHEEL_SIZE = State(280, 282)
-        WHEEL_SIZE_HANDLE = State(282)
 
         CALCULATE_PRICE = State(290)
         CALCULATE_GOOD = State(292)

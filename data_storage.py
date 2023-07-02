@@ -1,7 +1,8 @@
-import sqlite3 as lite
 import ast
 import datetime
 import shutil
+import sqlite3 as lite
+
 
 class DataDatabase:
     def __init__(self, path):
@@ -51,7 +52,6 @@ class DataDatabase:
                 updates[str(item['update_date'])] = item['original_price']
                 self.query("""UPDATE listings SET original_price = ?, dollar_price = ?, update_date = DATETIME('now'), updates = ?
                   WHERE itemid = ?""", (item['original_price'], item['dollar_price'], str(updates), item['itemid']))
-                print('+++++++++  Updated ', item['itemid'])
                 return 1
             else:
                 db.query('UPDATE listings SET closed_item = 0 WHERE itemid = ?;',(item['itemid'],))
@@ -63,7 +63,7 @@ class DataDatabase:
                                                                                         item['engine_size'],item['transmission'],item['drive_type'],item['gas_equipment'],
                                                                                         item['steering_wheel'],item['interior_color'],item['interior_material'],item['dollar_price'],
                                                                                         item['original_price'],item['posted_date'],item['update_date'],item['closed_item'], str(updates)))
-            return 0
+            return 1
         
     def closeItem(self, itemid):
         updates = ast.literal_eval(self.fetchone('SELECT updates FROM listings WHERE itemid = ?;', (itemid,))[0])

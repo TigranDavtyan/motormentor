@@ -273,7 +273,7 @@ insertPhrase('listam_what_to_do',
 insertPhrase('import_data', 'Ներմուծել ավտոմեքենայի պարամետրերը', 'Импорт параметров автомобиля', 'Import car parameters')
 insertPhrase('show_price_updates', 'Ցույց տալ գների թարմացումները⭐️', 'Показать изменения цен⭐️', 'Show price updates⭐️')
 insertPhrase('follow_price_updates', 'Հետևեք ապագա թարմացումներին⭐️', 'Следите за будущими обновлениями⭐️', 'Follow future updates⭐️')
-insertPhrase('no_price_updates', '❌ No price updates!', '❌ No price updates!', '❌ No price updates!')
+insertPhrase('no_price_updates', '❌ Գների թարմացումներ չկան:', '❌Нет обновлений цен!', '❌ No price updates!')
 insertPhrase('follow_successfull', 
              '''[car_brand] [model] 
 [year]   [engine_size] L
@@ -366,65 +366,46 @@ insertPhrase('label_year','Տարի','Год','Year')
 insertPhrase('label_mileage','Վազքը','Пробег','Mileage')
 
 
-insertPhrase('calculate_result_and_ask', 
+insertPhrase('calculate_result_title', 
 '''[url]
-Մեքենայի գինը. 
-------- [price] $
-------- [price_dram] դրամ
-------- [price_rub] ռուբլի
-
-*Դրամի և ռուբլու գները հաշվարկված են 385 և 79,7 փոխարժեքներով:
-
-Ի՞նչ եք կարծում, այս մեքենան խելամի՞տ է գնահատված: Պարտադիր չէ պատասխանեք այս հարցին, բայց դա կօգնի ավելի խելացի արհեստական ինտելեկտ կառուցել:
-''', 
-'''[url]
-Цена автомобиля:
-------- [price] $
-------- [price_dram] драм
-------- [price_rub] руб
-
-*Цены в драмах и рублях рассчитаны по курсам 385 и 79,7.
-
-Считаете ли вы, что этот автомобиль имеет разумную цену? Вам не обязательно отвечать на этот вопрос, но это поможет создать более умный ИИ.
+💰 ԳՆԵՐԻ ՏԵՂԵԿՈՒԹՅՈՒՆՆԵՐ 💰
 ''',
 
 '''[url]
-Car price is:
-------- [price] $ 💵
-------- [price_dram] dram
-------- [price_rub] rub
-
-*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
-
-Do you think this car is reasonably priced? You dont have to answer this but it will help build a better AI.
-''')
-
-insertPhrase('calculate_result', 
-'''[url]
-Մեքենայի գինը. 
-------- [price] $
-------- [price_dram] դրամ
-------- [price_rub] ռուբլի
-
-*Դրամի և ռուբլու գները հաշվարկված են 385 և 79,7 փոխարժեքներով:
-''', 
-'''[url]
-Цена автомобиля:
-------- [price] $
-------- [price_dram] драм
-------- [price_rub] руб
-
-*Цены в драмах и рублях рассчитаны по курсам 385 и 79,7.
+💰ИНФОРМАЦИЯ О ЦЕНАХ 💰
 ''',
 
 '''[url]
-Car price is:
-------- [price] $
-------- [price_dram] dram
-------- [price_rub] rub
-
-*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
+💰  PRICE INFO  💰
 ''')
+
+insertPhrase('result_arm',
+             'Հայկական շուկա : [l_price] $ 💵',
+             'Армянский  рынок : [l_price] $ 💵',
+             'Armenian market : [l_price] $ 💵')
+
+insertPhrase('result_ge',
+             'Վրացական շուկա : [g_price] $ 💵',
+             'Грузинский рынок : [g_price] $ 💵',
+             'Georgian market : [g_price] $ 💵')
+
+insertPhrase('result_ge_not_available',
+'''Վրացական շուկա : ??? $ 💵
+⭐️Վրաստանի գները իմանալու համար գրանցվեք Պրեմիում բաժանորդագրության համար''',
+
+'''Грузинский рынок : ??? $ 💵
+⭐️Чтобы узнать цены в Грузии, подпишитесь на Премиум подписку''',
+
+'''Georgian market : ??? $ 💵
+⭐️To know the prices in Georgia sign up for Premium subscription''')
+
+insertPhrase('price_result_ask',
+             'Ի՞նչ եք կարծում, այս մեքենան խելամի՞տ է գնահատված Հայկական շուկայում: Պարտադիր չէ պատասխանեք այս հարցին, բայց դա կօգնի ավելի խելացի արհեստական ինտելեկտ կառուցել:',
+             'Считаете ли вы, что этот автомобиль имеет разумную цену на Армянском рынке?? Вам не обязательно отвечать на этот вопрос, но это поможет создать более умный ИИ.',
+             'Do you think this car is reasonably priced in Armenian market? You dont have to answer this but it will help build a better AI.')
+
+insertPhrase('calculation_not_possible','❌ Այս մեքենայի համար գնի հաշվարկ հնարավոր չէ։','❌ Расчет цены для данного автомобиля невозможен!','❌ Price calculation is not possible for this car!')
+
 
 
 insertPhrase('dont_know','Չգիտեմ','Я не знаю',"I don't know")
@@ -567,6 +548,8 @@ insertPhrase('gasoline',            "Բենզին",                   "Бенз�
 insertPhrase('diesel',              "Դիզել",                    "Дизель",                       "Diesel")
 insertPhrase('hybrid',              "Հիբրիդ",                   "Гибрид",                       "Hybrid")
 insertPhrase('electric',            "էլեկտրական",               "Электро",                      "Electric")
+insertPhrase('hydrogen',            "Ջրածնային",                "Водородный",                   "Hydrogen")
+
 
 insertPhrase("manual",              "Մեխանիկական",              "Механическая",                 "Manual")
 insertPhrase("automatic",           "Ավտոմատ",                  "Автоматическая",               "Automatic")
@@ -579,7 +562,7 @@ insertPhrase("car_is_not_damaged",  "Չվթարված",                "Не б�
 insertPhrase("car_is_damaged" ,     "Վթարված",                 "Битое",                         "Car is damaged")
 
 insertPhrase("gas_no",              "Գազ չտեղադրված",          "Газ не установлен",             "Gas not Installed")          
-insertPhrase("gas_installed"   ,    "Գազ տեղադրված",           "Газ установлен",                "Gas installed") 
+insertPhrase("gas_installed",       "Գազ տեղադրված",           "Газ установлен",                "Gas installed") 
 
 insertPhrase('left_steering',       "Ղեկը ձախ",                "Левый руль",                    "Left hand drive")
 insertPhrase('right_steering',      "Ղեկը աջ",                 "Правый руль",                   "Right hand drive")
@@ -596,7 +579,7 @@ insertPhrase("exterior_blue",                "Կապույտ",                 "
 insertPhrase("exterior_orange",              "Նարնջագույն",             "Оранжевый",                     "Orange")               
 insertPhrase("exterior_yellow",              "Դեղին",                   "Жёлтый",                        "Yellow")           
 insertPhrase("exterior_green",               "Կանաչ",                   "Зелёный",                       "Green")           
-insertPhrase("exterior_cyan",                "Երկնագույն",              "Голубой",                       "Cyan")               
+insertPhrase("exterior_cyan",                "Երկնագույն",              "Голубой",                       "Cyan")          
 insertPhrase("exterior_maroon",              "Բորդո",                   "Бордовый",                      "Maroon")           
 insertPhrase("exterior_pink",                "Վարդագույն",              "Розовый",                       "Pink")               
 insertPhrase("exterior_purple",              "Մանուշակագույն",          "Фиолетовый",                    "Purple")             
@@ -609,7 +592,10 @@ insertPhrase("interior_beige",               "Բեժ",                     "Бе
 insertPhrase("interior_red",                 "Կարմիր",                  "Красный",                       "Red")           
 insertPhrase("interior_blue",                "Կապույտ",                 "Синий",                         "Blue")       
 insertPhrase("interior_other",               "Այլ",                     "Другой",                        "Other")       
-
+insertPhrase("interior_gold",                "Ոսկեգույն",               "Золотой",                       "Gold")
+insertPhrase("interior_maroon",              "Բորդո",                   "Бордовый",                      "Maroon")
+insertPhrase("interior_orange",              "Նարնջագույն",             "Оранжевый",                     "Orange")      
+insertPhrase("interior_yellow",              "Դեղին",                   "Жёлтый",                        "Yellow")    
 
 insertPhrase("no_sunroof"       ,           "Լյուկ չկա",               "Люка нет",                      "No sunroof")
 insertPhrase("regular_sunroof_sunroof"  ,   "Սովորական լյուկ",         "Обычный люк",                   "Regular sunroof")          

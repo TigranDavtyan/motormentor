@@ -7,18 +7,23 @@ from notifications import to_admin
 from phrases import phrases as P
 from states.states import ADMIN, GENERAL, USER, State
 from utils.logging import logging
-from .car_engine import SavedCar, model
+from .car_engine import SavedCar, XGBModel
 import numpy as np
 import asyncio
 import json
+import config
+
+listam_url = 'list.am/item/{itemid}'
+myautoge_url = 'myauto.ge/en/pr/{itemid}'
+
 
 @setActionFor(USER.SAVED.INFO)
 async def saved_cars(message: Message):
     cid,chat = message.chat.id, cm[message.chat.id]
 
     saved_cars = db.fetchall('''SELECT id, car_brand, model,
-        year, mileage_start, mileage_end, exterior_color, body_type, engine_type, engine_size,transmission,
-        drive_type,condition, gas_equipment,steering_wheel, price_start, price_end, found_cars FROM saved_cars WHERE cid = ? AND editing = 0;''',(cid,))
+        year, mileage_start, mileage_end, exterior_color, body_type, engine_type, engine_size, transmission,
+        drive_type, gas_equipment, steering_wheel, price_start, price_end, found_cars FROM saved_cars WHERE cid = ? AND editing = 0;''',(cid,))
     
     lang = db.getUserLang(cid)
 
@@ -31,17 +36,17 @@ async def saved_cars(message: Message):
 
     for car in saved_cars:
         id, car_brand, m, year, mileage_start, mileage_end, exterior_color, body_type, engine_type, engine_size,transmission,\
-        drive_type,condition, gas_equipment,steering_wheel, price_start, price_end, found_cars = car
+        drive_type, gas_equipment,steering_wheel, price_start, price_end, found_cars = car
         
         saved_car = SavedCar(cid)
         saved_car.car_brand = car_brand;  saved_car.model = m
         saved_car.year = year;  saved_car.exterior_color = exterior_color
         saved_car.body_type = body_type;  saved_car.engine_type = engine_type
         saved_car.transmission = transmission;  saved_car.drive_type = drive_type
-        saved_car.condition = condition;  saved_car.gas_equipment = gas_equipment
+        saved_car.gas_equipment = gas_equipment
         saved_car.steering_wheel = steering_wheel
 
-        found_cars = dict(json.loads(found_cars))
+        found_cars = list(json.loads(found_cars))
 
         description = f'''
 <b>{saved_car.getBrand()} - {saved_car.getModel()} {engine_size}L</b>
@@ -49,17 +54,21 @@ async def saved_cars(message: Message):
 <b>{P.year(lang, year)} {saved_car.getExteriorColor(lang)}</b>
 {saved_car.getBodyType(lang)} {saved_car.getEngineType(lang)}
 {saved_car.getTransmission(lang)} {saved_car.getDriveType(lang)}
-{saved_car.getCondition(lang)} {saved_car.getGasEquipment(lang)}
-{saved_car.getSteeringWheel(lang)}
+{saved_car.getGasEquipment(lang)} {saved_car.getSteeringWheel(lang)}
 <b>{int(mileage_start)} - {P.mileage(lang, int(mileage_end))}</b>
 <b>{P.label_price(lang)}: {int(price_start)} - {int(price_end)}$</b>
 '''
         nFound = len(found_cars)
         if nFound > 0:
             description += '\n'+P.found_cars_so_far(cid, nFound)
+        
+        for date, itemid in found_cars:
+            if itemid < config.MYAUTOGE_ID_APPENDER:
+                url = listam_url.format(itemid = itemid - config.LISTAM_ID_APPENDER)
+            else:
+                url = myautoge_url.format(itemid = itemid - config.MYAUTOGE_ID_APPENDER)
 
-        for date, itemid in found_cars.items():
-            description += f'\n{date} - list.am/item/{itemid}'
+            description += f'\n{date} - {url}'
 
         markup = Buttons()
         markup.add(P.delete(cid), USER.SAVED.DELETE, str(id))
@@ -73,7 +82,7 @@ async def saved_car_delete(message: Message, data):
 
     id = int(data)
     db.query('DELETE FROM saved_cars WHERE id=?', (id,))
-    # await chat.send(P.deleted(cid), temporary=True)
+
     await bot.delete_message(cid, message.message_id)
 
 @setActionFor(USER.SAVED.ADD)
@@ -95,7 +104,7 @@ async def saved_cars(message: Message, data = None):
     markup.row([[user_car.getExteriorColor(lang), USER.SAVED.CAR.EXTERIOR_COLOR],[user_car.getBodyType(lang), USER.SAVED.CAR.BODY_TYPE]])
     markup.row([[user_car.getEngineType(lang), USER.SAVED.CAR.ENGINE_TYPE],[P.engine_size(cid, user_car.engine_size), USER.SAVED.CAR.ENGINE_SIZE]])
     markup.row([[user_car.getTransmission(lang), USER.SAVED.CAR.TRANSMISSION],[user_car.getDriveType(lang), USER.SAVED.CAR.DRIVE_TYPE]])
-    markup.row([[user_car.getCondition(lang), USER.SAVED.CAR.CONDITION],[user_car.getGasEquipment(lang), USER.SAVED.CAR.GAS_EQUIPMENT]])
+    markup.add(user_car.getGasEquipment(lang), USER.SAVED.CAR.GAS_EQUIPMENT)
 
     markup.row([['>>'+P.mileage(cid, int(user_car.mileage_start)), USER.SAVED.CAR.MILEAGE_START],['<<'+P.mileage(cid, int(user_car.mileage_end)), USER.SAVED.CAR.MILEAGE_END]])
     
@@ -123,7 +132,7 @@ async def car_brand(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     markup = Buttons(True)
-    for index, brand in model.getBrands():
+    for index, brand in XGBModel.getBrands():
         markup.add(brand, USER.SAVED.ADD, f'car_brand:{index}')
 
     await chat.edit(P.choose_car_brand(cid), markup)
@@ -137,7 +146,7 @@ async def car_model(message: Message):
     brand = db.fetchone('SELECT car_brand FROM saved_cars WHERE cid = ?',(cid,))[0]
 
     markup = Buttons(True)
-    for index, m in model.getModelsFor(brand):
+    for index, m in XGBModel.getModelsFor(brand):
         markup.add(m, USER.SAVED.ADD, f'model:{index}')
 
     await chat.edit(P.choose_car_model(cid), markup)
@@ -151,7 +160,7 @@ async def car_exterior_color(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, color in model.getExteriorColors(lang):
+    for index, color in XGBModel.getExteriorColors(lang):
         markup.add(color, USER.SAVED.ADD, f'exterior_color:{index}')
 
     await chat.edit(P.choose_car_exterior_color(cid), markup)
@@ -165,7 +174,7 @@ async def car_body_type(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, body_type in model.getBodyTypes(lang):
+    for index, body_type in XGBModel.getBodyTypes(lang):
         markup.add(body_type, USER.SAVED.ADD, f'body_type:{index}')
 
     await chat.edit(P.choose_car_body_type(cid), markup)
@@ -179,7 +188,7 @@ async def car_engine_type(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, engine_type in model.getEngineTypes(lang):
+    for index, engine_type in XGBModel.getEngineTypes(lang):
         markup.add(engine_type, USER.SAVED.ADD, f'engine_type:{index}')
 
     await chat.edit(P.choose_car_engine_type(cid), markup)
@@ -193,7 +202,7 @@ async def car_transmission(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, transmission in model.getTransmissions(lang):
+    for index, transmission in XGBModel.getTransmissions(lang):
         markup.add(transmission, USER.SAVED.ADD, f'transmission:{index}')
 
     await chat.edit(P.choose_car_transmission(cid), markup)
@@ -207,26 +216,12 @@ async def car_drive_type(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, drive_type in model.getDriveTypes(lang):
+    for index, drive_type in XGBModel.getDriveTypes(lang):
         markup.add(drive_type, USER.SAVED.ADD, f'drive_type:{index}')
 
     await chat.edit(P.choose_car_drive_type(cid), markup)
 
     await chat.setState(USER.SAVED.CAR.DRIVE_TYPE)
-
-@setActionFor(USER.SAVED.CAR.CONDITION)
-async def car_condition(message: Message):
-    cid, chat = message.chat.id,cm[message.chat.id]
-
-    markup = Buttons(True)
-    lang = db.getUserLang(cid)
-
-    for index, condition in model.getConditions(lang):
-        markup.add(condition, USER.SAVED.ADD, f'condition:{index}')
-
-    await chat.edit(P.choose_car_condition(cid), markup)
-
-    await chat.setState(USER.SAVED.CAR.CONDITION)
 
 @setActionFor(USER.SAVED.CAR.STEERING_WHEEL)
 async def car_steering_wheel(message: Message):
@@ -235,7 +230,7 @@ async def car_steering_wheel(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, steering_wheel in model.getSteeringWheels(lang):
+    for index, steering_wheel in XGBModel.getSteeringWheels(lang):
         markup.add(steering_wheel, USER.SAVED.ADD, f'steering_wheel:{index}')
 
     await chat.edit(P.choose_car_steering_wheel(cid), markup)
@@ -250,7 +245,7 @@ async def car_gas_equipment(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, gas_equipment in model.getGasEquipments(lang):
+    for index, gas_equipment in XGBModel.getGasEquipments(lang):
         markup.add(gas_equipment, USER.SAVED.ADD, f'gas_equipment:{index}')
 
     await chat.edit(P.choose_car_gas_equipment(cid), markup)

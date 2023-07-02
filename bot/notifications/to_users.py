@@ -11,11 +11,20 @@ from utils import utils
 
 logger = logging.getLogger()
 
+listam_url = 'list.am/item/{itemid}'
+myautoge_url = 'myauto.ge/en/pr/{itemid}'
+
 async def new_car(cid, itemids: list):
     chat = cm[cid]
     item_links = ''
-    for i,itemid in enumerate(itemids):
-        item_links += f'{i+1} - list.am/item/{itemid}'
+    for i, itemid in enumerate(itemids):
+        if itemid < config.MYAUTOGE_ID_APPENDER:
+            url = listam_url.format(itemid = itemid - config.LISTAM_ID_APPENDER)
+        else:
+            url = myautoge_url.format(itemid = itemid - config.MYAUTOGE_ID_APPENDER)
+
+        item_links += f'{i+1} - {url}\n'
+
     await chat.send(P.found_saved_car(cid, len(itemids)) + item_links, temporary=True)
 
 async def subscription_ended(cid):

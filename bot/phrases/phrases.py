@@ -948,7 +948,7 @@ def follow_price_updates(cid : int, all : bool = False) -> str:
 
 def no_price_updates(cid : int, all : bool = False) -> str:
     '''❌ No price updates!'''
-    phrases = ['''❌ No price updates!''', '''❌ No price updates!''', '''❌ No price updates!''']
+    phrases = ['''❌ Գների թարմացումներ չկան:''', '''❌Нет обновлений цен!''', '''❌ No price updates!''']
     if all:
         return phrases
     if cid > 10:
@@ -1246,44 +1246,16 @@ def label_mileage(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
-def calculate_result_and_ask(cid : int,url,price,price_dram,price_rub, all : bool = False) -> str:
+def calculate_result_title(cid : int,url, all : bool = False) -> str:
     '''[url]
-Car price is:
-------- [price] $ 💵
-------- [price_dram] dram
-------- [price_rub] rub
-
-*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
-
-Do you think this car is reasonably priced? You dont have to answer this but it will help build a better AI.
+💰  PRICE INFO  💰
 '''
     phrases = ['''[url]
-Մեքենայի գինը. 
-------- [price] $
-------- [price_dram] դրամ
-------- [price_rub] ռուբլի
-
-*Դրամի և ռուբլու գները հաշվարկված են 385 և 79,7 փոխարժեքներով:
-
-Ի՞նչ եք կարծում, այս մեքենան խելամի՞տ է գնահատված: Պարտադիր չէ պատասխանեք այս հարցին, բայց դա կօգնի ավելի խելացի արհեստական ինտելեկտ կառուցել:
+💰 ԳՆԵՐԻ ՏԵՂԵԿՈՒԹՅՈՒՆՆԵՐ 💰
 ''', '''[url]
-Цена автомобиля:
-------- [price] $
-------- [price_dram] драм
-------- [price_rub] руб
-
-*Цены в драмах и рублях рассчитаны по курсам 385 и 79,7.
-
-Считаете ли вы, что этот автомобиль имеет разумную цену? Вам не обязательно отвечать на этот вопрос, но это поможет создать более умный ИИ.
+💰ИНФОРМАЦИЯ О ЦЕНАХ 💰
 ''', '''[url]
-Car price is:
-------- [price] $ 💵
-------- [price_dram] dram
-------- [price_rub] rub
-
-*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
-
-Do you think this car is reasonably priced? You dont have to answer this but it will help build a better AI.
+💰  PRICE INFO  💰
 ''']
     if all:
         return phrases
@@ -1291,46 +1263,66 @@ Do you think this car is reasonably priced? You dont have to answer this but it 
         lang = db.getUserLang(cid)
     else: 
         lang = cid
-    return phrases[lang].replace("[url]",str(url)).replace("[price]",str(price)).replace("[price_dram]",str(price_dram)).replace("[price_rub]",str(price_rub))
+    return phrases[lang].replace("[url]",str(url))
 
-def calculate_result(cid : int,url,price,price_dram,price_rub, all : bool = False) -> str:
-    '''[url]
-Car price is:
-------- [price] $
-------- [price_dram] dram
-------- [price_rub] rub
-
-*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
-'''
-    phrases = ['''[url]
-Մեքենայի գինը. 
-------- [price] $
-------- [price_dram] դրամ
-------- [price_rub] ռուբլի
-
-*Դրամի և ռուբլու գները հաշվարկված են 385 և 79,7 փոխարժեքներով:
-''', '''[url]
-Цена автомобиля:
-------- [price] $
-------- [price_dram] драм
-------- [price_rub] руб
-
-*Цены в драмах и рублях рассчитаны по курсам 385 и 79,7.
-''', '''[url]
-Car price is:
-------- [price] $
-------- [price_dram] dram
-------- [price_rub] rub
-
-*Dram and ruble prices are calculated using 385 and 79.7 exchange rates.
-''']
+def result_arm(cid : int,l_price, all : bool = False) -> str:
+    '''Armenian market : [l_price] $ 💵'''
+    phrases = ['''Հայկական շուկա : [l_price] $ 💵''', '''Армянский  рынок : [l_price] $ 💵''', '''Armenian market : [l_price] $ 💵''']
     if all:
         return phrases
     if cid > 10:
         lang = db.getUserLang(cid)
     else: 
         lang = cid
-    return phrases[lang].replace("[url]",str(url)).replace("[price]",str(price)).replace("[price_dram]",str(price_dram)).replace("[price_rub]",str(price_rub))
+    return phrases[lang].replace("[l_price]",str(l_price))
+
+def result_ge(cid : int,g_price, all : bool = False) -> str:
+    '''Georgian market : [g_price] $ 💵'''
+    phrases = ['''Վրացական շուկա : [g_price] $ 💵''', '''Грузинский рынок : [g_price] $ 💵''', '''Georgian market : [g_price] $ 💵''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[g_price]",str(g_price))
+
+def result_ge_not_available(cid : int, all : bool = False) -> str:
+    '''Georgian market : ??? $ 💵
+⭐️To know the prices in Georgia sign up for Premium subscription'''
+    phrases = ['''Վրացական շուկա : ??? $ 💵
+⭐️Վրաստանի գները իմանալու համար գրանցվեք Պրեմիում բաժանորդագրության համար''', '''Грузинский рынок : ??? $ 💵
+⭐️Чтобы узнать цены в Грузии, подпишитесь на Премиум подписку''', '''Georgian market : ??? $ 💵
+⭐️To know the prices in Georgia sign up for Premium subscription''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def price_result_ask(cid : int, all : bool = False) -> str:
+    '''Do you think this car is reasonably priced in Armenian market? You dont have to answer this but it will help build a better AI.'''
+    phrases = ['''Ի՞նչ եք կարծում, այս մեքենան խելամի՞տ է գնահատված Հայկական շուկայում: Պարտադիր չէ պատասխանեք այս հարցին, բայց դա կօգնի ավելի խելացի արհեստական ինտելեկտ կառուցել:''', '''Считаете ли вы, что этот автомобиль имеет разумную цену на Армянском рынке?? Вам не обязательно отвечать на этот вопрос, но это поможет создать более умный ИИ.''', '''Do you think this car is reasonably priced in Armenian market? You dont have to answer this but it will help build a better AI.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def calculation_not_possible(cid : int, all : bool = False) -> str:
+    '''❌ Price calculation is not possible for this car!'''
+    phrases = ['''❌ Այս մեքենայի համար գնի հաշվարկ հնարավոր չէ։''', '''❌ Расчет цены для данного автомобиля невозможен!''', '''❌ Price calculation is not possible for this car!''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
 
 def dont_know(cid : int, all : bool = False) -> str:
     '''I don't know'''
@@ -1956,6 +1948,17 @@ def electric(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
+def hydrogen(cid : int, all : bool = False) -> str:
+    '''Hydrogen'''
+    phrases = ['''Ջրածնային''', '''Водородный''', '''Hydrogen''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
 def manual(cid : int, all : bool = False) -> str:
     '''Manual'''
     phrases = ['''Մեխանիկական''', '''Механическая''', '''Manual''']
@@ -2333,6 +2336,50 @@ def interior_blue(cid : int, all : bool = False) -> str:
 def interior_other(cid : int, all : bool = False) -> str:
     '''Other'''
     phrases = ['''Այլ''', '''Другой''', '''Other''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def interior_gold(cid : int, all : bool = False) -> str:
+    '''Gold'''
+    phrases = ['''Ոսկեգույն''', '''Золотой''', '''Gold''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def interior_maroon(cid : int, all : bool = False) -> str:
+    '''Maroon'''
+    phrases = ['''Բորդո''', '''Бордовый''', '''Maroon''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def interior_orange(cid : int, all : bool = False) -> str:
+    '''Orange'''
+    phrases = ['''Նարնջագույն''', '''Оранжевый''', '''Orange''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def interior_yellow(cid : int, all : bool = False) -> str:
+    '''Yellow'''
+    phrases = ['''Դեղին''', '''Жёлтый''', '''Yellow''']
     if all:
         return phrases
     if cid > 10:

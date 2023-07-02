@@ -4,12 +4,16 @@ from buttons.buttons import *
 from loader import *
 from phrases import phrases as P
 from states.states import ADMIN, GENERAL, USER, State
-from .car_engine import model, Car
+from .car_engine import Car, XGBModel
+
+from config import LISTAM_ID_APPENDER
 import re
+import ast
 import sys
 sys.path.append('../../motormentor')
 
 from scraper_listam import ListAm
+from data_storage import db as data_db
 
 @setActionFor(USER.IMPORT_LISTAM.INFO)
 async def import_listam(message: Message):
@@ -31,15 +35,12 @@ async def handle_listam_url(message: Message):
     except:
         await chat.send(P.wrong_action(cid), temporary=True)
 
-    df = model.getData()
-
-    try:
-        item = df.loc[item_id]
-    except:
+    properties = ListAm().getItemProperties(item_id)
+    if not properties:
         await chat.send(P.listam_not_possible(cid), temporary=True)
         return
     
-    car = Car(cid, item)
+    car = Car(cid, properties = properties)
 
     markup = Buttons(True)
     markup.add(P.import_data(cid), USER.CAR_PRICE.INFO)
@@ -67,14 +68,15 @@ async def follow_price_updates(message: Message, data):
 async def show_price_updates(message: Message, data):
     cid, chat = message.chat.id,cm[message.chat.id]
     itemid = int(data)
+    
+    updates = ast.literal_eval(data_db.fetchone('SELECT updates FROM listings WHERE itemid = ?',(itemid+LISTAM_ID_APPENDER,))[0])
 
-    updates = model.getPriceUpdatesFor(itemid)
     if len(updates) == 0:
         await chat.send(P.no_price_updates(cid), temporary=True)
         return
 
     text = ''
-    for i,update in enumerate(updates):
+    for i, update in enumerate(updates.items()):
         if update[1] == -1:
             continue
         date_str = str(update[0])[:10]

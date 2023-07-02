@@ -7,10 +7,13 @@ from notifications import to_admin
 from phrases import phrases as P
 from states.states import ADMIN, GENERAL, USER, State
 from utils.logging import logging
-from .car_engine import model, Car
+from .car_engine import Car, XGBModel
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import io
+
+logger = logging.getLogger()
 
 @setActionFor(USER.CAR_PRICE.INFO)
 async def menu_car_price(message: Message, data = None):
@@ -31,10 +34,8 @@ async def menu_car_price(message: Message, data = None):
     markup.row([[user_car.getExteriorColor(lang), USER.CAR_PRICE.EXTERIOR_COLOR],[user_car.getBodyType(lang), USER.CAR_PRICE.BODY_TYPE]])
     markup.row([[user_car.getEngineType(lang), USER.CAR_PRICE.ENGINE_TYPE],[P.engine_size(cid, user_car.engine_size), USER.CAR_PRICE.ENGINE_SIZE]])
     markup.row([[user_car.getTransmission(lang), USER.CAR_PRICE.TRANSMISSION],[user_car.getDriveType(lang), USER.CAR_PRICE.DRIVE_TYPE]])
-    markup.row([[user_car.getCondition(lang), USER.CAR_PRICE.CONDITION],[user_car.getGasEquipment(lang), USER.CAR_PRICE.GAS_EQUIPMENT]])
-    markup.row([[user_car.getSteeringWheel(lang), USER.CAR_PRICE.STEERING_WHEEL],[user_car.getHeadlights(lang), USER.CAR_PRICE.HEADLIGHTS]])
+    markup.row([[user_car.getSteeringWheel(lang), USER.CAR_PRICE.STEERING_WHEEL],[user_car.getGasEquipment(lang), USER.CAR_PRICE.GAS_EQUIPMENT]])
     markup.row([[P.interior_color(cid, user_car.getInteriorColor(lang)), USER.CAR_PRICE.INTERIOR_COLOR],[P.interior_material(cid, user_car.getInteriorMaterial(lang)), USER.CAR_PRICE.INTERIOR_MATERIAL]])
-    markup.row([[user_car.getSunroof(lang), USER.CAR_PRICE.SUNROOF],[P.wheel_size(cid, int(user_car.wheel_size)), USER.CAR_PRICE.WHEEL_SIZE]])
 
     markup.add(P.calculate(lang), USER.CAR_PRICE.CALCULATE_PRICE)
     markup.add(P.calculate_by_year(lang), USER.CAR_PRICE.CALCULATE_PRICE_BY_YEAR)
@@ -67,7 +68,12 @@ async def car_calculate_by_year(message: Message):
     start = 2000
     end = 2022
     years = range(start,end+1)
-    prices = user_car.calculateByYear(years).astype(int)
+    try:
+        prices = user_car.calculateByYear(years).astype(int)
+    except Exception as e:
+        logger.error('Calculation error ', str(e))
+        await chat.send(P.calculation_not_possible(cid), temporary=True)
+        return
     plt.figure(figsize=(13, 8))
     plt.plot(years, prices, linewidth=2)
     plt.xlabel(P.label_year(cid))
@@ -83,14 +89,13 @@ async def car_calculate_by_year(message: Message):
 
     plt.tight_layout()
 
-    graph_path = 'car_prices_graph.jpg'
-    plt.savefig(graph_path)
-    plt.close()
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='jpeg')
+    buffer.seek(0)
     
-    with open(graph_path, 'rb') as graph_file:
-        await chat.send('', photo=graph_file.read(), temporary=True)
-
-    os.remove(graph_path)
+    await chat.send('', photo=buffer.getvalue(), temporary=True)
+    del buffer
+    plt.close()
     
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_PRICE_BY_MILEAGE)
@@ -104,7 +109,12 @@ async def car_calculate_by_mileage(message: Message):
     end = 300000
     step = 5000
     mileages = range(start, end+step, step)
-    prices = user_car.calculateByMileage(mileages)
+    try:
+        prices = user_car.calculateByMileage(mileages)
+    except Exception as e:
+        logger.error('Calculation error ', str(e))
+        await chat.send(P.calculation_not_possible(cid), temporary=True)
+        return
     
     window_size = 10
     weights = np.ones(window_size) / window_size
@@ -126,37 +136,55 @@ async def car_calculate_by_mileage(message: Message):
 
     plt.tight_layout()
 
-    graph_path = 'car_prices_graph.jpg'
-    plt.savefig(graph_path)
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='jpeg')
+    buffer.seek(0)
+
+    await chat.send('', photo=buffer.getvalue(), temporary=True)
+    del buffer
     plt.close()
-
-    with open(graph_path, 'rb') as graph_file:
-        await chat.send('', photo=graph_file.read(), temporary=True)
-
-    os.remove(graph_path)
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_PRICE)
 async def car_calculate(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     user_car = Car(cid)
-    price = int(round(user_car.calculatePrice()))
-    user_car.price = price
+    try:
+        arm_price = user_car.calculatePrice()
+    except Exception as e:
+        logger.error('Calculation error ', str(e))
+        await chat.send(P.calculation_not_possible(cid), temporary=True)
+        return
+    
+    arm_price = int(round(arm_price))
+    user_car.price = arm_price
 
     is_first_calculation = int(db.fetchone('SELECT count(*) FROM user_cars WHERE cid = ?', (cid,))[0]) == 0
     if is_first_calculation:
         user_car.save_user_car(cid)
 
-    markup = Buttons()
-    markup.add(P.yes(cid), USER.CAR_PRICE.CALCULATE_GOOD, price)
-    markup.add(P.dont_know(cid), USER.CAR_PRICE.CALCULATE_DONT_KNOW, price)
-    markup.add(P.my_price(cid), USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
+    arm_price_str = f'{arm_price:,}'
 
-    price_dram = f'{round(price * 385):,}'
-    price_rub = f'{round(price * 79.7):,}'
-    price = f'{price:,}'
+    lang = db.getUserLang(cid)
+    text = P.calculate_result_title(lang, '')
+    text += P.result_arm(lang, arm_price_str) + '\n'
 
-    await chat.send(P.calculate_result_and_ask(cid,'', price, price_dram, price_rub), markup, temporary=True)
+    sub = chat.getSubscriptionLevel()
+    if sub == 0:
+        text += P.result_ge_not_available(lang) + '\n\n'
+    else:
+        g_price = f'{int(round(user_car.calculatePrice("myauto.ge"))):,}'
+        text += P.result_ge(lang, g_price) + '\n\n'
+    
+    if not message.from_user.is_bot:
+        await chat.send(text, temporary=True)
+    else:
+        text += P.price_result_ask(cid)
+        markup = Buttons()
+        markup.add(P.yes(cid), USER.CAR_PRICE.CALCULATE_GOOD, arm_price)
+        markup.add(P.dont_know(cid), USER.CAR_PRICE.CALCULATE_DONT_KNOW, arm_price)
+        markup.add(P.my_price(cid), USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
+        await chat.send(text, markup, temporary=True)
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_GOOD)
 async def car_calculate_good(message: Message, data):
@@ -165,25 +193,15 @@ async def car_calculate_good(message: Message, data):
     user_car = Car(cid)
     user_car.price = float(data)
     user_car.save(cid)
-    
-    price_dram = f'{round(user_car.price * 385):,}'
-    price_rub = f'{round(user_car.price * 79.7):,}'
-    price = f'{user_car.price:,}'
 
-    await chat.edit(P.calculate_result(cid,'',price, price_dram, price_rub), message_id=message.message_id)
-
+    await chat.edit(message.text, reply_markup=Buttons(), message_id=message.message_id)
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_DONT_KNOW)
 async def car_calculate_dont_know(message: Message, data):
     cid, chat = message.chat.id,cm[message.chat.id]
-    
-    data = float(data)
-    price_dram = f'{round(data * 385):,}'
-    price_rub = f'{round(data * 79.7):,}'
-    price = f'{data:,}'
 
-    await chat.edit(P.calculate_result(cid,'',price, price_dram, price_rub), message_id=message.message_id)
+    await chat.edit(message.text, reply_markup=Buttons(), message_id=message.message_id)
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
 
 @setActionFor(USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
@@ -213,7 +231,7 @@ async def car_brand(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     markup = Buttons(True)
-    for index, brand in model.getBrands():
+    for index, brand in XGBModel.getBrands():
         markup.add(brand, USER.CAR_PRICE.INFO, f'car_brand:{index}')
 
     await chat.edit(P.choose_car_brand(cid), markup)
@@ -227,7 +245,7 @@ async def car_model(message: Message):
     brand = db.fetchone('SELECT car_brand FROM car_prices WHERE cid = ?',(cid,))[0]
 
     markup = Buttons(True)
-    for index, m in model.getModelsFor(brand):
+    for index, m in XGBModel.getModelsFor(brand):
         markup.add(m, USER.CAR_PRICE.INFO, f'model:{index}')
 
     await chat.edit(P.choose_car_model(cid), markup)
@@ -241,7 +259,7 @@ async def car_exterior_color(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, color in model.getExteriorColors(lang):
+    for index, color in XGBModel.getExteriorColors(lang):
         markup.add(color, USER.CAR_PRICE.INFO, f'exterior_color:{index}')
 
     await chat.edit(P.choose_car_exterior_color(cid), markup)
@@ -255,7 +273,7 @@ async def car_body_type(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, body_type in model.getBodyTypes(lang):
+    for index, body_type in XGBModel.getBodyTypes(lang):
         markup.add(body_type, USER.CAR_PRICE.INFO, f'body_type:{index}')
 
     await chat.edit(P.choose_car_body_type(cid), markup)
@@ -269,7 +287,7 @@ async def car_engine_type(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, engine_type in model.getEngineTypes(lang):
+    for index, engine_type in XGBModel.getEngineTypes(lang):
         markup.add(engine_type, USER.CAR_PRICE.INFO, f'engine_type:{index}')
 
     await chat.edit(P.choose_car_engine_type(cid), markup)
@@ -283,7 +301,7 @@ async def car_transmission(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, transmission in model.getTransmissions(lang):
+    for index, transmission in XGBModel.getTransmissions(lang):
         markup.add(transmission, USER.CAR_PRICE.INFO, f'transmission:{index}')
 
     await chat.edit(P.choose_car_transmission(cid), markup)
@@ -297,26 +315,12 @@ async def car_drive_type(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, drive_type in model.getDriveTypes(lang):
+    for index, drive_type in XGBModel.getDriveTypes(lang):
         markup.add(drive_type, USER.CAR_PRICE.INFO, f'drive_type:{index}')
 
     await chat.edit(P.choose_car_drive_type(cid), markup)
 
     await chat.setState(USER.CAR_PRICE.DRIVE_TYPE)
-
-@setActionFor(USER.CAR_PRICE.CONDITION)
-async def car_condition(message: Message):
-    cid, chat = message.chat.id,cm[message.chat.id]
-
-    markup = Buttons(True)
-    lang = db.getUserLang(cid)
-
-    for index, condition in model.getConditions(lang):
-        markup.add(condition, USER.CAR_PRICE.INFO, f'condition:{index}')
-
-    await chat.edit(P.choose_car_condition(cid), markup)
-
-    await chat.setState(USER.CAR_PRICE.CONDITION)
 
 @setActionFor(USER.CAR_PRICE.STEERING_WHEEL)
 async def car_steering_wheel(message: Message):
@@ -325,26 +329,13 @@ async def car_steering_wheel(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, steering_wheel in model.getSteeringWheels(lang):
+    for index, steering_wheel in XGBModel.getSteeringWheels(lang):
         markup.add(steering_wheel, USER.CAR_PRICE.INFO, f'steering_wheel:{index}')
 
     await chat.edit(P.choose_car_steering_wheel(cid), markup)
 
     await chat.setState(USER.CAR_PRICE.STEERING_WHEEL)
 
-@setActionFor(USER.CAR_PRICE.HEADLIGHTS)
-async def car_headlights(message: Message):
-    cid, chat = message.chat.id,cm[message.chat.id]
-
-    markup = Buttons(True)
-    lang = db.getUserLang(cid)
-
-    for index, headlights in model.getHeadlights(lang):
-        markup.add(headlights, USER.CAR_PRICE.INFO, f'headlights:{index}')
-
-    await chat.edit(P.choose_car_headlights(cid), markup)
-
-    await chat.setState(USER.CAR_PRICE.HEADLIGHTS)
 
 @setActionFor(USER.CAR_PRICE.GAS_EQUIPMENT)
 async def car_gas_equipment(message: Message):
@@ -353,7 +344,7 @@ async def car_gas_equipment(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, gas_equipment in model.getGasEquipments(lang):
+    for index, gas_equipment in XGBModel.getGasEquipments(lang):
         markup.add(gas_equipment, USER.CAR_PRICE.INFO, f'gas_equipment:{index}')
 
     await chat.edit(P.choose_car_gas_equipment(cid), markup)
@@ -367,7 +358,7 @@ async def car_interior_color(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, interior_color in model.getInteriorColors(lang):
+    for index, interior_color in XGBModel.getInteriorColors(lang):
         markup.add(interior_color, USER.CAR_PRICE.INFO, f'interior_color:{index}')
 
     await chat.edit(P.choose_car_interior_color(cid), markup)
@@ -381,29 +372,12 @@ async def car_interior_material(message: Message):
     markup = Buttons(True)
     lang = db.getUserLang(cid)
 
-    for index, interior_material in model.getInteriorMaterials(lang):
+    for index, interior_material in XGBModel.getInteriorMaterials(lang):
         markup.add(interior_material, USER.CAR_PRICE.INFO, f'interior_material:{index}')
 
     await chat.edit(P.choose_car_interior_material(cid), markup)
 
     await chat.setState(USER.CAR_PRICE.INTERIOR_MATERIAL)
-
-@setActionFor(USER.CAR_PRICE.SUNROOF)
-async def car_sunroof(message: Message):
-    cid, chat = message.chat.id,cm[message.chat.id]
-
-    markup = Buttons(True)
-    lang = db.getUserLang(cid)
-
-    for index, sunroof in model.getSunroofs(lang):
-        markup.add(sunroof, USER.CAR_PRICE.INFO, f'sunroof:{index}')
-
-    await chat.edit(P.choose_car_sunroof(cid), markup)
-
-    await chat.setState(USER.CAR_PRICE.SUNROOF)
-
-
-
 
 
 @setActionFor(USER.CAR_PRICE.YEAR)
@@ -469,46 +443,5 @@ async def car_engine_size(message: Message, data = None):
 
     await chat.edit(P.choose_car_engine_size(cid), markup)
     await chat.setState(USER.CAR_PRICE.ENGINE_SIZE)
-
-@setActionFor(USER.CAR_PRICE.WHEEL_SIZE)
-async def car_wheel_size(message: Message, data = None):
-    cid, chat = message.chat.id,cm[message.chat.id]
-
-    if data:
-        start_wheel_size= int(data)
-    else:
-        start_wheel_size = 13
-
-    markup = Buttons()
-    
-    markup.add('🔼', USER.CAR_PRICE.WHEEL_SIZE, start_wheel_size - 8)
-    
-    for wheel_size in range(start_wheel_size, start_wheel_size + 8):
-        markup.add('R'+str(wheel_size), USER.CAR_PRICE.INFO, f'wheel_size:{wheel_size}')
-    
-    markup.add('🔽', USER.CAR_PRICE.WHEEL_SIZE, start_wheel_size + 8)
-
-    await chat.edit(P.choose_car_wheel_size(cid), markup)
-    await chat.setState(USER.CAR_PRICE.WHEEL_SIZE)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
