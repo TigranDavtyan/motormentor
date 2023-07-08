@@ -71,7 +71,7 @@ async def car_calculate_by_year(message: Message):
     try:
         prices = user_car.calculateByYear(years).astype(int)
     except Exception as e:
-        logger.error('Calculation error ', str(e))
+        logger.error('Calculation error ' + str(e))
         await chat.send(P.calculation_not_possible(cid), temporary=True)
         return
     plt.figure(figsize=(13, 8))
@@ -112,7 +112,7 @@ async def car_calculate_by_mileage(message: Message):
     try:
         prices = user_car.calculateByMileage(mileages)
     except Exception as e:
-        logger.error('Calculation error ', str(e))
+        logger.error('Calculation error ' + str(e))
         await chat.send(P.calculation_not_possible(cid), temporary=True)
         return
     
@@ -152,7 +152,7 @@ async def car_calculate(message: Message):
     try:
         arm_price = user_car.calculatePrice()
     except Exception as e:
-        logger.error('Calculation error ', str(e))
+        logger.error('Calculation error ' + str(e))
         await chat.send(P.calculation_not_possible(cid), temporary=True)
         return
     
