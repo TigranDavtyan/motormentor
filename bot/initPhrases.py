@@ -230,6 +230,7 @@ insertPhrase('main_menu',
 Buttons marked with ⭐️ have actions which require Premium subscription.''')
 insertPhrase('get_car_price','🚗 Ձեր մեքենայի արժեքը', '🚗 Цена вашего автомобиля', '🚗 Your car price')
 insertPhrase('import_from_listam','🧾 Ներմուծել List.am-ից⭐️', '🧾 Импорт из List.am⭐️', '🧾 Import from List.am⭐️')
+insertPhrase('import_from_myautoge','🧾 Ներմուծել MyAuto.ge-ից⭐️', '🧾 Импорт из MyAuto.ge⭐️', '🧾 Import from MyAuto.ge⭐️')
 insertPhrase('saved_cars', '📌 Պահպանված մեքենաներ⭐️', '📌 Сохраненные автомобили⭐️', '📌 Saved cars⭐️')
 insertPhrase('general_info','ℹ️ Ինֆո', 'ℹ️ Информация', 'ℹ️ Info')
 
@@ -270,6 +271,24 @@ insertPhrase('listam_what_to_do',
              'Что вы хотите с этим делать?',
              'What do you want to do with this?')
 
+
+#Import from myauto ge
+insertPhrase('myautoge_usage', 
+             'Ներմուծեք ավտոմեքենայի տվյալները MyAuto.ge-ից՝ պատճենելով և տեղադրելով մեքենայի էջի url-ը այստեղ, օրինակ՝ <code>https://www.myauto.ge/ru/pr/94171446/prodaetsya-mashini-kupe-mercedes-benz-c-200-2001-benzinvsprysk-tbilisi?offerType=superVip</code>', 
+             'Импортируйте информацию об автомобиле из MyAuto.ge, скопировав и вставив URL-адрес страницы автомобиля, например <code>https://www.myauto.ge/ru/pr/94171446/prodaetsya-mashini-kupe-mercedes-benz-c-200-2001-benzinvsprysk-tbilisi?offerType=superVip</code>.', 
+             'Import car detailes from MyAuto.ge by copy and pasting the car page url here, like <code>https://www.myauto.ge/ru/pr/94171446/prodaetsya-mashini-kupe-mercedes-benz-c-200-2001-benzinvsprysk-tbilisi?offerType=superVip</code>')
+
+insertPhrase('myautoge_not_possible', 
+             'Ես չեմ կարող ներմուծել այս մեքենաների տվյալները, փորձեք մեկ ուրիշը:', 
+             'Я не могу импортировать данные этого автомобиля, попробуйте другой.', 
+             'I cant import this cars data, try another one.')
+
+insertPhrase('myautoge_what_to_do', 
+             'Ի՞նչ եք ուզում անել սրա հետ:',
+             'Что вы хотите с этим делать?',
+             'What do you want to do with this?')
+
+
 insertPhrase('import_data', 'Ներմուծել ավտոմեքենայի պարամետրերը', 'Импорт параметров автомобиля', 'Import car parameters')
 insertPhrase('show_price_updates', 'Ցույց տալ գների թարմացումները⭐️', 'Показать изменения цен⭐️', 'Show price updates⭐️')
 insertPhrase('follow_price_updates', 'Հետևեք ապագա թարմացումներին⭐️', 'Следите за будущими обновлениями⭐️', 'Follow future updates⭐️')
@@ -287,6 +306,8 @@ insertPhrase('follow_successfull',
 [year]   [engine_size] L
 [price] $
 ✅ Car saved''')
+
+insertPhrase('remove_follow', '❌ Չհետևել', '❌ Отписаться', '❌ Unfollow')
 
 insertPhrase('notify_price_update', 
              '''[car_brand] [model] 

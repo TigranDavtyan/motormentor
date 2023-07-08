@@ -69,11 +69,19 @@ class USER:
     MAIN_MENU = State(10)
     LINK_CLICK = State(20)
     INFO_PAGE = State(30)
+    REMOVE_FOLLOW = State(40)
+    
     class IMPORT_LISTAM:
         INFO = State(400, 402)
         HANDLE_URL = State(402)
         SHOW_UPDATES = State(404, min_subscription=USER_SUB_TYPE.PREMIUM)
         FOLLOW_UPDATES = State(406, min_subscription=USER_SUB_TYPE.PREMIUM)
+
+    class IMPORT_MYAUTOGE:
+        INFO = State(420, 422)
+        HANDLE_URL = State(422)
+        SHOW_UPDATES = State(424, min_subscription=USER_SUB_TYPE.PREMIUM)
+        FOLLOW_UPDATES = State(426, min_subscription=USER_SUB_TYPE.PREMIUM)
 
     class REFERRAL:
         INFO = State(700)

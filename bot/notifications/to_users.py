@@ -8,6 +8,8 @@ from loader import *
 from phrases import phrases as P
 from utils import logging as lgm
 from utils import utils
+from buttons.buttons import Buttons, setActionFor
+from states.states import USER
 
 logger = logging.getLogger()
 
@@ -40,4 +42,13 @@ async def subscription_prolonged(user_id, new_sub_end):
 
 async def car_price_update(cid, url, car_brand, model, year, engine_size, last_price, new_price):
     chat = cm[cid]
-    await chat.send(P.notify_price_update(cid, car_brand, model, year, engine_size, last_price, new_price, url))
+    remove_follow = Buttons()
+    remove_follow.add(P.remove_follow(cid), USER.REMOVE_FOLLOW, url)
+    await chat.send(P.notify_price_update(cid, car_brand, model, year, engine_size, last_price, new_price, url), remove_follow)
+
+
+@setActionFor(USER.REMOVE_FOLLOW)
+async def remove_follow(message: Message, data):
+    cid, chat = message.chat.id, cm[message.chat.id]
+    db.query('DELETE FROM follow_listing WHERE cid = ? AND url = ?;', (cid, data))
+    await bot.delete_message(cid, message.message_id)

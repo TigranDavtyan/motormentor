@@ -13,6 +13,7 @@ async def cmd_menu_user(message: Message, is_main_message: bool = False):
 
     markup.add(P.get_car_price(cid), USER.CAR_PRICE.INFO)
     markup.add(P.import_from_listam(cid), USER.IMPORT_LISTAM.INFO)
+    markup.add(P.import_from_myautoge(cid), USER.IMPORT_MYAUTOGE.INFO)
     markup.add(P.saved_cars(cid), USER.SAVED.INFO)
     markup.add(P.general_info(cid), USER.INFO_PAGE)
     markup.add(P.referral(cid), USER.REFERRAL.INFO)

@@ -6,7 +6,7 @@ from aiogram.utils import exceptions, executor
 log = logging.getLogger()
 
 def get_users():
-    return [u[0] for u in db.fetchall('SELECT cid FROM users;')]
+    return [u[0] for u in db.fetchall('SELECT cid FROM users ORDER BY account_state ASC;')]
 
 
 async def forward_message(user_id: int, from_chat: int, message_id: int, disable_notification: bool = False) -> int:
@@ -30,7 +30,7 @@ async def forward_message(user_id: int, from_chat: int, message_id: int, disable
         return 2
     except exceptions.RetryAfter as e:
         log.error(f"Target [ID:{user_id}]: Flood limit is exceeded. Sleep {e.timeout} seconds.")
-        await asyncio.sleep(e.timeout)
+        await asyncio.sleep(e.timeout/2)
         return await forward_message(user_id, from_chat, message_id, disable_notification=disable_notification)   # Recursive call
     except exceptions.UserDeactivated:
         log.error(f"Target [ID:{user_id}]: user is deactivated")

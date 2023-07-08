@@ -108,6 +108,9 @@ async def checkForLink(message: types.Message) -> bool:
         if param.startswith('ref'):
             referral_id = param[3:]
             db.query("UPDATE users SET referral_id=? WHERE cid = ? AND referral_id LIKE ''", (referral_id, cid))
+        elif param == 'ge':
+            db.query("UPDATE users SET preferred_language=4 WHERE cid = ? ", (cid, ))
+
     return False
 
 

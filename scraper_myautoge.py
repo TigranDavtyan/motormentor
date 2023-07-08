@@ -62,7 +62,31 @@ class MyAutoGe:
 
     async def sleepRandom(self):
         await asyncio.sleep(random.random()*0.8 + 1)
-        
+
+    def getItemProperties(self, itemid):
+        properties = db.fetchone('''SELECT car_brand,model,year,engine_size,engine_type,mileage,body_type,transmission,
+        drive_type,gas_equipment,steering_wheel,exterior_color,interior_color,interior_material, dollar_price FROM listings WHERE itemid = ?''', (self.id_appender + int(itemid),)) 
+        if not properties:
+            return None
+        car = {
+            'car_brand' : properties[0],
+            'model' : properties[1],
+            'year' : properties[2],
+            'engine_size' : properties[3],
+            'engine_type' : properties[4],
+            'mileage' : properties[5],
+            'body_type' : properties[6],
+            'transmission' : properties[7],
+            'drive_type' : properties[8],
+            'gas_equipment' : properties[9],
+            'steering_wheel' : properties[10],
+            'exterior_color' : properties[11],
+            'interior_color' : properties[12],
+            'interior_material' : properties[13],
+            'dollar_price' : properties[14]
+        }
+        return car
+
     def getPage(self, page):
         res = requests.get(self.url.format(page=page), headers=self.headers)
         if res.status_code != 200:

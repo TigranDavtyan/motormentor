@@ -145,7 +145,7 @@ class Tasks:
         'wheel_size' : 17
     }
 
-    @Timers.run_everyday_at(datetime.time(hour=2, minute=30, second=0))
+    @Timers.run_everyday_at(datetime.time(hour=2, minute=0, second=0))
     async def scrape_data(self):
         listam = ListAm()
         await listam.update_data()
@@ -155,18 +155,18 @@ class Tasks:
         await myautoge.updateData()
         del myautoge
 
-    @Timers.run_everyday_at(datetime.time(hour=23, minute=52, second=0))
+    @Timers.run_everyday_at(datetime.time(hour=11, minute=10, second=0))
     async def update_data(self):
         logger.info('Updating data...')
         XGBModel.update()
         
-        yesterday = utils.now() - datetime.timedelta(days=10)
+        yesterday = utils.now() - datetime.timedelta(days=1)
 
         user_cars = db.fetchall('''SELECT sc.cid, sc.car_brand, sc.model,
         sc.year, sc.mileage_start, sc.mileage_end, sc.exterior_color, sc.body_type, sc.engine_type, sc.engine_size,sc.transmission,
         sc.drive_type, sc.gas_equipment,sc.steering_wheel, sc.price_start, sc.price_end, sc.id 
         FROM saved_cars AS sc
-        JOIN users AS u ON sc.cid==u.cid WHERE sc.editing=0 AND u.subscription > 0;''')#TODO test this
+        JOIN users AS u ON sc.cid==u.cid WHERE sc.editing=0 AND u.subscription > 0;''')
 
         nMessages = 0
         for db_car in user_cars:
@@ -218,18 +218,31 @@ class Tasks:
 
 
     
-    @Timers.run_everyday_at(datetime.time(hour=23, minute=50, second=0))
+    @Timers.run_everyday_at(datetime.time(hour=11, minute=0, second=0))
     async def check_price_updates(self):
         cars = db.fetchall('SELECT url, cid, car_brand, model, year, engine_size, last_price FROM follow_listing;')
         if not cars:
             return
         
         listam = ListAm()
+        myautoge = MyAutoGe()
         for url, cid, car_brand, model, year, engine_size, last_price in cars:
-            properties = listam.getItemProperties(url)
-            if properties['dollar_price'] != last_price:
-                db.query('UPDATE follow_listing SET last_price = ? WHERE url = ? AND cid = ?', (properties['dollar_price'], url, cid))
-                await to_users.car_price_update(cid, url, car_brand, model, year, engine_size, last_price, properties['dollar_price'])
+            if url.startswith('list.am'):
+                properties = listam.getItemProperties(url)
+                if not properties:
+                    continue
+                if properties['dollar_price'] != last_price:
+                    db.query('UPDATE follow_listing SET last_price = ? WHERE url = ? AND cid = ?', (properties['dollar_price'], url, cid))
+                    await to_users.car_price_update(cid, url, car_brand, model, year, engine_size, last_price, properties['dollar_price'])
+            
+            elif url.startswith('myauto.ge'):
+                itemid = url.split('/')[-1]
+                properties = myautoge.getItemProperties(itemid)
+                if not properties:
+                    continue
+                if properties['dollar_price'] != last_price:
+                    db.query('UPDATE follow_listing SET last_price = ? WHERE url = ? AND cid = ?', (properties['dollar_price'], url, cid))
+                    await to_users.car_price_update(cid, url, car_brand, model, year, engine_size, last_price, properties['dollar_price'])
 
 
     @Timers.run_everyday_at(datetime.time(hour=12, minute=0, second=0))

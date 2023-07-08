@@ -24,6 +24,10 @@ class EnvironmentMiddleware(BaseMiddleware):
             message = update.callback_query.message
         elif update.message:
             message = update.message
+        elif update.my_chat_member and update.my_chat_member.new_chat_member.status=='kicked':
+            db.query('UPDATE users SET account_state=1 WHERE cid=?',(update.my_chat_member.chat.id,))
+            logging.info(f'User {update.my_chat_member.chat.first_name}:{update.my_chat_member.chat.id} blocked the bot.')
+            return
         else:
             logging.error("Unknown update type on_pre_process_update")
             logging.info(update.as_json())
@@ -38,9 +42,7 @@ class EnvironmentMiddleware(BaseMiddleware):
         elif update.message:
             message = update.message
         else:
-            logging.error("Unknown update type on_post_process_update")
-            logging.info(update.as_json())
-            return
+            return 
         chat = cm[message.chat.id]
         chat.post_process_update(update)
 

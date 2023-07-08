@@ -201,6 +201,8 @@ class ListAm:
             item_id = int(re.search(r"/(\d+)$", item).group(1))
 
         item_page = self.getItem(item_id)
+        if type(item_page) == int:
+            return None
         return Parser.Item.getCar(item_page)
     
     async def getItemIds(self, limit=None):

@@ -799,6 +799,17 @@ def import_from_listam(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
+def import_from_myautoge(cid : int, all : bool = False) -> str:
+    '''🧾 Import from MyAuto.ge⭐️'''
+    phrases = ['''🧾 Ներմուծել MyAuto.ge-ից⭐️''', '''🧾 Импорт из MyAuto.ge⭐️''', '''🧾 Import from MyAuto.ge⭐️''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
 def saved_cars(cid : int, all : bool = False) -> str:
     '''📌 Saved cars⭐️'''
     phrases = ['''📌 Պահպանված մեքենաներ⭐️''', '''📌 Сохраненные автомобили⭐️''', '''📌 Saved cars⭐️''']
@@ -913,6 +924,39 @@ def listam_what_to_do(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
+def myautoge_usage(cid : int, all : bool = False) -> str:
+    '''Import car detailes from MyAuto.ge by copy and pasting the car page url here, like <code>https://www.myauto.ge/ru/pr/94171446/prodaetsya-mashini-kupe-mercedes-benz-c-200-2001-benzinvsprysk-tbilisi?offerType=superVip</code>'''
+    phrases = ['''Ներմուծեք ավտոմեքենայի տվյալները MyAuto.ge-ից՝ պատճենելով և տեղադրելով մեքենայի էջի url-ը այստեղ, օրինակ՝ <code>https://www.myauto.ge/ru/pr/94171446/prodaetsya-mashini-kupe-mercedes-benz-c-200-2001-benzinvsprysk-tbilisi?offerType=superVip</code>''', '''Импортируйте информацию об автомобиле из MyAuto.ge, скопировав и вставив URL-адрес страницы автомобиля, например <code>https://www.myauto.ge/ru/pr/94171446/prodaetsya-mashini-kupe-mercedes-benz-c-200-2001-benzinvsprysk-tbilisi?offerType=superVip</code>.''', '''Import car detailes from MyAuto.ge by copy and pasting the car page url here, like <code>https://www.myauto.ge/ru/pr/94171446/prodaetsya-mashini-kupe-mercedes-benz-c-200-2001-benzinvsprysk-tbilisi?offerType=superVip</code>''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def myautoge_not_possible(cid : int, all : bool = False) -> str:
+    '''I cant import this cars data, try another one.'''
+    phrases = ['''Ես չեմ կարող ներմուծել այս մեքենաների տվյալները, փորձեք մեկ ուրիշը:''', '''Я не могу импортировать данные этого автомобиля, попробуйте другой.''', '''I cant import this cars data, try another one.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def myautoge_what_to_do(cid : int, all : bool = False) -> str:
+    '''What do you want to do with this?'''
+    phrases = ['''Ի՞նչ եք ուզում անել սրա հետ:''', '''Что вы хотите с этим делать?''', '''What do you want to do with this?''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
 def import_data(cid : int, all : bool = False) -> str:
     '''Import car parameters'''
     phrases = ['''Ներմուծել ավտոմեքենայի պարամետրերը''', '''Импорт параметров автомобиля''', '''Import car parameters''']
@@ -979,6 +1023,17 @@ def follow_successfull(cid : int,car_brand,model,year,engine_size,price, all : b
     else: 
         lang = cid
     return phrases[lang].replace("[car_brand]",str(car_brand)).replace("[model]",str(model)).replace("[year]",str(year)).replace("[engine_size]",str(engine_size)).replace("[price]",str(price))
+
+def remove_follow(cid : int, all : bool = False) -> str:
+    '''❌ Unfollow'''
+    phrases = ['''❌ Չհետևել''', '''❌ Отписаться''', '''❌ Unfollow''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
 
 def notify_price_update(cid : int,car_brand,model,year,engine_size,old_price,new_price,url, all : bool = False) -> str:
     '''[car_brand] [model] 
