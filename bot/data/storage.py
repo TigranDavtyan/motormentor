@@ -74,7 +74,7 @@ class DatabaseManager(object):
         self.query('''CREATE TABLE IF NOT EXISTS users 
                    (cid INTEGER PRIMARY KEY, name TEXT, phone_number TEXT, joining_date DATETIME, account_state INTEGER,
                     state_id INTEGER, preferred_language INTEGER, subscription INTEGER DEFAULT 0, subscription_end DATETIME DEFAULT '2025-01-01 00:00:00',
-                      next_payment_amount INTEGER DEFAULT 0, referral_id TEXT DEFAULT '')''')
+                      next_payment_amount INTEGER DEFAULT 0, referral_id TEXT DEFAULT '', location INTEGER)''')
 
         self.query('CREATE TABLE IF NOT EXISTS phrases (id INTEGER PRIMARY KEY, phrase_arm TEXT, phrase_rus TEXT, phrase_eng TEXT)')
 
@@ -88,7 +88,7 @@ class DatabaseManager(object):
         drive_type TEXT,condition TEXT,gas_equipment TEXT,steering_wheel TEXT,headlights TEXT,interior_color TEXT,interior_material TEXT,
         sunroof TEXT, wheel_size REAL, price REAL)''')
         
-        self.query('''CREATE TABLE IF NOT EXISTS car_price_results (cid INTEGER, car_brand TEXT, model TEXT,
+        self.query('''CREATE TABLE IF NOT EXISTS car_price_results (cid INTEGER,website TEXT, car_brand TEXT, model TEXT,
         year INTEGER, mileage REAL, exterior_color TEXT, body_type TEXT, engine_type TEXT, engine_size REAL,transmission TEXT,
         drive_type TEXT,condition TEXT,gas_equipment TEXT,steering_wheel TEXT,headlights TEXT,interior_color TEXT,interior_material TEXT,
         sunroof TEXT, wheel_size REAL, price REAL)''')

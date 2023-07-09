@@ -193,10 +193,10 @@ class Car:
                                                                            self.gas_equipment,self.steering_wheel,
                                                                            self.interior_color,self.interior_material,self.price))
 
-    def save(self, cid):
-        db.query('''INSERT INTO car_price_results (cid,car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,
+    def save(self, cid, website):
+        db.query('''INSERT INTO car_price_results (cid, website, car_brand,model,year,mileage,exterior_color,body_type,engine_type,engine_size,
                      transmission,drive_type,gas_equipment,steering_wheel,interior_color,interior_material,price)
-                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(cid,self.car_brand,self.model,self.year,self.mileage,self.exterior_color,
+                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(cid, website, self.car_brand,self.model,self.year,self.mileage,self.exterior_color,
                                                                            self.body_type,self.engine_type,
                                                                            self.engine_size, self.transmission, self.drive_type,
                                                                            self.gas_equipment,self.steering_wheel,

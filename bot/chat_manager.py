@@ -36,7 +36,12 @@ class Chat:
         self.cid = cid
         self.bot = bot
         self.history = History()
+        loc = db.fetchone('SELECT location FROM users WHERE cid=?', (cid,))[0]
+        self.history.data['location'] = loc
 
+    def getLoc(self):
+        return self.history.data['location']
+    
     async def setState(self, state: State, data='-'):
         for m in self.history.temporary_messages:
             try:
@@ -233,3 +238,6 @@ class ChatManager:
             if cid not in self.chats.keys():
                 self.chats[cid] = Chat(cid, self.bot)
             self.chats[cid].history = pickle.load(chatFile)
+            if 'location' not in self.chats[cid].history.data.keys():
+                loc = db.fetchone('SELECT location FROM users WHERE cid=?', (cid,))[0]
+                self.chats[cid].history.data['location'] = loc

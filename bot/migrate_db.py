@@ -470,3 +470,10 @@ db = DatabaseManager()
 
 # db.query("UPDATE saved_cars SET found_cars = '[]' WHERE found_cars ='{}';")
 # db.conn.close()
+
+
+db.query('ALTER TABLE users ADD COLUMN location INTEGER')
+db.query('UPDATE users SET location = 0;')
+
+db.query('ALTER TABLE car_price_results ADD COLUMN website TEXT')
+db.query("UPDATE car_price_results SET website = 'listam';")

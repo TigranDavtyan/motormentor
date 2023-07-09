@@ -1,7 +1,7 @@
 import utils.utils as utils
 from aiogram.types import Message, ChatActions
 from buttons.buttons import *
-from config import ADMIN_CHAT_ID
+from config import ADMIN_CHAT_ID, LOCATIONS
 from loader import *
 from notifications import to_admin
 from phrases import phrases as P
@@ -68,12 +68,14 @@ async def car_calculate_by_year(message: Message):
     start = 2000
     end = 2022
     years = range(start,end+1)
+    website = 'listam' if chat.getLoc() == 0 else 'myauto.ge'
     try:
-        prices = user_car.calculateByYear(years).astype(int)
+        prices = user_car.calculateByYear(years, website).astype(int)
     except Exception as e:
         logger.error('Calculation error ' + str(e))
         await chat.send(P.calculation_not_possible(cid), temporary=True)
         return
+    
     plt.figure(figsize=(13, 8))
     plt.plot(years, prices, linewidth=2)
     plt.xlabel(P.label_year(cid))
@@ -109,8 +111,9 @@ async def car_calculate_by_mileage(message: Message):
     end = 300000
     step = 5000
     mileages = range(start, end+step, step)
+    website = 'listam' if chat.getLoc() == 0 else 'myauto.ge'
     try:
-        prices = user_car.calculateByMileage(mileages)
+        prices = user_car.calculateByMileage(mileages, website)
     except Exception as e:
         logger.error('Calculation error ' + str(e))
         await chat.send(P.calculation_not_possible(cid), temporary=True)
@@ -149,40 +152,57 @@ async def car_calculate(message: Message):
     cid, chat = message.chat.id,cm[message.chat.id]
 
     user_car = Car(cid)
+    loc = chat.getLoc()
+    website = 'listam' if loc == 0 else 'myauto.ge'
     try:
-        arm_price = user_car.calculatePrice()
+        price = int(round(user_car.calculatePrice(website)))
     except Exception as e:
         logger.error('Calculation error ' + str(e))
         await chat.send(P.calculation_not_possible(cid), temporary=True)
         return
     
-    arm_price = int(round(arm_price))
-    user_car.price = arm_price
+    user_car.price = price
 
     is_first_calculation = int(db.fetchone('SELECT count(*) FROM user_cars WHERE cid = ?', (cid,))[0]) == 0
     if is_first_calculation:
         user_car.save_user_car(cid)
 
-    arm_price_str = f'{arm_price:,}'
+    price_str = f'{price:,}'
 
     lang = db.getUserLang(cid)
     text = P.calculate_result_title(lang, '')
-    text += P.result_arm(lang, arm_price_str) + '\n'
+    
+    if loc == LOCATIONS.ARM:
+        text += P.result_arm(lang, price_str) + '\n'
+    elif loc == LOCATIONS.GE:
+        text += P.result_ge(lang, price_str) + '\n'
 
     sub = chat.getSubscriptionLevel()
     if sub == 0:
-        text += P.result_ge_not_available(lang) + '\n\n'
+        if loc == LOCATIONS.ARM:
+            text += P.result_ge_not_available(lang) + '\n\n'
+        elif loc == LOCATIONS.GE:
+            text += P.result_arm_not_available(lang) + '\n\n'
     else:
-        g_price = f'{int(round(user_car.calculatePrice("myauto.ge"))):,}'
-        text += P.result_ge(lang, g_price) + '\n\n'
+        if loc == LOCATIONS.ARM:
+            other_price = f'{int(round(user_car.calculatePrice("myauto.ge"))):,}'
+            text += P.result_ge(lang, other_price) + '\n\n'
+        elif loc == LOCATIONS.GE:
+            other_price = f'{int(round(user_car.calculatePrice("listam"))):,}'
+            text += P.result_arm(lang, other_price) + '\n'
+
     
     if not message.from_user.is_bot:
         await chat.send(text, temporary=True)
     else:
-        text += P.price_result_ask(cid)
+        if loc == LOCATIONS.ARM:
+            text += P.price_result_ask_arm(cid)
+        elif loc == LOCATIONS.GE:
+            text += P.price_result_ask_ge(cid)
+
         markup = Buttons()
-        markup.add(P.yes(cid), USER.CAR_PRICE.CALCULATE_GOOD, arm_price)
-        markup.add(P.dont_know(cid), USER.CAR_PRICE.CALCULATE_DONT_KNOW, arm_price)
+        markup.add(P.yes(cid), USER.CAR_PRICE.CALCULATE_GOOD, price)
+        markup.add(P.dont_know(cid), USER.CAR_PRICE.CALCULATE_DONT_KNOW, price)
         markup.add(P.my_price(cid), USER.CAR_PRICE.CALCULATE_OFFER_PRICE)
         await chat.send(text, markup, temporary=True)
 
@@ -192,7 +212,8 @@ async def car_calculate_good(message: Message, data):
 
     user_car = Car(cid)
     user_car.price = float(data)
-    user_car.save(cid)
+    website = 'listam' if chat.getLoc() == 0 else 'myauto.ge'
+    user_car.save(cid, website)
 
     await chat.edit(message.text, reply_markup=Buttons(), message_id=message.message_id)
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
@@ -221,8 +242,8 @@ async def car_calculate_offer_handle(message: Message):
     except:
         await chat.send(P.wrong_format(cid), temporary=True)
         return
-    
-    user_car.save(cid)
+    website = 'listam' if chat.getLoc() == 0 else 'myauto.ge'
+    user_car.save(cid, website)
 
     await chat.send(P.thanks_for_opinion(cid), temporary=True)
 

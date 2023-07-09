@@ -4,7 +4,7 @@ import inspect
 from utils import utils
 from aiogram.types import CallbackQuery, Message
 from buttons.buttons import *
-from config import ADMIN_CHAT_ID, DEFAULT_LANGUAGE
+from config import ADMIN_CHAT_ID, DEFAULT_LANGUAGE, LOCATIONS
 from phrases import phrases as P
 from loader import *
 from notifications import to_admin
@@ -85,14 +85,16 @@ async def cmd_start_ad(message: Message):
         await State.get(ADMIN.MENU)(message)
         return
 
-    await ad_engine.sendAdTo(cid)
-
-    if await checkForLink(message):
+    ret = await checkForLink(message)
+    if ret:
         text = f"User {cid}:{message.from_user.full_name} used a link {message.text}"
         logging.info(text)
         await cm[ADMIN_CHAT_ID].send(text)
-    else:
-        await State.get(USER.MAIN_MENU)(message, True)
+
+    if chat.getLoc() == LOCATIONS.ARM:
+        await ad_engine.sendAdTo(cid)
+
+    await State.get(USER.MAIN_MENU)(message, True)
 
 
 async def checkForLink(message: types.Message) -> bool:
@@ -100,19 +102,21 @@ async def checkForLink(message: types.Message) -> bool:
     res = message.text.split(' ')
     
     if len(res) < 2:
-        return False
+        return 0
     
-    if res[0] == '/start':
-        param = res[1]
-        #Handle referral
-        if param.startswith('ref'):
-            referral_id = param[3:]
-            db.query("UPDATE users SET referral_id=? WHERE cid = ? AND referral_id LIKE ''", (referral_id, cid))
-        elif param == 'ge':
-            db.query("UPDATE users SET preferred_language=4 WHERE cid = ? ", (cid, ))
-
-    return False
-
+    if res[0] != '/start':
+        return 0
+    param = res[1]
+    #Handle referral
+    if param.startswith('ref'):
+        referral_id = param[3:]
+        db.query("UPDATE users SET referral_id=? WHERE cid = ? AND referral_id LIKE ''", (referral_id, cid))
+        return 1
+    elif param == 'ge':
+        if chat.getLoc() is None:
+            db.query("UPDATE users SET preferred_language=?, location=? WHERE cid = ? ", (P.RUS, LOCATIONS.GE, cid, ))
+            return 2
+        return 0
 
 @setActionFor(GENERAL.ERROR)
 async def wrong_action(message: Message):

@@ -1357,9 +1357,35 @@ def result_ge_not_available(cid : int, all : bool = False) -> str:
         lang = cid
     return phrases[lang]
 
-def price_result_ask(cid : int, all : bool = False) -> str:
+def result_arm_not_available(cid : int, all : bool = False) -> str:
+    '''Armenian market : ??? $ 💵
+⭐️To know the prices in Armenia sign up for Premium subscription'''
+    phrases = ['''Հայկական շուկա : ??? $ 💵
+Հայաստանի գները իմանալու համար գրանցվեք Պրեմիում բաժանորդագրության համար''', '''Армянский  рынок : ??? $ 💵
+⭐️Чтобы узнать цены в Армении, подпишитесь на Премиум подписку''', '''Armenian market : ??? $ 💵
+⭐️To know the prices in Armenia sign up for Premium subscription''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def price_result_ask_arm(cid : int, all : bool = False) -> str:
     '''Do you think this car is reasonably priced in Armenian market? You dont have to answer this but it will help build a better AI.'''
     phrases = ['''Ի՞նչ եք կարծում, այս մեքենան խելամի՞տ է գնահատված Հայկական շուկայում: Պարտադիր չէ պատասխանեք այս հարցին, բայց դա կօգնի ավելի խելացի արհեստական ինտելեկտ կառուցել:''', '''Считаете ли вы, что этот автомобиль имеет разумную цену на Армянском рынке?? Вам не обязательно отвечать на этот вопрос, но это поможет создать более умный ИИ.''', '''Do you think this car is reasonably priced in Armenian market? You dont have to answer this but it will help build a better AI.''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang]
+
+def price_result_ask_ge(cid : int, all : bool = False) -> str:
+    '''Do you think this car is reasonably priced in Georgian market? You dont have to answer this but it will help build a better AI.'''
+    phrases = ['''Ի՞նչ եք կարծում, այս մեքենան խելամի՞տ է գնահատված Վրացական շուկայում: Պարտադիր չէ պատասխանեք այս հարցին, բայց դա կօգնի ավելի խելացի արհեստական ինտելեկտ կառուցել:''', '''Считаете ли вы, что этот автомобиль имеет разумную цену на Грузинском рынке? Вам не обязательно отвечать на этот вопрос, но это поможет создать более умный ИИ.''', '''Do you think this car is reasonably priced in Georgian market? You dont have to answer this but it will help build a better AI.''']
     if all:
         return phrases
     if cid > 10:
@@ -1426,14 +1452,14 @@ def thanks_for_opinion(cid : int, all : bool = False) -> str:
 def car_price_info(cid : int,satisfied,notsatisfied,percent, all : bool = False) -> str:
     '''Satisfaction: [satisfied][notsatisfied] [percent]%
 Choose car parameters and press calculate to get the price.
-⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in Armenia. Dont base your decisions only on this results when buying or selling.'''
+⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in the market. Dont base your decisions only on this results when buying or selling.'''
     phrases = ['''Գոհունակություն. [satisfied][notsatisfied] [percent]%
 Ընտրեք մեքենայի պարամետրերը և սեղմեք հաշվարկել՝ գինը ստանալու համար:
-⚠️Արհեստական ինտելեկտը հաշվարկում է այս կոնկրետ մեքենայի ՄԻՋԻՆ ՇՈՒԿԱՅԱԿԱՆ ԱՐԺԵՔԸ հայաստանում: Գնելիս կամ վաճառելիս մի հիմնեք ձեր որոշումները միայն այս արդյունքների վրա:''', '''Удовлетворенность: [satisfied][notsatisfied] [percent]%
+⚠️Արհեստական ինտելեկտը հաշվարկում է այս կոնկրետ մեքենայի ՄԻՋԻՆ ՇՈՒԿԱՅԱԿԱՆ ԱՐԺԵՔԸ շուկայում: Գնելիս կամ վաճառելիս մի հիմնեք ձեր որոշումները միայն այս արդյունքների վրա:''', '''Удовлетворенность: [satisfied][notsatisfied] [percent]%
 Выберите параметры автомобиля и нажмите рассчитать, чтобы узнать цену․
-⚠️ИИ рассчитывает СРЕДНЮЮ РЫНОЧНУЮ СТОИМОСТЬ для данного конкретного автомобиля в Армении․ Не основывайте свои решения только на этих результатах при покупке или продаже.''', '''Satisfaction: [satisfied][notsatisfied] [percent]%
+⚠️ИИ рассчитывает СРЕДНЮЮ РЫНОЧНУЮ СТОИМОСТЬ для данного конкретного автомобиля на рынке․ Не основывайте свои решения только на этих результатах при покупке или продаже.''', '''Satisfaction: [satisfied][notsatisfied] [percent]%
 Choose car parameters and press calculate to get the price.
-⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in Armenia. Dont base your decisions only on this results when buying or selling.''']
+⚠️The AI calculates the AVERAGE MARKET VALUE for this particular car in the market. Dont base your decisions only on this results when buying or selling.''']
     if all:
         return phrases
     if cid > 10:
