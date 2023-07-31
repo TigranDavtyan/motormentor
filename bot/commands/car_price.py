@@ -176,6 +176,7 @@ async def car_calculate(message: Message):
         text += P.result_arm(lang, price_str) + '\n'
     elif loc == LOCATIONS.GE:
         text += P.result_ge(lang, price_str) + '\n'
+        text += P.income_tax_result_ge(lang, user_car.calculateImportTax('myauto.ge')) + '\n'
 
     sub = chat.getSubscriptionLevel()
     if sub == 0:
@@ -186,7 +187,8 @@ async def car_calculate(message: Message):
     else:
         if loc == LOCATIONS.ARM:
             other_price = f'{int(round(user_car.calculatePrice("myauto.ge"))):,}'
-            text += P.result_ge(lang, other_price) + '\n\n'
+            text += P.result_ge(lang, other_price) + '\n'
+            text += P.income_tax_result_ge(lang, user_car.calculateImportTax('myauto.ge')) + '\n\n'
         elif loc == LOCATIONS.GE:
             other_price = f'{int(round(user_car.calculatePrice("listam"))):,}'
             text += P.result_arm(lang, other_price) + '\n'

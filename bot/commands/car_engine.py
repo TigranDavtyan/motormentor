@@ -6,7 +6,18 @@ import listamids
 import pandas as pd
 from loader import db
 from phrases import phrases as P
+from datetime import datetime
+import numpy as np
 
+excise_rate_year = {0:1.5, 1:1.5, 2:1.5, 3:1.4, 4:1.2, 5:1, 6:0.8, 7:0.8, 8:0.8, 9:0.9, 10:1.1, 11:1.3, 12:1.5, 13:1.8, 14:2.1, 'above':2.4}
+def calc_excise_duty(cubic_capacity, age, left_wheel, lm = 1, hm = 3):
+    excise_rate = excise_rate_year[age] if age in excise_rate_year.keys() else excise_rate_year['above']
+    
+    return excise_rate * cubic_capacity * (lm if left_wheel else hm)
+        
+def calculate_import_tax(cubic_capacity, age):
+    import_tax = np.ceil((cubic_capacity * 0.05) + (cubic_capacity * age * 0.0025))
+    return import_tax
 
 class File:
     def __init__(self, filename):
@@ -292,6 +303,31 @@ class Car:
 
         predictions = XGBModel.getModel().predict(new_car_data_encoded)
         return predictions
+
+    def calculateImportTax(self, website = 'listam'):
+        if website == 'myauto.ge':
+            left_wheel = self.steering_wheel == 'left'
+
+            cubic_capacity = self.engine_size*1000
+            if self.engine_type == 'electric':
+                if left_wheel: cubic_capacity = 0 
+                else: cubic_capacity = 2000 
+
+            age = datetime.now().year - self.year
+
+            excise_duty = calc_excise_duty(cubic_capacity, age, left_wheel, 0.4 if self.engine_type == 'hybrid' else 1)
+
+            customs_service_tax = 150
+            decoration = 200
+            import_tax = calculate_import_tax(cubic_capacity, age)
+            expert_assessment = 30
+            customs_declaration = 50
+            internal_transit = 50
+
+            total = excise_duty + customs_service_tax + decoration + import_tax + expert_assessment + customs_declaration + internal_transit
+            return round(total * 0.39) #lari to dollar rate
+        
+        else: return 0
 
     def getLink(self):
         brand_data = listamids.brand_ids[self.car_brand]

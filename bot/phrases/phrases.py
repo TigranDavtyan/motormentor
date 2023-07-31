@@ -1322,7 +1322,7 @@ def calculate_result_title(cid : int,url, all : bool = False) -> str:
 
 def result_arm(cid : int,l_price, all : bool = False) -> str:
     '''Armenian market : [l_price] $ 💵'''
-    phrases = ['''Հայկական շուկա : [l_price] $ 💵''', '''Армянский  рынок : [l_price] $ 💵''', '''Armenian market : [l_price] $ 💵''']
+    phrases = ['''Հայկական շուկա : [l_price] $ 💵''', '''Армянский рынок : [l_price] $ 💵''', '''Armenian market : [l_price] $ 💵''']
     if all:
         return phrases
     if cid > 10:
@@ -1341,6 +1341,28 @@ def result_ge(cid : int,g_price, all : bool = False) -> str:
     else: 
         lang = cid
     return phrases[lang].replace("[g_price]",str(g_price))
+
+def income_tax_result_arm(cid : int,l_price, all : bool = False) -> str:
+    '''Customs fee (Arm.) : [l_price] $ 💵'''
+    phrases = ['''Մաքսային վճար (Հայ.) : [l_price] $ 💵''', '''Таможенный сбор (Арм.) : [l_price] $ 💵''', '''Customs fee (Arm.) : [l_price] $ 💵''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[l_price]",str(l_price))
+
+def income_tax_result_ge(cid : int,l_price, all : bool = False) -> str:
+    '''Customs fee (Georgia) : [l_price] $ 💵'''
+    phrases = ['''Մաքսային վճար (Վրաստան) : [l_price] $ 💵''', '''Таможенный сбор (Грузия) : [l_price] $ 💵''', '''Customs fee (Georgia) : [l_price] $ 💵''']
+    if all:
+        return phrases
+    if cid > 10:
+        lang = db.getUserLang(cid)
+    else: 
+        lang = cid
+    return phrases[lang].replace("[l_price]",str(l_price))
 
 def result_ge_not_available(cid : int, all : bool = False) -> str:
     '''Georgian market : ??? $ 💵
@@ -1361,7 +1383,7 @@ def result_arm_not_available(cid : int, all : bool = False) -> str:
     '''Armenian market : ??? $ 💵
 ⭐️To know the prices in Armenia sign up for Premium subscription'''
     phrases = ['''Հայկական շուկա : ??? $ 💵
-Հայաստանի գները իմանալու համար գրանցվեք Պրեմիում բաժանորդագրության համար''', '''Армянский  рынок : ??? $ 💵
+⭐️Հայաստանի գները իմանալու համար գրանցվեք Պրեմիում բաժանորդագրության համար''', '''Армянский  рынок : ??? $ 💵
 ⭐️Чтобы узнать цены в Армении, подпишитесь на Премиум подписку''', '''Armenian market : ??? $ 💵
 ⭐️To know the prices in Armenia sign up for Premium subscription''']
     if all:

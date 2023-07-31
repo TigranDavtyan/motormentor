@@ -91,6 +91,10 @@ async def cmd_start_ad(message: Message):
         logging.info(text)
         await cm[ADMIN_CHAT_ID].send(text)
 
+    if chat.getLoc() is None:
+        db.query('UPDATE users SET location = ? WHERE cid=?', (LOCATIONS.ARM, cid))
+        chat.history.data['location'] = LOCATIONS.ARM
+
     if chat.getLoc() == LOCATIONS.ARM:
         await ad_engine.sendAdTo(cid)
 
