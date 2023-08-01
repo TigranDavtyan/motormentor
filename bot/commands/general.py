@@ -118,7 +118,7 @@ async def checkForLink(message: types.Message) -> bool:
         return 1
     elif param == 'ge':
         if chat.getLoc() is None:
-            db.query("UPDATE users SET preferred_language=?, location=? WHERE cid = ? ", (P.RUS, LOCATIONS.GE, cid, ))
+            db.query("UPDATE users SET preferred_language=?, location=? WHERE cid = ? ", (P.GE, LOCATIONS.GE, cid, ))
             return 2
         return 0
 
@@ -137,9 +137,10 @@ async def cmd_language_(message: Message):
     markup.add(langs[P.ARM],GENERAL.LANGUAGE.FINISH,P.ARM)
     markup.add(langs[P.RUS],GENERAL.LANGUAGE.FINISH,P.RUS)
     markup.add(langs[P.ENG],GENERAL.LANGUAGE.FINISH,P.ENG)
+    markup.add(langs[P.GE],GENERAL.LANGUAGE.FINISH,P.GE)
 
     langs_c = P.language_choose(cid,True)
-    await chat.edit(langs_c[P.ARM]+'\n'+langs_c[P.RUS] +'\n'+langs_c[P.ENG], reply_markup=markup)
+    await chat.edit(langs_c[P.ARM]+'\n'+langs_c[P.RUS] +'\n'+langs_c[P.ENG]+'\n'+langs_c[P.GE], reply_markup=markup)
     await chat.setState(GENERAL.LANGUAGE.CHOOSE)
 
 
